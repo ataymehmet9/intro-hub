@@ -1,0 +1,299 @@
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Box,
+  Avatar,
+  Chip,
+  Button,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  IconButton,
+  Tooltip,
+  Collapse,
+} from "@mui/material";
+import {
+  ExpandMore as ExpandMoreIcon,
+  Done as DoneIcon,
+  Close as CloseIcon,
+  AccessTime as AccessTimeIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  Email as EmailIcon,
+} from "@mui/icons-material";
+import { formatDistanceToNow } from "date-fns";
+
+import { useRequests } from "../../hooks/useRequests";
+
+const RequestCard = ({ request, type }) => {
+  const { updateStatus } = useRequests();
+
+  const [expanded, setExpanded] = useState(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [denyDialogOpen, setDenyDialogOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  const handleApproveClick = () => {
+    setApproveDialogOpen(true);
+  };
+
+  const handleDenyClick = () => {
+    setDenyDialogOpen(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    setApproveDialogOpen(false);
+    setIsProcessing(true);
+
+    try {
+      await updateStatus(request.id, "approved");
+    } catch (error) {
+      console.error("Error approving request:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDenyConfirm = async () => {
+    setDenyDialogOpen(false);
+    setIsProcessing(true);
+
+    try {
+      await updateStatus(request.id, "denied");
+    } catch (error) {
+      console.error("Error denying request:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Generate status chip based on request status
+  const getStatusChip = () => {
+    switch (request.status) {
+      case "pending":
+        return (
+          <Chip
+            icon={<AccessTimeIcon />}
+            label="Pending"
+            size="small"
+            color="warning"
+          />
+        );
+      case "approved":
+        return (
+          <Chip
+            icon={<CheckCircleIcon />}
+            label="Approved"
+            size="small"
+            color="success"
+          />
+        );
+      case "denied":
+        return (
+          <Chip
+            icon={<CancelIcon />}
+            label="Denied"
+            size="small"
+            color="error"
+          />
+        );
+      case "completed":
+        return (
+          <Chip
+            icon={<EmailIcon />}
+            label="Completed"
+            size="small"
+            color="info"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Generate avatar color based on name
+  const stringToColor = (string) => {
+    let hash = 0;
+    for (let i = 0; i < string.length; i++) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = "#";
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    return color;
+  };
+
+  return (
+    <Card sx={{ mb: 2 }}>
+      <CardContent>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Avatar
+              sx={{
+                bgcolor: stringToColor(
+                  type === "received" ? request.requester : request.contact_name
+                ),
+                mr: 2,
+              }}
+            >
+              {(type === "received"
+                ? request.requester
+                : request.contact_name
+              ).charAt(0)}
+            </Avatar>
+            <Box>
+              <Typography variant="h6" component="div">
+                {type === "received" ? request.requester : request.contact_name}
+              </Typography>
+              {request.contact_company && (
+                <Typography variant="body2" color="text.secondary">
+                  {request.contact_company}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+            {getStatusChip()}
+          </Box>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {type === "received"
+            ? `${request.requester} requested an introduction to ${request.contact_name}`
+            : `You requested an introduction to ${request.contact_name}`}
+        </Typography>
+
+        <IconButton
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+          size="small"
+          sx={{
+            transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s",
+            ml: -1,
+          }}
+        >
+          <ExpandMoreIcon />
+        </IconButton>
+        <Typography variant="body2" component="span">
+          {expanded ? "Hide details" : "View details"}
+        </Typography>
+
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Purpose:
+            </Typography>
+            <Typography variant="body2" paragraph>
+              {request.purpose}
+            </Typography>
+
+            {request.message && (
+              <>
+                <Typography variant="subtitle2" gutterBottom>
+                  Message:
+                </Typography>
+                <Typography variant="body2" paragraph>
+                  {request.message}
+                </Typography>
+              </>
+            )}
+          </Box>
+        </Collapse>
+      </CardContent>
+
+      <Divider />
+
+      <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
+        <Typography variant="caption" color="text.secondary">
+          {formatDistanceToNow(new Date(request.created_at), {
+            addSuffix: true,
+          })}
+        </Typography>
+
+        {type === "received" && request.status === "pending" && (
+          <Box>
+            <Tooltip title="Deny introduction request">
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                startIcon={<CloseIcon />}
+                onClick={handleDenyClick}
+                disabled={isProcessing}
+                sx={{ mr: 1 }}
+              >
+                Deny
+              </Button>
+            </Tooltip>
+            <Tooltip title="Approve and send introduction email">
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<DoneIcon />}
+                onClick={handleApproveClick}
+                disabled={isProcessing}
+              >
+                Approve
+              </Button>
+            </Tooltip>
+          </Box>
+        )}
+      </CardActions>
+
+      {/* Approval Dialog */}
+      <Dialog
+        open={approveDialogOpen}
+        onClose={() => setApproveDialogOpen(false)}
+      >
+        <DialogTitle>Approve Introduction Request</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to approve this introduction request? An email
+            will be sent to introduce {request.requester} to{" "}
+            {request.contact_name}.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setApproveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleApproveConfirm} color="primary" autoFocus>
+            Approve
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Deny Dialog */}
+      <Dialog open={denyDialogOpen} onClose={() => setDenyDialogOpen(false)}>
+        <DialogTitle>Deny Introduction Request</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to deny this introduction request? This action
+            cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDenyDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDenyConfirm} color="error" autoFocus>
+            Deny
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Card>
+  );
+};
+
+export default RequestCard;
