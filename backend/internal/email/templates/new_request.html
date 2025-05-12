@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Introduction Request</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #2c3e50;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      blockquote {
+        background-color: #f9f9f9;
+        border-left: 4px solid #2c3e50;
+        margin: 15px 0;
+        padding: 10px 20px;
+      }
+      .button {
+        display: inline-block;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Introduction Request</h1>
+
+    <p>
+      {{ .Requester.FirstName }} {{ .Requester.LastName }} would like you to
+      introduce them to your contact {{ .Contact.FirstName }} {{
+      .Contact.LastName }}.
+    </p>
+
+    <h2>Message from {{ .Requester.FirstName }}:</h2>
+    <blockquote>{{ .Request.Message }}</blockquote>
+
+    <p>
+      To approve or decline this request, please log in to your Intro-Hub
+      account.
+    </p>
+  </body>
+</html>

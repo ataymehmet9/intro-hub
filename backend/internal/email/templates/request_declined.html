@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Introduction Request Declined</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #2c3e50;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      blockquote {
+        background-color: #f9f9f9;
+        border-left: 4px solid #2c3e50;
+        margin: 15px 0;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Introduction Request Declined</h1>
+
+    <p>Hello {{ .Requester.FirstName }},</p>
+
+    <p>
+      Your request for an introduction to {{ .Contact.FirstName }} {{
+      .Contact.LastName }} has been declined by {{ .Approver.FirstName }} {{
+      .Approver.LastName }}.
+    </p>
+
+    {{ if .Request.ResponseMessage }}
+    <p>Message from {{ .Approver.FirstName }}:</p>
+    <blockquote>{{ .Request.ResponseMessage }}</blockquote>
+    {{ end }}
+  </body>
+</html>

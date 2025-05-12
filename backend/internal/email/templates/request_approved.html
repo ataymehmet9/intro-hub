@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Introduction: {{ .Requester.FirstName }} {{ .Requester.LastName }} and {{
+      .Contact.FirstName }} {{ .Contact.LastName }}
+    </title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #2c3e50;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      hr {
+        border: 0;
+        height: 1px;
+        background-color: #eee;
+        margin: 20px 0;
+      }
+      blockquote {
+        background-color: #f9f9f9;
+        border-left: 4px solid #2c3e50;
+        margin: 15px 0;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      Introduction: {{ .Requester.FirstName }} {{ .Requester.LastName }} and {{
+      .Contact.FirstName }} {{ .Contact.LastName }}
+    </h1>
+
+    <p>Hello both,</p>
+
+    <p>I'd like to introduce:</p>
+
+    <p>
+      <strong>{{ .Requester.FirstName }} {{ .Requester.LastName }}</strong> ({{
+      .Requester.Email }}) {{ if .Requester.Company }} of {{ .Requester.Company
+      }} {{ if .Requester.Position }} ({{ .Requester.Position }}) {{ end }} {{
+      end }}
+    </p>
+
+    <p>to</p>
+
+    <p>
+      <strong>{{ .Contact.FirstName }} {{ .Contact.LastName }}</strong> ({{
+      .Contact.Email }}) {{ if .Contact.Company }} of {{ .Contact.Company }} {{
+      if .Contact.Position }} ({{ .Contact.Position }}) {{ end }} {{ end }}
+    </p>
+
+    {{ if .Request.ResponseMessage }}
+    <p>
+      <em>{{ .Approver.FirstName }} says: {{ .Request.ResponseMessage }}</em>
+    </p>
+    {{ end }}
+
+    <hr />
+
+    <p>{{ .Requester.FirstName }} wrote:</p>
+    <blockquote>{{ .Request.Message }}</blockquote>
+
+    <p>I'll leave you to take it from here!</p>
+
+    <p>Best,<br />{{ .Approver.FirstName }} {{ .Approver.LastName }}</p>
+  </body>
+</html>
