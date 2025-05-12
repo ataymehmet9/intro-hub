@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
           if (refreshTokenValue) {
             try {
               const tokens = await refreshToken(refreshTokenValue);
-              setToken(tokens.access);
+              setToken(tokens.token);
               setRefreshTokenValue(tokens.refresh);
-              localStorage.setItem("accessToken", tokens.access);
+              localStorage.setItem("accessToken", tokens.token);
               localStorage.setItem("refreshToken", tokens.refresh);
 
               // Try to get user data again with new token
@@ -73,9 +73,9 @@ export const AuthProvider = ({ children }) => {
       const data = await login(email, password);
 
       // Store tokens
-      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("accessToken", data.token);
       localStorage.setItem("refreshToken", data.refresh);
-      setToken(data.access);
+      setToken(data.token);
       setRefreshTokenValue(data.refresh);
 
       // Set user data

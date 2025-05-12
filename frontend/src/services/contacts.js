@@ -37,7 +37,7 @@ export const createContact = async (contactData) => {
  * @returns {Promise} - API response with updated contact data
  */
 export const updateContact = async (id, contactData) => {
-  const response = await api.patch(`/contacts/${id}`, contactData);
+  const response = await api.put(`/contacts/${id}`, contactData);
   return response.data;
 };
 

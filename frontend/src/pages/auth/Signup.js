@@ -79,8 +79,6 @@ const Signup = () => {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const signupData = { ...formData, ...values };
 
-    debugger;
-
     try {
       await signup(signupData);
       // Note: Redirect is handled by the useAuth hook

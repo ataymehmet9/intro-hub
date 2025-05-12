@@ -53,7 +53,7 @@ export const updateRequestStatus = async (id, requestData) => {
  * @returns {Promise} - API response with search results
  */
 export const searchContacts = async (query) => {
-  const response = await api.get("/requests/search_contacts", {
+  const response = await api.get("/requests", {
     params: { q: query },
   });
   return response.data;

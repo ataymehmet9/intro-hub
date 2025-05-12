@@ -21,58 +21,58 @@ api.interceptors.request.use(
 );
 
 // Response interceptor to handle token refresh
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-//     // If error is 401 and we haven't retried yet
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       originalRequest._retry = true;
+    // If error is 401 and we haven't retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-//       try {
-//         // Try to refresh the token
-//         const refreshToken = localStorage.getItem("refreshToken");
+      try {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem("refreshToken");
 
-//         if (!refreshToken) {
-//           // No refresh token available, logout
-//           localStorage.removeItem("accessToken");
-//           localStorage.removeItem("refreshToken");
-//           window.location.href = "/login";
-//           return Promise.reject(error);
-//         }
+        if (!refreshToken) {
+          // No refresh token available, logout
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/login";
+          return Promise.reject(error);
+        }
 
-//         // Call refresh endpoint
-//         const response = await axios.post(
-//           `${api.defaults.baseURL}/auth/refresh`,
-//           {
-//             refresh: refreshToken,
-//           }
-//         );
+        // Call refresh endpoint
+        const response = await axios.post(
+          `${api.defaults.baseURL}/auth/refresh`,
+          {
+            refresh: refreshToken,
+          }
+        );
 
-//         // Get new tokens
-//         const { access, refresh } = response.data;
+        // Get new tokens
+        const { access, refresh } = response.data;
 
-//         // Update storage and headers
-//         localStorage.setItem("accessToken", access);
-//         localStorage.setItem("refreshToken", refresh);
+        // Update storage and headers
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
 
-//         // Update the authorization header
-//         originalRequest.headers.Authorization = `Bearer ${access}`;
+        // Update the authorization header
+        originalRequest.headers.Authorization = `Bearer ${access}`;
 
-//         // Retry the original request
-//         return api(originalRequest);
-//       } catch (refreshError) {
-//         // If refresh fails, logout
-//         localStorage.removeItem("accessToken");
-//         localStorage.removeItem("refreshToken");
-//         window.location.href = "/login";
-//         return Promise.reject(refreshError);
-//       }
-//     }
+        // Retry the original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // If refresh fails, logout
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      }
+    }
 
-//     return Promise.reject(error);
-//   }
-// );
+    return Promise.reject(error);
+  }
+);
 
 export default api;
