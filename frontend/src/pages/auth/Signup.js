@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import React, { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
 import {
   Box,
   Button,
@@ -15,34 +15,37 @@ import {
   Step,
   StepLabel,
   Paper,
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAuth } from "../../hooks/useAuth";
 
 // Validation schemas
 const AccountSchema = Yup.object().shape({
   email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
+    .email("Invalid email address")
+    .required("Email is required"),
   username: Yup.string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(20, 'Username must be at most 20 characters')
-    .matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores')
-    .required('Username is required'),
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be at most 20 characters")
+    .matches(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    )
+    .required("Username is required"),
   password: Yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[0-9]/, 'Password must contain at least one number')
-    .required('Password is required'),
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .required("Password is required"),
   password_confirm: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Password confirmation is required'),
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Password confirmation is required"),
 });
 
 const ProfileSchema = Yup.object().shape({
-  first_name: Yup.string().required('First name is required'),
-  last_name: Yup.string().required('Last name is required'),
+  first_name: Yup.string().required("First name is required"),
+  last_name: Yup.string().required("Last name is required"),
   company: Yup.string(),
   job_title: Yup.string(),
 });
@@ -52,17 +55,17 @@ const Signup = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    password: '',
-    password_confirm: '',
-    first_name: '',
-    last_name: '',
-    company: '',
-    job_title: '',
+    email: "",
+    username: "",
+    password: "",
+    password_confirm: "",
+    first_name: "",
+    last_name: "",
+    company: "",
+    job_title: "",
   });
 
-  const steps = ['Account Information', 'Personal Information'];
+  const steps = ["Account Information", "Personal Information"];
 
   const handleNext = (values) => {
     setFormData({ ...formData, ...values });
@@ -75,24 +78,26 @@ const Signup = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     const signupData = { ...formData, ...values };
-    
+
+    debugger;
+
     try {
       await signup(signupData);
       // Note: Redirect is handled by the useAuth hook
     } catch (error) {
       // Handle API errors
       const errorData = error.response?.data || {};
-      
+
       // Create friendly error messages
       const errorMessages = {};
       for (const [key, value] of Object.entries(errorData)) {
-        errorMessages[key] = Array.isArray(value) ? value.join(' ') : value;
+        errorMessages[key] = Array.isArray(value) ? value.join(" ") : value;
       }
 
       if (Object.keys(errorMessages).length === 0) {
-        errorMessages.submit = 'Registration failed. Please try again.';
+        errorMessages.submit = "Registration failed. Please try again.";
       }
-      
+
       setErrors(errorMessages);
     } finally {
       setSubmitting(false);
@@ -181,7 +186,7 @@ const Signup = () => {
                   id="password"
                   name="password"
                   label="Password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   error={Boolean(touched.password && errors.password)}
                   helperText={touched.password && errors.password}
@@ -207,20 +212,22 @@ const Signup = () => {
                   id="password_confirm"
                   name="password_confirm"
                   label="Confirm Password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
-                  error={Boolean(touched.password_confirm && errors.password_confirm)}
-                  helperText={touched.password_confirm && errors.password_confirm}
+                  error={Boolean(
+                    touched.password_confirm && errors.password_confirm
+                  )}
+                  helperText={
+                    touched.password_confirm && errors.password_confirm
+                  }
                 />
 
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? <CircularProgress size={24} /> : 'Next'}
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+                >
+                  <Button type="submit" variant="contained" color="primary">
+                    {/* {isSubmitting ? <CircularProgress size={24} /> : "Next"} */}
+                    Next
                   </Button>
                 </Box>
               </Form>
@@ -290,20 +297,23 @@ const Signup = () => {
                   </Typography>
                 )}
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                  <Button
-                    onClick={handleBack}
-                    variant="outlined"
-                  >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 3,
+                  }}
+                >
+                  <Button onClick={handleBack} variant="outlined">
                     Back
                   </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? <CircularProgress size={24} /> : 'Create Account'}
+                  <Button type="submit" variant="contained" color="primary">
+                    {/* {isSubmitting ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      "Create Account"
+                    )} */}
+                    Create Account
                   </Button>
                 </Box>
               </Form>
@@ -311,12 +321,12 @@ const Signup = () => {
           </Formik>
         );
       default:
-        return 'Unknown step';
+        return "Unknown step";
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 500, width: '100%' }}>
+    <Box sx={{ maxWidth: 500, width: "100%" }}>
       <Typography component="h1" variant="h5" align="center" sx={{ mb: 3 }}>
         Create an Account
       </Typography>
@@ -329,13 +339,11 @@ const Signup = () => {
         ))}
       </Stepper>
 
-      <Paper sx={{ p: 3 }}>
-        {getStepContent(activeStep)}
-      </Paper>
+      <Paper sx={{ p: 3 }}>{getStepContent(activeStep)}</Paper>
 
-      <Box sx={{ textAlign: 'center', mt: 3 }}>
+      <Box sx={{ textAlign: "center", mt: 3 }}>
         <Typography variant="body2">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link component={RouterLink} to="/login" variant="body2">
             Sign in here
           </Link>

@@ -1,4 +1,4 @@
-import api from './api';
+import api from "./api";
 
 /**
  * Get introduction requests
@@ -11,8 +11,8 @@ export const getRequests = async (type, params = {}) => {
   if (type) {
     queryParams.type = type;
   }
-  
-  const response = await api.get('/requests/', { params: queryParams });
+
+  const response = await api.get("/requests", { params: queryParams });
   return response.data;
 };
 
@@ -22,7 +22,7 @@ export const getRequests = async (type, params = {}) => {
  * @returns {Promise} - API response with request data
  */
 export const getRequest = async (id) => {
-  const response = await api.get(`/requests/${id}/`);
+  const response = await api.get(`/requests/${id}`);
   return response.data;
 };
 
@@ -32,7 +32,7 @@ export const getRequest = async (id) => {
  * @returns {Promise} - API response with new request data
  */
 export const createRequest = async (requestData) => {
-  const response = await api.post('/requests/', requestData);
+  const response = await api.post("/requests", requestData);
   return response.data;
 };
 
@@ -43,7 +43,7 @@ export const createRequest = async (requestData) => {
  * @returns {Promise} - API response with updated request data
  */
 export const updateRequestStatus = async (id, requestData) => {
-  const response = await api.patch(`/requests/${id}/`, requestData);
+  const response = await api.patch(`/requests/${id}`, requestData);
   return response.data;
 };
 
@@ -53,8 +53,8 @@ export const updateRequestStatus = async (id, requestData) => {
  * @returns {Promise} - API response with search results
  */
 export const searchContacts = async (query) => {
-  const response = await api.get('/requests/search_contacts/', {
-    params: { q: query }
+  const response = await api.get("/requests/search_contacts", {
+    params: { q: query },
   });
   return response.data;
 };

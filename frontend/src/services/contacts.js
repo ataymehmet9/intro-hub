@@ -1,4 +1,4 @@
-import api from './api';
+import api from "./api";
 
 /**
  * Get all contacts
@@ -6,7 +6,7 @@ import api from './api';
  * @returns {Promise} - API response with contacts data
  */
 export const getContacts = async (params = {}) => {
-  const response = await api.get('/contacts/', { params });
+  const response = await api.get("/contacts", { params });
   return response.data;
 };
 
@@ -16,7 +16,7 @@ export const getContacts = async (params = {}) => {
  * @returns {Promise} - API response with contact data
  */
 export const getContact = async (id) => {
-  const response = await api.get(`/contacts/${id}/`);
+  const response = await api.get(`/contacts/${id}`);
   return response.data;
 };
 
@@ -26,7 +26,7 @@ export const getContact = async (id) => {
  * @returns {Promise} - API response with new contact data
  */
 export const createContact = async (contactData) => {
-  const response = await api.post('/contacts/', contactData);
+  const response = await api.post("/contacts", contactData);
   return response.data;
 };
 
@@ -37,7 +37,7 @@ export const createContact = async (contactData) => {
  * @returns {Promise} - API response with updated contact data
  */
 export const updateContact = async (id, contactData) => {
-  const response = await api.patch(`/contacts/${id}/`, contactData);
+  const response = await api.patch(`/contacts/${id}`, contactData);
   return response.data;
 };
 
@@ -47,7 +47,7 @@ export const updateContact = async (id, contactData) => {
  * @returns {Promise} - API response
  */
 export const deleteContact = async (id) => {
-  const response = await api.delete(`/contacts/${id}/`);
+  const response = await api.delete(`/contacts/${id}`);
   return response.data;
 };
 
@@ -58,13 +58,13 @@ export const deleteContact = async (id) => {
  */
 export const bulkUploadContacts = async (file) => {
   const formData = new FormData();
-  formData.append('file', file);
-  
-  const response = await api.post('/contacts/bulk_upload/', formData, {
+  formData.append("file", file);
+
+  const response = await api.post("/contacts/bulk_upload", formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
-  
+
   return response.data;
 };
