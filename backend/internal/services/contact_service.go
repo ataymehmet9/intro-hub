@@ -60,6 +60,11 @@ func (s *ContactService) SearchContacts(ctx context.Context, userID uint, query 
 	return s.contactRepo.SearchByNameOrCompany(ctx, userID, query)
 }
 
+// SearchContacts searches for contacts by name or company
+func (s *ContactService) SearchAllContacts(ctx context.Context, userID uint, query string) ([]*models.Contact, error) {
+	return s.contactRepo.SearchAllByNameOrCompany(ctx, userID, query)
+}
+
 // UpdateContact updates a contact
 func (s *ContactService) UpdateContact(ctx context.Context, id, userID uint, req models.ContactUpdateRequest) (*models.Contact, error) {
 	// Get existing contact

@@ -244,6 +244,62 @@ func (r *ContactRepository) SearchByNameOrCompany(ctx context.Context, userID ui
 	return contacts, nil
 }
 
+// SearchByNameOrCompany searches for contacts by name or company
+func (r *ContactRepository) SearchAllByNameOrCompany(ctx context.Context, userID uint, query string) ([]*models.Contact, error) {
+	searchQuery := `
+		SELECT 
+			id, user_id, email, first_name, last_name,
+			company, position, notes, phone, linkedin_url,
+			created_at, updated_at
+		FROM contacts
+		WHERE user_id <> ? AND company IS NOT NULL AND TRIM(company) <> ''
+		AND (LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(company) LIKE ?)
+		ORDER BY first_name, last_name
+	`
+
+	searchPattern := "%" + strings.ToLower(query) + "%"
+	rows, err := r.db.QueryContext(
+		ctx,
+		searchQuery,
+		userID,
+		searchPattern,
+		searchPattern,
+		searchPattern,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error searching contacts: %w", err)
+	}
+	defer rows.Close()
+
+	var contacts []*models.Contact
+	for rows.Next() {
+		var contact models.Contact
+		if err := rows.Scan(
+			&contact.ID,
+			&contact.UserID,
+			&contact.Email,
+			&contact.FirstName,
+			&contact.LastName,
+			&contact.Company,
+			&contact.Position,
+			&contact.Notes,
+			&contact.Phone,
+			&contact.LinkedInURL,
+			&contact.CreatedAt,
+			&contact.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("error scanning contact row: %w", err)
+		}
+		contacts = append(contacts, &contact)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating contact rows: %w", err)
+	}
+
+	return contacts, nil
+}
+
 // Update updates a contact
 func (r *ContactRepository) Update(ctx context.Context, contact *models.Contact) error {
 	query := `

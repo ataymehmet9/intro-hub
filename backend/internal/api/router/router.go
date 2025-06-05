@@ -80,9 +80,15 @@ func NewRouter(cfg *config.Config, l *logger.Logger, userRepo repositories.UserR
 				contacts.GET("", contactHandler.ListContacts)
 				contacts.POST("", contactHandler.CreateContact)
 				contacts.GET("/:id", contactHandler.GetContact)
-				contacts.PUT("/:id", contactHandler.UpdateContact)
+				contacts.PATCH("/:id", contactHandler.UpdateContact)
 				contacts.DELETE("/:id", contactHandler.DeleteContact)
 				contacts.POST("/batch-import", contactHandler.BatchImportContacts)
+				contacts.POST("/bulk_upload", contactHandler.BatchImportContacts)
+			}
+
+			users := protected.Group("/users")
+			{
+				users.GET("/all", contactHandler.SearchAllContacts)
 			}
 
 			// Introduction requests

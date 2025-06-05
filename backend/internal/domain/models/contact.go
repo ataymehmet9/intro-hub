@@ -22,14 +22,14 @@ type Contact struct {
 
 // ContactCreateRequest represents the request to create a new contact
 type ContactCreateRequest struct {
-	Email       string `json:"email" validate:"required,email"`
+	Email       string `json:"email" validate:"required"` // validate:"required,email"`
 	FirstName   string `json:"first_name" validate:"required"`
 	LastName    string `json:"last_name" validate:"required"`
-	Company     string `json:"company"`
-	Position    string `json:"position"`
-	Notes       string `json:"notes"`
-	Phone       string `json:"phone"`
-	LinkedInURL string `json:"linkedin_url"`
+	Company     string `json:"company" validate:"required"`
+	Position    string `json:"position" validate:"required"`
+	Notes       string `json:"notes,omitempty"`
+	Phone       string `json:"phone,omitempty"`
+	LinkedInURL string `json:"linkedin_url,omitempty"`
 }
 
 // ContactUpdateRequest represents the request to update a contact
@@ -52,12 +52,12 @@ type ContactBatchImportRequest struct {
 // ContactResponse represents a contact in API responses
 type ContactResponse struct {
 	ID          uint         `json:"id"`
-	Email       string       `json:"email"`
-	FirstName   string       `json:"first_name"`
-	LastName    string       `json:"last_name"`
-	FullName    string       `json:"full_name"`
-	Company     string       `json:"company"`
-	Position    string       `json:"position"`
+	Email       string       `json:"email,omitempty"`
+	FirstName   string       `json:"first_name,omitempty"`
+	LastName    string       `json:"last_name,omitempty"`
+	FullName    string       `json:"full_name,omitempty"`
+	Company     string       `json:"company,omitempty"`
+	Position    string       `json:"position,omitempty"`
 	Notes       string       `json:"notes,omitempty"`
 	Phone       string       `json:"phone,omitempty"`
 	LinkedInURL string       `json:"linkedin_url,omitempty"`

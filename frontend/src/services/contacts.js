@@ -11,6 +11,16 @@ export const getContacts = async (params = {}) => {
 };
 
 /**
+ * Get all users - Global Search
+ * @param {Object} params - Query parameters (optional)
+ * @returns {Promise} - API response with contacts data
+ */
+export const getAllUsers = async (params = {}) => {
+  const response = await api.get("/users", { params });
+  return response.data;
+};
+
+/**
  * Get a single contact by ID
  * @param {number} id - Contact ID
  * @returns {Promise} - API response with contact data

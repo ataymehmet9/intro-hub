@@ -72,8 +72,11 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       const data = await login(email, password);
 
+      console.log(data);
+
       // Store tokens
-      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("accessToken", data.token);
+      //localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
       setToken(data.access);
       setRefreshTokenValue(data.refresh);

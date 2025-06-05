@@ -47,13 +47,25 @@ export const updateRequestStatus = async (id, requestData) => {
   return response.data;
 };
 
+// /**
+//  * Search for contacts that can be requested for introductions
+//  * @param {string} query - Search query
+//  * @returns {Promise} - API response with search results
+//  */
+// export const searchContacts = async (query) => {
+//   const response = await api.get("/requests/search_contacts", {
+//     params: { q: query },
+//   });
+//   return response.data;
+// };
+
 /**
  * Search for contacts that can be requested for introductions
  * @param {string} query - Search query
  * @returns {Promise} - API response with search results
  */
 export const searchContacts = async (query) => {
-  const response = await api.get("/requests/search_contacts", {
+  const response = await api.get("/users/all", {
     params: { q: query },
   });
   return response.data;

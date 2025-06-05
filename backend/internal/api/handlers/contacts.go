@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"bufio"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ataymehmet9/intro-hub/internal/api/middleware"
 	"github.com/ataymehmet9/intro-hub/internal/domain/models"
@@ -50,6 +53,37 @@ func (h *ContactHandler) ListContacts(c *gin.Context) {
 	} else {
 		contacts, err = h.contactService.GetAllContacts(c.Request.Context(), userID)
 	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user info for response
+	user, err := h.userService.GetProfile(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Transform contacts to responses
+	responses := make([]models.ContactResponse, len(contacts))
+	for i, contact := range contacts {
+		responses[i] = contact.ToResponse(user)
+	}
+
+	c.JSON(http.StatusOK, responses)
+}
+
+// Gloabal search of all contacts
+func (h *ContactHandler) SearchAllContacts(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	query := c.Query("q")
+
+	var contacts []*models.Contact
+	var err error
+
+	contacts, err = h.contactService.SearchAllContacts(c.Request.Context(), userID, query)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -274,11 +308,58 @@ func (h *ContactHandler) DeleteContact(c *gin.Context) {
 func (h *ContactHandler) BatchImportContacts(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
-	var req models.ContactBatchImportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+	// convert form data to json
+
+	err := c.Request.ParseMultipartForm(10 << 20)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not parse form data"})
 		return
 	}
+
+	// Get the file from the form data
+	// TODO: get the header value and log it
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving the file"})
+		return
+	}
+	defer file.Close()
+
+	// Read the file content
+	// fileContent, err := io.ReadAll(file)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading file content"})
+	// 	return
+	// }
+
+	//fmt.Println("Form Data:", string(fileContent))
+
+	scanner := bufio.NewScanner(file)
+	var contactsSlice []models.ContactCreateRequest
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Split(line, ",")
+		data := models.ContactCreateRequest{
+			FirstName: fields[0],
+			LastName:  fields[1],
+			Position:  fields[2],
+			Company:   fields[3],
+			Email:     fields[4],
+			Phone:     fields[5],
+		}
+		fmt.Println("single contact:", data)
+		contactsSlice = append(contactsSlice, data)
+	}
+
+	fmt.Println("ContactsSlice", contactsSlice)
+
+	var req models.ContactBatchImportRequest
+	req.Contacts = contactsSlice
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	fmt.Println("ShouldBindJSON error", err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+	// 	return
+	// }
 
 	// Validate request
 	if err := utils.Validate(req); err != nil {

@@ -23,6 +23,9 @@ type ContactRepository interface {
 	// Search for contacts by name or company
 	SearchByNameOrCompany(ctx context.Context, userID uint, query string) ([]*models.Contact, error)
 
+	// Search for contacts by name or company
+	SearchAllByNameOrCompany(ctx context.Context, userID uint, query string) ([]*models.Contact, error)
+
 	// Update a contact
 	Update(ctx context.Context, contact *models.Contact) error
 
