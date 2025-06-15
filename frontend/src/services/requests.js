@@ -32,6 +32,7 @@ export const getRequest = async (id) => {
  * @returns {Promise} - API response with new request data
  */
 export const createRequest = async (requestData) => {
+  console.log("REQUEST DATA:", requestData);
   const response = await api.post("/requests", requestData);
   return response.data;
 };
@@ -68,5 +69,6 @@ export const searchContacts = async (query) => {
   const response = await api.get("/users/all", {
     params: { q: query },
   });
+  console.log("RESPONSE DATA:::", response);
   return response.data;
 };

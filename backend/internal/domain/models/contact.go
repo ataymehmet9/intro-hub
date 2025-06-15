@@ -52,6 +52,7 @@ type ContactBatchImportRequest struct {
 // ContactResponse represents a contact in API responses
 type ContactResponse struct {
 	ID          uint         `json:"id"`
+	UserID      uint         `json:"user_id"`
 	Email       string       `json:"email,omitempty"`
 	FirstName   string       `json:"first_name,omitempty"`
 	LastName    string       `json:"last_name,omitempty"`
@@ -101,6 +102,7 @@ func NewContactFromCreateRequest(req ContactCreateRequest, userID uint) *Contact
 func (c *Contact) ToResponse(user *User) ContactResponse {
 	return ContactResponse{
 		ID:          c.ID,
+		UserID:      c.UserID,
 		Email:       c.Email,
 		FirstName:   c.FirstName,
 		LastName:    c.LastName,

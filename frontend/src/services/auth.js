@@ -37,7 +37,7 @@ export const refreshToken = async (refreshToken) => {
  * @returns {Promise} - API response with user data
  */
 export const getCurrentUser = async () => {
-  const response = await api.get("/auth/profile");
+  const response = await api.get("/profile");
   return response.data;
 };
 
@@ -47,7 +47,7 @@ export const getCurrentUser = async () => {
  * @returns {Promise} - API response with updated user data
  */
 export const updateProfile = async (userData) => {
-  const response = await api.patch("/auth/profile", userData);
+  const response = await api.patch("/profile", userData);
   return response.data;
 };
 

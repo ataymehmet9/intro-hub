@@ -123,6 +123,7 @@ const RequestCard = ({ request, type }) => {
 
   // Generate avatar color based on name
   const stringToColor = (string) => {
+    return "8CCDEB";
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
       hash = string.charCodeAt(i) + ((hash << 5) - hash);
@@ -143,19 +144,24 @@ const RequestCard = ({ request, type }) => {
             <Avatar
               sx={{
                 bgcolor: stringToColor(
-                  type === "received" ? request.requester : request.contact_name
+                  type === "received"
+                    ? request.requester?.full_name
+                    : request.target_contact?.full_name
                 ),
                 mr: 2,
               }}
             >
-              {(type === "received"
+              {/* {(type === "received"
                 ? request.requester
                 : request.contact_name
-              ).charAt(0)}
+              ).charAt(0)} */}
+              S
             </Avatar>
             <Box>
               <Typography variant="h6" component="div">
-                {type === "received" ? request.requester : request.contact_name}
+                {type === "received"
+                  ? request.requester?.full_name
+                  : request.target_contact?.full_name}
               </Typography>
               {request.contact_company && (
                 <Typography variant="body2" color="text.secondary">
@@ -171,8 +177,8 @@ const RequestCard = ({ request, type }) => {
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {type === "received"
-            ? `${request.requester} requested an introduction to ${request.contact_name}`
-            : `You requested an introduction to ${request.contact_name}`}
+            ? `${request.requester?.full_name} requested an introduction to ${request.target_contact?.full_name}`
+            : `You requested an introduction to ${request.target_contact.full_name}`}
         </Typography>
 
         <IconButton
@@ -219,9 +225,10 @@ const RequestCard = ({ request, type }) => {
 
       <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
         <Typography variant="caption" color="text.secondary">
-          {formatDistanceToNow(new Date(request.created_at), {
+          {/* {formatDistanceToNow(new Date(request.created_at), {
             addSuffix: true,
-          })}
+          })} */}
+          {new Date(request.created_at).toISOString}
         </Typography>
 
         {type === "received" && request.status === "pending" && (
@@ -264,7 +271,7 @@ const RequestCard = ({ request, type }) => {
         <DialogContent>
           <DialogContentText>
             Are you sure you want to approve this introduction request? An email
-            will be sent to introduce {request.requester} to{" "}
+            will be sent to introduce {request.requester?.full_name} to{" "}
             {request.contact_name}.
           </DialogContentText>
         </DialogContent>

@@ -3,8 +3,8 @@
  */
 
 // Token key names in localStorage
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
+const ACCESS_TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "accessToken"; //'refreshToken';
 
 /**
  * Get the access token from localStorage
@@ -59,21 +59,21 @@ export const isTokenExpired = (token) => {
   try {
     // JWT tokens are in the format header.payload.signature
     // We only need the payload part
-    const payload = token.split('.')[1];
+    const payload = token.split(".")[1];
     const decoded = JSON.parse(atob(payload));
-    
+
     // Check if token has an expiration time (exp)
     if (!decoded.exp) {
       return false;
     }
-    
+
     // Convert exp to milliseconds (JWT exp is in seconds)
     const expirationTime = decoded.exp * 1000;
-    
+
     // Compare with current time
     return Date.now() >= expirationTime;
   } catch (error) {
-    console.error('Error checking token expiration:', error);
+    console.error("Error checking token expiration:", error);
     return true;
   }
 };
@@ -91,12 +91,12 @@ export const getUserFromToken = (token) => {
   try {
     // JWT tokens are in the format header.payload.signature
     // We only need the payload part
-    const payload = token.split('.')[1];
+    const payload = token.split(".")[1];
     const decoded = JSON.parse(atob(payload));
-    
+
     return decoded;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    console.error("Error decoding token:", error);
     return null;
   }
 };

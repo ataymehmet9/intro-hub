@@ -31,34 +31,41 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       if (token) {
         try {
+          console.log("Attempting to fetch user data...");
           const userData = await getCurrentUser();
           setUser(userData);
           setIsAuthenticated(true);
+          console.log("User data fetched successfully:", userData);
         } catch (error) {
-          // If token is expired, try to refresh
+          console.error("Error fetching user data:", error);
           if (refreshTokenValue) {
             try {
+              console.log("Attempting to refresh token...");
               const tokens = await refreshToken(refreshTokenValue);
               setToken(tokens.access);
               setRefreshTokenValue(tokens.refresh);
               localStorage.setItem("accessToken", tokens.access);
-              localStorage.setItem("refreshToken", tokens.refresh);
+              localStorage.setItem("refreshToken", tokens.access);
 
-              // Try to get user data again with new token
               const userData = await getCurrentUser();
               setUser(userData);
               setIsAuthenticated(true);
+              console.log(
+                "Token refreshed and user data fetched successfully."
+              );
             } catch (refreshError) {
-              // If refresh fails, log out
+              console.error("Error refreshing token:", refreshError);
               handleLogout();
             }
           } else {
+            console.log("No refresh token available. Logging out.");
             handleLogout();
           }
         } finally {
           setIsLoading(false);
         }
       } else {
+        console.log("No token found. Skipping authentication.");
         setIsLoading(false);
       }
     };
@@ -77,7 +84,7 @@ export const AuthProvider = ({ children }) => {
       // Store tokens
       localStorage.setItem("accessToken", data.token);
       //localStorage.setItem("accessToken", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
+      localStorage.setItem("refreshToken", data.token);
       setToken(data.access);
       setRefreshTokenValue(data.refresh);
 
@@ -125,6 +132,7 @@ export const AuthProvider = ({ children }) => {
 
   // Handle logout
   const handleLogout = () => {
+    console.log("handleLogout called");
     // Clear tokens and state
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");

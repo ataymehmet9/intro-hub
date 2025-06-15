@@ -60,6 +60,7 @@ const Search = () => {
   const handleSearch = async (values, { setSubmitting }) => {
     try {
       const results = await searchContacts(values.query);
+      console.log("Search Results:", results);
       setSearchResults(results);
       setHasSearched(true);
     } catch (error) {
@@ -82,11 +83,12 @@ const Search = () => {
   const handleRequestSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       await addRequest({
-        contact_id: selectedContact.id,
+        target_contact_id: selectedContact.id,
         purpose: values.purpose,
         message: values.message,
+        approver_id: selectedContact.user_id,
       });
-
+      console.log("APPROVER:", selectedContact.user_id);
       resetForm();
       handleRequestClose();
       // Show success notification handled by the context

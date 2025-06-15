@@ -290,6 +290,9 @@ func (r *ContactRepository) SearchAllByNameOrCompany(ctx context.Context, userID
 		); err != nil {
 			return nil, fmt.Errorf("error scanning contact row: %w", err)
 		}
+		fmt.Println()
+		fmt.Printf("Contct in repo: %+v", contact)
+		fmt.Println()
 		contacts = append(contacts, &contact)
 	}
 

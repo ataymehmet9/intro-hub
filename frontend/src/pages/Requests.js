@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -9,9 +9,9 @@ import {
   Tabs,
   Typography,
   CircularProgress,
-} from '@mui/material';
-import { useRequests } from '../hooks/useRequests';
-import RequestCard from '../components/requests/RequestCard';
+} from "@mui/material";
+import { useRequests } from "../hooks/useRequests";
+import RequestCard from "../components/requests/RequestCard";
 
 const Requests = () => {
   const {
@@ -53,42 +53,48 @@ const Requests = () => {
 
   // Get unique statusses for filtering
   const getUniqueStatuses = (requests) => {
-    return [...new Set(requests.map(request => request.status))];
+    return [...new Set(requests.map((request) => request.status))];
   };
 
   // Group requests by status
   const groupRequestsByStatus = (requests) => {
     const grouped = {};
-    
+
     // Initialize with all possible statuses
-    ['pending', 'approved', 'denied', 'completed'].forEach(status => {
+    ["pending", "approved", "denied", "completed"].forEach((status) => {
       grouped[status] = [];
     });
-    
+
     // Group requests by status
-    requests.forEach(request => {
+    requests.forEach((request) => {
       if (grouped[request.status]) {
         grouped[request.status].push(request);
       }
     });
-    
+
     return grouped;
   };
 
   const sentRequestsGrouped = groupRequestsByStatus(filteredSentRequests);
-  const receivedRequestsGrouped = groupRequestsByStatus(filteredReceivedRequests);
+  const receivedRequestsGrouped = groupRequestsByStatus(
+    filteredReceivedRequests
+  );
 
   // Render requests for a specific status
   const renderRequestsByStatus = (requests, status, type) => {
     if (!requests || requests.length === 0) {
       return (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ py: 2, textAlign: "center" }}
+        >
           No {status} requests
         </Typography>
       );
     }
 
-    return requests.map(request => (
+    return requests.map((request) => (
       <RequestCard key={request.id} request={request} type={type} />
     ));
   };
@@ -97,7 +103,7 @@ const Requests = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
         </Box>
       );
@@ -105,9 +111,9 @@ const Requests = () => {
 
     if (error) {
       return (
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
+        <Paper sx={{ p: 3, textAlign: "center" }}>
           <Typography color="error">{error}</Typography>
-          <Button 
+          <Button
             onClick={() => {
               fetchSentRequests();
               fetchReceivedRequests();
@@ -125,60 +131,75 @@ const Requests = () => {
       return (
         <>
           {filteredSentRequests.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography variant="h6" gutterBottom>
                 You haven't sent any introduction requests yet
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Use the search page to find contacts and request introductions
               </Typography>
-              <Button 
-                variant="contained"
-                component="a"
-                href="/search"
-              >
+              <Button variant="contained" component="a" href="/search">
                 Search for Contacts
               </Button>
             </Paper>
           ) : (
             <>
               {/* Pending Requests */}
-              {sentRequestsGrouped.pending.length > 0 && (
-                <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Pending Approval ({sentRequestsGrouped.pending.length})
-                  </Typography>
-                  {renderRequestsByStatus(sentRequestsGrouped.pending, 'pending', 'sent')}
-                </Box>
-              )}
+              {sentRequestsGrouped &&
+                sentRequestsGrouped.pending.length > 0 && (
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Pending Approval ({sentRequestsGrouped.pending.length})
+                    </Typography>
+                    {renderRequestsByStatus(
+                      sentRequestsGrouped.pending,
+                      "pending",
+                      "sent"
+                    )}
+                  </Box>
+                )}
 
               {/* Approved Requests */}
-              {sentRequestsGrouped.approved.length > 0 && (
-                <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Approved ({sentRequestsGrouped.approved.length})
-                  </Typography>
-                  {renderRequestsByStatus(sentRequestsGrouped.approved, 'approved', 'sent')}
-                </Box>
-              )}
+              {sentRequestsGrouped &&
+                sentRequestsGrouped.approved.length > 0 && (
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Approved ({sentRequestsGrouped.approved.length})
+                    </Typography>
+                    {renderRequestsByStatus(
+                      sentRequestsGrouped.approved,
+                      "approved",
+                      "sent"
+                    )}
+                  </Box>
+                )}
 
               {/* Completed Requests */}
-              {sentRequestsGrouped.completed.length > 0 && (
-                <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Completed ({sentRequestsGrouped.completed.length})
-                  </Typography>
-                  {renderRequestsByStatus(sentRequestsGrouped.completed, 'completed', 'sent')}
-                </Box>
-              )}
+              {sentRequestsGrouped &&
+                sentRequestsGrouped.completed.length > 0 && (
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Completed ({sentRequestsGrouped.completed.length})
+                    </Typography>
+                    {renderRequestsByStatus(
+                      sentRequestsGrouped.completed,
+                      "completed",
+                      "sent"
+                    )}
+                  </Box>
+                )}
 
               {/* Denied Requests */}
-              {sentRequestsGrouped.denied.length > 0 && (
+              {sentRequestsGrouped && sentRequestsGrouped.denied.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                   <Typography variant="h6" gutterBottom>
                     Denied ({sentRequestsGrouped.denied.length})
                   </Typography>
-                  {renderRequestsByStatus(sentRequestsGrouped.denied, 'denied', 'sent')}
+                  {renderRequestsByStatus(
+                    sentRequestsGrouped.denied,
+                    "denied",
+                    "sent"
+                  )}
                 </Box>
               )}
             </>
@@ -190,12 +211,13 @@ const Requests = () => {
       return (
         <>
           {filteredReceivedRequests.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography variant="h6" gutterBottom>
                 You haven't received any introduction requests yet
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                When someone requests an introduction to one of your contacts, it will appear here
+                When someone requests an introduction to one of your contacts,
+                it will appear here
               </Typography>
             </Paper>
           ) : (
@@ -204,9 +226,14 @@ const Requests = () => {
               {receivedRequestsGrouped.pending.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                   <Typography variant="h6" gutterBottom>
-                    Pending Your Approval ({receivedRequestsGrouped.pending.length})
+                    Pending Your Approval (
+                    {receivedRequestsGrouped.pending.length})
                   </Typography>
-                  {renderRequestsByStatus(receivedRequestsGrouped.pending, 'pending', 'received')}
+                  {renderRequestsByStatus(
+                    receivedRequestsGrouped.pending,
+                    "pending",
+                    "received"
+                  )}
                 </Box>
               )}
 
@@ -216,7 +243,11 @@ const Requests = () => {
                   <Typography variant="h6" gutterBottom>
                     Approved ({receivedRequestsGrouped.approved.length})
                   </Typography>
-                  {renderRequestsByStatus(receivedRequestsGrouped.approved, 'approved', 'received')}
+                  {renderRequestsByStatus(
+                    receivedRequestsGrouped.approved,
+                    "approved",
+                    "received"
+                  )}
                 </Box>
               )}
 
@@ -226,7 +257,11 @@ const Requests = () => {
                   <Typography variant="h6" gutterBottom>
                     Completed ({receivedRequestsGrouped.completed.length})
                   </Typography>
-                  {renderRequestsByStatus(receivedRequestsGrouped.completed, 'completed', 'received')}
+                  {renderRequestsByStatus(
+                    receivedRequestsGrouped.completed,
+                    "completed",
+                    "received"
+                  )}
                 </Box>
               )}
 
@@ -236,7 +271,11 @@ const Requests = () => {
                   <Typography variant="h6" gutterBottom>
                     Denied ({receivedRequestsGrouped.denied.length})
                   </Typography>
-                  {renderRequestsByStatus(receivedRequestsGrouped.denied, 'denied', 'received')}
+                  {renderRequestsByStatus(
+                    receivedRequestsGrouped.denied,
+                    "denied",
+                    "received"
+                  )}
                 </Box>
               )}
             </>

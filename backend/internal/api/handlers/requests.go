@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -63,7 +64,7 @@ func (h *RequestHandler) ListRequests(c *gin.Context) {
 
 		responses = append(responses, fullRequest.ToResponse(requester, approver, contact))
 	}
-
+	fmt.Printf("REQUEST LIST: %+v", responses)
 	c.JSON(http.StatusOK, responses)
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ataymehmet9/intro-hub/internal/api/middleware"
@@ -35,6 +36,7 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // @Router /profile [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID := middleware.GetUserID(c)
+	fmt.Println("User ID:", userID)
 
 	// Get user profile
 	user, err := h.userService.GetProfile(c.Request.Context(), userID)
