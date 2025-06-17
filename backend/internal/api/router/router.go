@@ -97,7 +97,7 @@ func NewRouter(cfg *config.Config, l *logger.Logger, userRepo repositories.UserR
 				requests.GET("", requestHandler.ListRequests)
 				requests.POST("", requestHandler.CreateRequest)
 				requests.GET("/:id", requestHandler.GetRequest)
-				requests.PUT("/:id", requestHandler.UpdateRequest)
+				requests.PATCH("/:id", requestHandler.UpdateRequest)
 				requests.DELETE("/:id", requestHandler.DeleteRequest)
 			}
 		}
