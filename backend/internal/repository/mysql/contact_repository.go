@@ -248,13 +248,14 @@ func (r *ContactRepository) SearchByNameOrCompany(ctx context.Context, userID ui
 func (r *ContactRepository) SearchAllByNameOrCompany(ctx context.Context, userID uint, query string) ([]*models.Contact, error) {
 	searchQuery := `
 		SELECT 
-			id, user_id, email, first_name, last_name,
-			company, position, notes, phone, linkedin_url,
-			created_at, updated_at
-		FROM contacts
-		WHERE user_id <> ? AND company IS NOT NULL AND TRIM(company) <> ''
-		AND (LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(company) LIKE ?)
-		ORDER BY first_name, last_name
+			c.id, c.user_id, c.email, c.first_name, c.last_name,
+			c.company, c.position, c.notes, c.phone, c.linkedin_url,
+			c.created_at, c.updated_at, CONCAT(u.first_name, ' ', u.last_name) AS owner_name
+		FROM contacts c
+		JOIN users u ON c.user_id = u.id
+		WHERE c.user_id <> ? AND c.company IS NOT NULL AND TRIM(c.company) <> ''
+		AND (LOWER(c.first_name) LIKE ? OR LOWER(c.last_name) LIKE ? OR LOWER(c.company) LIKE ?)
+		ORDER BY c.first_name, c.last_name
 	`
 
 	searchPattern := "%" + strings.ToLower(query) + "%"
@@ -287,6 +288,7 @@ func (r *ContactRepository) SearchAllByNameOrCompany(ctx context.Context, userID
 			&contact.LinkedInURL,
 			&contact.CreatedAt,
 			&contact.UpdatedAt,
+			&contact.OwnerName,
 		); err != nil {
 			return nil, fmt.Errorf("error scanning contact row: %w", err)
 		}

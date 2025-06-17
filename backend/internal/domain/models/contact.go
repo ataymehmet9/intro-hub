@@ -15,6 +15,7 @@ type Contact struct {
 	Position    string    `json:"position"`
 	Notes       string    `json:"notes"`
 	Phone       string    `json:"phone"`
+	OwnerName   string    `json:"owner_name,omitempty"` // Optional field for owner name
 	LinkedInURL string    `json:"linkedin_url"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -65,6 +66,7 @@ type ContactResponse struct {
 	User        UserResponse `json:"user"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
+	OwnerName   string       `json:"owner_name,omitempty"` // Optional field for owner name
 }
 
 // BatchImportResponse represents the response for a batch import
@@ -115,5 +117,6 @@ func (c *Contact) ToResponse(user *User) ContactResponse {
 		User:        user.ToResponse(),
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,
+		OwnerName:   c.OwnerName,
 	}
 }
