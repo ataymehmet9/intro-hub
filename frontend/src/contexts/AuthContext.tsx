@@ -1,25 +1,50 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  FC,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
+import { login, register, refreshToken, getCurrentUser } from "@services/auth";
 
-import {
-  login,
-  register,
-  refreshToken,
-  getCurrentUser,
-} from "../services/auth";
+// Define types for user and context
+type User = {
+  id: number;
+  email: string;
+  username?: string;
+  [key: string]: any;
+};
+
+type AuthContextType = {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  signup: (userData: any) => Promise<any>;
+  logout: () => void;
+  updateUserProfile: (updatedUserData: Partial<User>) => void;
+};
 
 // Create the context
-export const AuthContext = createContext();
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState(
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [token, setToken] = useState<string | null>(
     localStorage.getItem("accessToken") || null
   );
-  const [refreshTokenValue, setRefreshTokenValue] = useState(
+  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
     localStorage.getItem("refreshToken") || null
   );
 
@@ -71,10 +96,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle login
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       const data = await login(email, password);
@@ -97,7 +123,7 @@ export const AuthProvider = ({ children }) => {
       navigate("/dashboard");
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage =
         error.response?.data?.detail ||
         "Login failed. Please check your credentials.";
@@ -109,7 +135,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Handle signup
-  const handleSignup = async (userData) => {
+  const handleSignup = async (userData: any) => {
     try {
       setIsLoading(true);
       const data = await register(userData);
@@ -119,7 +145,7 @@ export const AuthProvider = ({ children }) => {
 
       enqueueSnackbar("Account created successfully!", { variant: "success" });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage =
         error.response?.data?.detail ||
         "Registration failed. Please try again.";
@@ -147,15 +173,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Update user profile
-  const updateUserProfile = (updatedUserData) => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      ...updatedUserData,
-    }));
+  const updateUserProfile = (updatedUserData: Partial<User>) => {
+    setUser(
+      (prevUser) =>
+        ({
+          ...prevUser,
+          ...updatedUserData,
+        } as User)
+    );
   };
 
   // Context value
-  const value = {
+  const value: AuthContextType = {
     user,
     token,
     isAuthenticated,

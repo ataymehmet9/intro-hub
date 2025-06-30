@@ -1,24 +1,63 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  FC,
+} from "react";
 import { useSnackbar } from "notistack";
 
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@hooks/useAuth";
 import {
   getContacts,
   createContact,
   updateContact,
   deleteContact,
   bulkUploadContacts,
-} from "../services/contacts";
+} from "@services/contacts";
+
+// Types
+type Contact = {
+  id: number;
+  name: string;
+  email?: string;
+  phone?: string;
+  [key: string]: any;
+};
+
+type BulkUploadResult = {
+  contacts_created: number;
+  contacts_updated: number;
+  errors?: any[];
+};
+
+type ContactContextType = {
+  contacts: Contact[];
+  isLoading: boolean;
+  error: string | null;
+  fetchContacts: () => Promise<void>;
+  addContact: (contactData: Partial<Contact>) => Promise<Contact>;
+  editContact: (id: number, contactData: Partial<Contact>) => Promise<Contact>;
+  removeContact: (id: number) => Promise<void>;
+  uploadContacts: (file: File) => Promise<BulkUploadResult>;
+};
+
+type ContactProviderProps = {
+  children: ReactNode;
+};
 
 // Create the context
-export const ContactContext = createContext();
+// eslint-disable-next-line react-refresh/only-export-components
+export const ContactContext = createContext<ContactContextType | undefined>(
+  undefined
+);
 
-export const ContactProvider = ({ children }) => {
-  const [contacts, setContacts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
   // Fetch contacts when authenticated
@@ -26,16 +65,18 @@ export const ContactProvider = ({ children }) => {
     if (isAuthenticated) {
       fetchContacts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   // Fetch all contacts
-  const fetchContacts = async () => {
+  const fetchContacts = async (): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
       const data = await getContacts();
       setContacts(data);
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       setError("Failed to fetch contacts");
       enqueueSnackbar("Failed to fetch contacts", { variant: "error" });
     } finally {
@@ -44,7 +85,9 @@ export const ContactProvider = ({ children }) => {
   };
 
   // Add new contact
-  const addContact = async (contactData) => {
+  const addContact = async (
+    contactData: Partial<Contact>
+  ): Promise<Contact> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -62,7 +105,10 @@ export const ContactProvider = ({ children }) => {
   };
 
   // Update contact
-  const editContact = async (id, contactData) => {
+  const editContact = async (
+    id: number,
+    contactData: Partial<Contact>
+  ): Promise<Contact> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -84,7 +130,7 @@ export const ContactProvider = ({ children }) => {
   };
 
   // Delete contact
-  const removeContact = async (id) => {
+  const removeContact = async (id: number): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -103,11 +149,11 @@ export const ContactProvider = ({ children }) => {
   };
 
   // Bulk upload contacts
-  const uploadContacts = async (file) => {
+  const uploadContacts = async (file: File): Promise<BulkUploadResult> => {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await bulkUploadContacts(file);
+      const result: BulkUploadResult = await bulkUploadContacts(file);
 
       // Refresh contacts after bulk upload
       await fetchContacts();
@@ -140,7 +186,7 @@ export const ContactProvider = ({ children }) => {
   };
 
   // Context value
-  const value = {
+  const value: ContactContextType = {
     contacts,
     isLoading,
     error,
