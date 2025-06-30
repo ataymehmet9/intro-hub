@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, MouseEvent, ChangeEvent } from "react";
 import {
   Box,
   Button,
@@ -28,25 +28,29 @@ import {
   Sort as SortIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { useContacts } from "../hooks/useContacts";
-import ContactCard from "../components/contacts/ContactCard";
-import ContactForm from "../components/contacts/ContactForm";
-import FileUploadButton from "../components/common/FileUploadButton";
+import { useContacts, type Contact } from "@hooks/useContacts";
+import ContactCard from "@components/contacts/ContactCard";
+import ContactForm from "@components/contacts/ContactForm";
+import FileUploadButton from "@components/common/FileUploadButton";
 
 const Contacts = () => {
   const { contacts, isLoading, error, fetchContacts, uploadContacts } =
     useContacts();
 
-  const [filteredContacts, setFilteredContacts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [openAddContact, setOpenAddContact] = useState(false);
-  const [openUploadDialog, setOpenUploadDialog] = useState(false);
-  const [editContact, setEditContact] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
-  const [filterMenuAnchor, setFilterMenuAnchor] = useState(null);
-  const [sortOrder, setSortOrder] = useState("name_asc");
-  const [filterCompany, setFilterCompany] = useState("");
+  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [openAddContact, setOpenAddContact] = useState<boolean>(false);
+  const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+  const [editContact, setEditContact] = useState<Contact | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [sortOrder, setSortOrder] = useState<string>("name_asc");
+  const [filterCompany, setFilterCompany] = useState<string>("");
 
   // Get unique companies for filter menu
   const companies = [...new Set(contacts.map((contact) => contact.company))]
@@ -56,6 +60,7 @@ const Contacts = () => {
   // Handle initial data load
   useEffect(() => {
     fetchContacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle filtering and sorting
@@ -65,10 +70,10 @@ const Contacts = () => {
     // Apply search
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter((contact) => {
+      result = result.filter((contact: Contact) => {
         return (
-          contact.full_name.toLowerCase().includes(term) ||
-          contact.email.toLowerCase().includes(term) ||
+          contact.full_name?.toLowerCase().includes(term) ||
+          contact.email?.toLowerCase().includes(term) ||
           (contact.company && contact.company.toLowerCase().includes(term)) ||
           (contact.job_title && contact.job_title.toLowerCase().includes(term))
         );
@@ -77,7 +82,9 @@ const Contacts = () => {
 
     // Apply company filter
     if (filterCompany) {
-      result = result.filter((contact) => contact.company === filterCompany);
+      result = result.filter(
+        (contact: Contact) => contact.company === filterCompany
+      );
     }
 
     // Apply sorting
@@ -95,7 +102,11 @@ const Contacts = () => {
         result.sort((a, b) => (b.company || "").localeCompare(a.company || ""));
         break;
       case "recent":
-        result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        result.sort(
+          (a, b) =>
+            new Date(b.created_at || "").getTime() -
+            new Date(a.created_at || "").getTime()
+        );
         break;
       default:
         break;
@@ -109,7 +120,7 @@ const Contacts = () => {
     setOpenAddContact(true);
   };
 
-  const handleEditContactOpen = (contact) => {
+  const handleEditContactOpen = (contact: Contact) => {
     setEditContact(contact);
     setOpenAddContact(true);
   };
@@ -127,7 +138,7 @@ const Contacts = () => {
     setOpenUploadDialog(false);
   };
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
       await uploadContacts(file);
@@ -139,11 +150,11 @@ const Contacts = () => {
     }
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSortMenuOpen = (event) => {
+  const handleSortMenuOpen = (event: MouseEvent<HTMLElement>) => {
     setSortMenuAnchor(event.currentTarget);
   };
 
@@ -151,7 +162,7 @@ const Contacts = () => {
     setSortMenuAnchor(null);
   };
 
-  const handleFilterMenuOpen = (event) => {
+  const handleFilterMenuOpen = (event: MouseEvent<HTMLElement>) => {
     setFilterMenuAnchor(event.currentTarget);
   };
 
@@ -159,12 +170,12 @@ const Contacts = () => {
     setFilterMenuAnchor(null);
   };
 
-  const handleSortChange = (order) => {
+  const handleSortChange = (order: string) => {
     setSortOrder(order);
     handleSortMenuClose();
   };
 
-  const handleFilterChange = (company) => {
+  const handleFilterChange = (company: string) => {
     setFilterCompany(company);
     handleFilterMenuClose();
   };

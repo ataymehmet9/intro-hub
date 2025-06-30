@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import React, { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { Formik, Form, Field, FormikHelpers } from "formik";
+import * as Yup from "yup";
 import {
   Box,
   Button,
@@ -11,30 +11,40 @@ import {
   Link,
   InputAdornment,
   IconButton,
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAuth } from "@hooks/useAuth";
 
 // Validation schema
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .required('Password is required'),
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
 });
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+  submit?: string;
+};
 
 const Login = () => {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+  const handleSubmit = async (
+    values: LoginFormValues,
+    { setSubmitting, setErrors }: FormikHelpers<LoginFormValues>
+  ) => {
     try {
       await login(values.email, values.password);
       // Note: Redirect is handled by the useAuth hook
-    } catch (error) {
+    } catch (error: any) {
       // Handle API errors
-      const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
+      const errorMessage =
+        error?.response?.data?.detail ||
+        "Login failed. Please check your credentials.";
       setErrors({ submit: errorMessage });
     } finally {
       setSubmitting(false);
@@ -46,13 +56,13 @@ const Login = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, width: '100%' }}>
+    <Box sx={{ maxWidth: 400, width: "100%" }}>
       <Typography component="h1" variant="h5" align="center" sx={{ mb: 3 }}>
         Sign in to your account
       </Typography>
 
-      <Formik
-        initialValues={{ email: '', password: '' }}
+      <Formik<LoginFormValues>
+        initialValues={{ email: "", password: "" }}
         validationSchema={LoginSchema}
         onSubmit={handleSubmit}
       >
@@ -78,7 +88,7 @@ const Login = () => {
               id="password"
               name="password"
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               error={Boolean(touched.password && errors.password)}
               helperText={touched.password && errors.password}
@@ -112,12 +122,12 @@ const Login = () => {
               disabled={isSubmitting}
               sx={{ mt: 3, mb: 2 }}
             >
-              {isSubmitting ? <CircularProgress size={24} /> : 'Sign In'}
+              {isSubmitting ? <CircularProgress size={24} /> : "Sign In"}
             </Button>
 
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ textAlign: "center" }}>
               <Typography variant="body2">
-                Don't have an account?{' '}
+                Don't have an account?{" "}
                 <Link component={RouterLink} to="/signup" variant="body2">
                   Sign up here
                 </Link>

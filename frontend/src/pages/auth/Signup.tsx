@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, FormikHelpers } from "formik";
+import get from "lodash/get";
 import * as Yup from "yup";
 import {
   Box,
@@ -17,7 +18,7 @@ import {
   Paper,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@hooks/useAuth";
 
 // Validation schemas
 const AccountSchema = Yup.object().shape({
@@ -50,11 +51,27 @@ const ProfileSchema = Yup.object().shape({
   job_title: Yup.string(),
 });
 
+type AccountFormValues = {
+  email: string;
+  username: string;
+  password: string;
+  password_confirm: string;
+};
+
+type ProfileFormValues = {
+  first_name: string;
+  last_name: string;
+  company: string;
+  job_title: string;
+};
+
+type SignupFormValues = AccountFormValues & ProfileFormValues;
+
 const Signup = () => {
   const { signup } = useAuth();
-  const [activeStep, setActiveStep] = useState(0);
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const [activeStep, setActiveStep] = useState<number>(0);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [formData, setFormData] = useState<SignupFormValues>({
     email: "",
     username: "",
     password: "",
@@ -67,31 +84,38 @@ const Signup = () => {
 
   const steps = ["Account Information", "Personal Information"];
 
-  const handleNext = (values) => {
+  const handleNext = (
+    values: Partial<AccountFormValues | ProfileFormValues>,
+    helpers: FormikHelpers<any>
+  ) => {
     setFormData({ ...formData, ...values });
     setActiveStep(activeStep + 1);
+    helpers.setSubmitting(false);
   };
 
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    const signupData = { ...formData, ...values };
-
-    debugger;
+  const handleSubmit = async (
+    values: ProfileFormValues,
+    { setSubmitting, setErrors }: FormikHelpers<ProfileFormValues>
+  ) => {
+    const signupData: SignupFormValues = { ...formData, ...values };
 
     try {
       await signup(signupData);
       // Note: Redirect is handled by the useAuth hook
-    } catch (error) {
+    } catch (error: any) {
       // Handle API errors
       const errorData = error.response?.data || {};
 
       // Create friendly error messages
-      const errorMessages = {};
+      const errorMessages: Record<string, string> = {};
       for (const [key, value] of Object.entries(errorData)) {
-        errorMessages[key] = Array.isArray(value) ? value.join(" ") : value;
+        errorMessages[key] = Array.isArray(value)
+          ? value.join(" ")
+          : String(value);
       }
 
       if (Object.keys(errorMessages).length === 0) {
@@ -109,7 +133,7 @@ const Signup = () => {
   };
 
   // Initial values for each step
-  const getInitialValues = (step) => {
+  const getInitialValues = (step: number): Partial<SignupFormValues> => {
     switch (step) {
       case 0:
         return {
@@ -131,7 +155,7 @@ const Signup = () => {
   };
 
   // Validation schema for each step
-  const getValidationSchema = (step) => {
+  const getValidationSchema = (step: number) => {
     switch (step) {
       case 0:
         return AccountSchema;
@@ -143,16 +167,16 @@ const Signup = () => {
   };
 
   // Step content
-  const getStepContent = (step) => {
+  const getStepContent = (step: number) => {
     switch (step) {
       case 0:
         return (
-          <Formik
-            initialValues={getInitialValues(step)}
+          <Formik<AccountFormValues>
+            initialValues={getInitialValues(step) as AccountFormValues}
             validationSchema={getValidationSchema(step)}
             onSubmit={handleNext}
           >
-            {({ errors, touched, isSubmitting }) => (
+            {({ errors, touched }) => (
               <Form>
                 <Field
                   as={TextField}
@@ -226,7 +250,6 @@ const Signup = () => {
                   sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
                 >
                   <Button type="submit" variant="contained" color="primary">
-                    {/* {isSubmitting ? <CircularProgress size={24} /> : "Next"} */}
                     Next
                   </Button>
                 </Box>
@@ -236,8 +259,8 @@ const Signup = () => {
         );
       case 1:
         return (
-          <Formik
-            initialValues={getInitialValues(step)}
+          <Formik<ProfileFormValues>
+            initialValues={getInitialValues(step) as ProfileFormValues}
             validationSchema={getValidationSchema(step)}
             onSubmit={handleSubmit}
           >
@@ -291,9 +314,9 @@ const Signup = () => {
                   helperText={touched.job_title && errors.job_title}
                 />
 
-                {errors.submit && (
+                {get(errors, "submit") && (
                   <Typography color="error" variant="body2" sx={{ mt: 2 }}>
-                    {errors.submit}
+                    {get(errors, "submit")}
                   </Typography>
                 )}
 
@@ -308,12 +331,11 @@ const Signup = () => {
                     Back
                   </Button>
                   <Button type="submit" variant="contained" color="primary">
-                    {/* {isSubmitting ? (
+                    {isSubmitting ? (
                       <CircularProgress size={24} />
                     ) : (
                       "Create Account"
-                    )} */}
-                    Create Account
+                    )}
                   </Button>
                 </Box>
               </Form>

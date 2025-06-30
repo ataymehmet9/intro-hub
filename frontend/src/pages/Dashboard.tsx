@@ -8,7 +8,6 @@ import {
   Container,
   Divider,
   Grid,
-  Link,
   Paper,
   Stack,
   Typography,
@@ -20,10 +19,10 @@ import {
   Contacts as ContactsIcon,
   SwapHoriz as SwapHorizIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../hooks/useAuth";
-import { useContacts } from "../hooks/useContacts";
-import { useRequests } from "../hooks/useRequests";
-import RequestCard from "../components/requests/RequestCard";
+import { useAuth } from "@hooks/useAuth";
+import { useContacts } from "@hooks/useContacts";
+import { useRequests, type Request } from "@hooks/useRequests";
+import RequestCard from "@components/requests/RequestCard";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -36,20 +35,21 @@ const Dashboard = () => {
     fetchReceivedRequests,
   } = useRequests();
 
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [recentSentRequests, setRecentSentRequests] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
+  const [recentSentRequests, setRecentSentRequests] = useState<Request[]>([]);
 
   useEffect(() => {
     fetchContacts();
     fetchSentRequests();
     fetchReceivedRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter pending received requests
   useEffect(() => {
     if (receivedRequests) {
       const pending = receivedRequests.filter(
-        (request) => request.status === "pending"
+        (request: Request) => request.status === "pending"
       );
       setPendingRequests(pending);
     }
@@ -59,7 +59,10 @@ const Dashboard = () => {
   useEffect(() => {
     if (sentRequests) {
       const recent = [...sentRequests]
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .sort(
+          (a: Request, b: Request) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
         .slice(0, 3);
       setRecentSentRequests(recent);
     }
@@ -234,16 +237,15 @@ const Dashboard = () => {
                 )}
               </Box>
               {pendingRequests?.length > 0 ? (
-                pendingRequests.slice(0, 3).map((request) => {
-                  console.log("Request", request);
-                  return (
+                pendingRequests
+                  .slice(0, 3)
+                  .map((request) => (
                     <RequestCard
                       key={request.id}
                       request={request}
                       type="received"
                     />
-                  );
-                })
+                  ))
               ) : (
                 <Typography
                   variant="body2"
@@ -279,16 +281,9 @@ const Dashboard = () => {
               </Box>
 
               {recentSentRequests?.length > 0 ? (
-                recentSentRequests.map((request) => {
-                  console.log("Request", request);
-                  return (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      type="sent"
-                    />
-                  );
-                })
+                recentSentRequests.map((request) => (
+                  <RequestCard key={request.id} request={request} type="sent" />
+                ))
               ) : (
                 <Box sx={{ py: 3, textAlign: "center" }}>
                   <Typography

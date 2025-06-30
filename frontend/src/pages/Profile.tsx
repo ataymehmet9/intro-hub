@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Formik, Form, Field } from "formik";
+import React, { useState, SyntheticEvent } from "react";
+import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
   Avatar,
@@ -24,9 +24,9 @@ import {
   Lock as LockIcon,
   PhotoCamera as PhotoCameraIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../hooks/useAuth";
-import { updateProfile, changePassword } from "../services/auth";
-import Alert from "../components/common/Alert";
+import { useAuth } from "@hooks/useAuth";
+import { updateProfile, changePassword } from "@services/auth";
+import Alert from "@components/common/Alert";
 
 // Validation schemas
 const ProfileSchema = Yup.object().shape({
@@ -48,29 +48,49 @@ const PasswordSchema = Yup.object().shape({
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
     .matches(/[0-9]/, "Password must contain at least one number"),
   new_password_confirm: Yup.string()
-    .oneOf([Yup.ref("new_password"), null], "Passwords must match")
+    .oneOf([Yup.ref("new_password"), undefined], "Passwords must match")
     .required("Password confirmation is required"),
 });
 
+type ProfileFormValues = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  job_title?: string;
+  company?: string;
+  bio?: string;
+  linkedin_profile?: string;
+};
+
+type PasswordFormValues = {
+  old_password: string;
+  new_password: string;
+  new_password_confirm: string;
+};
+
 const Profile = () => {
   const { user, updateUserProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState(0);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
     setSuccessMessage("");
     setErrorMessage("");
   };
 
-  const handleProfileUpdate = async (values, { setSubmitting }) => {
+  const handleProfileUpdate = async (
+    values: ProfileFormValues,
+    { setSubmitting }: FormikHelpers<ProfileFormValues>
+  ) => {
     try {
       const updatedUser = await updateProfile(values);
       updateUserProfile(updatedUser);
       setSuccessMessage("Profile updated successfully");
       setErrorMessage("");
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       setErrorMessage("Error updating profile. Please try again.");
       setSuccessMessage("");
     } finally {
@@ -78,17 +98,20 @@ const Profile = () => {
     }
   };
 
-  const handlePasswordChange = async (values, { setSubmitting, resetForm }) => {
+  const handlePasswordChange = async (
+    values: PasswordFormValues,
+    { setSubmitting, resetForm }: FormikHelpers<PasswordFormValues>
+  ) => {
     try {
       await changePassword(values);
       resetForm();
       setSuccessMessage("Password changed successfully");
       setErrorMessage("");
-    } catch (error) {
-      const errorMessage = error.response?.data?.old_password
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.old_password
         ? "Current password is incorrect"
         : "Error changing password. Please try again.";
-      setErrorMessage(errorMessage);
+      setErrorMessage(errorMsg);
       setSuccessMessage("");
     } finally {
       setSubmitting(false);
@@ -104,7 +127,7 @@ const Profile = () => {
   }
 
   // Create initials for avatar
-  const getInitials = () => {
+  const getInitials = (): string => {
     if (user.first_name && user.last_name) {
       return `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`;
     } else if (user.first_name) {
@@ -116,7 +139,7 @@ const Profile = () => {
   };
 
   // Generate random color for avatar
-  const stringToColor = (string) => {
+  const stringToColor = (string: string): string => {
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
       hash = string.charCodeAt(i) + ((hash << 5) - hash);
@@ -273,7 +296,7 @@ const Profile = () => {
 
               {/* Profile Information Tab */}
               {activeTab === 0 && (
-                <Formik
+                <Formik<ProfileFormValues>
                   initialValues={{
                     first_name: user.first_name || "",
                     last_name: user.last_name || "",
@@ -287,7 +310,7 @@ const Profile = () => {
                   onSubmit={handleProfileUpdate}
                   enableReinitialize
                 >
-                  {({ errors, touched, isSubmitting }) => (
+                  {({ errors, touched, isSubmitting, values }) => (
                     <Form>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
@@ -385,7 +408,7 @@ const Profile = () => {
                             helperText={
                               (touched.bio && errors.bio) ||
                               `${
-                                500 - (user.bio?.length || 0)
+                                500 - (values.bio?.length || 0)
                               } characters remaining`
                             }
                           />
@@ -414,7 +437,7 @@ const Profile = () => {
 
               {/* Change Password Tab */}
               {activeTab === 1 && (
-                <Formik
+                <Formik<PasswordFormValues>
                   initialValues={{
                     old_password: "",
                     new_password: "",

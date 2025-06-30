@@ -13,7 +13,6 @@ import {
   DialogTitle,
   Divider,
   Grid,
-  IconButton,
   InputAdornment,
   Paper,
   TextField,
@@ -21,16 +20,15 @@ import {
 } from "@mui/material";
 import {
   Business as BusinessIcon,
-  Email as EmailIcon,
   Person as PersonIcon,
   Search as SearchIcon,
   Work as WorkIcon,
 } from "@mui/icons-material";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 
-import { useRequests } from "../hooks/useRequests";
-import Alert from "../components/common/Alert";
+import { useRequests } from "@hooks/useRequests";
+import Alert from "@components/common/Alert";
 
 // Validation schema for search
 const SearchSchema = Yup.object().shape({
@@ -49,18 +47,41 @@ const RequestSchema = Yup.object().shape({
   ),
 });
 
+type SearchFormValues = {
+  query: string;
+};
+
+type RequestFormValues = {
+  purpose: string;
+  message: string;
+};
+
+type SearchContact = {
+  id: number;
+  full_name: string;
+  company?: string;
+  job_title?: string;
+  owner_name?: string;
+  user_id?: number;
+  [key: string]: any;
+};
+
 const Search = () => {
   const { searchContacts, addRequest, isLoading } = useRequests();
 
-  const [searchResults, setSearchResults] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchContact[]>([]);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [selectedContact, setSelectedContact] = useState<SearchContact | null>(
+    null
+  );
+  const [requestDialogOpen, setRequestDialogOpen] = useState<boolean>(false);
 
-  const handleSearch = async (values, { setSubmitting }) => {
+  const handleSearch = async (
+    values: SearchFormValues,
+    { setSubmitting }: FormikHelpers<SearchFormValues>
+  ) => {
     try {
       const results = await searchContacts(values.query);
-      console.log("Search Results:", results);
       setSearchResults(results);
       setHasSearched(true);
     } catch (error) {
@@ -70,7 +91,7 @@ const Search = () => {
     }
   };
 
-  const handleRequestOpen = (contact) => {
+  const handleRequestOpen = (contact: SearchContact) => {
     setSelectedContact(contact);
     setRequestDialogOpen(true);
   };
@@ -80,15 +101,18 @@ const Search = () => {
     setSelectedContact(null);
   };
 
-  const handleRequestSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleRequestSubmit = async (
+    values: RequestFormValues,
+    { setSubmitting, resetForm }: FormikHelpers<RequestFormValues>
+  ) => {
     try {
+      if (!selectedContact) return;
       await addRequest({
         target_contact_id: selectedContact.id,
         purpose: values.purpose,
         message: values.message,
         approver_id: selectedContact.user_id,
       });
-      console.log("APPROVER:", selectedContact.user_id);
       resetForm();
       handleRequestClose();
       // Show success notification handled by the context
@@ -108,7 +132,7 @@ const Search = () => {
 
       {/* Search Form */}
       <Paper sx={{ p: 3, mb: 4 }}>
-        <Formik
+        <Formik<SearchFormValues>
           initialValues={{ query: "" }}
           validationSchema={SearchSchema}
           onSubmit={handleSearch}
@@ -279,12 +303,12 @@ const Search = () => {
         </DialogTitle>
 
         {selectedContact && (
-          <Formik
+          <Formik<RequestFormValues>
             initialValues={{ purpose: "", message: "" }}
             validationSchema={RequestSchema}
             onSubmit={handleRequestSubmit}
           >
-            {({ errors, touched, isSubmitting, values }) => (
+            {({ errors, touched, isSubmitting }) => (
               <Form>
                 <DialogContent>
                   <Alert severity="info" sx={{ mb: 3 }}>

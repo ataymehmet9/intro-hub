@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SyntheticEvent } from "react";
 import {
   Box,
   Button,
   Container,
-  Divider,
   Paper,
   Tab,
   Tabs,
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { useRequests } from "../hooks/useRequests";
-import RequestCard from "../components/requests/RequestCard";
+import { useRequests, type Request } from "@hooks/useRequests";
+import RequestCard from "@components/requests/RequestCard";
 
 const Requests = () => {
   const {
@@ -23,14 +22,19 @@ const Requests = () => {
     fetchReceivedRequests,
   } = useRequests();
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [filteredSentRequests, setFilteredSentRequests] = useState([]);
-  const [filteredReceivedRequests, setFilteredReceivedRequests] = useState([]);
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [filteredSentRequests, setFilteredSentRequests] = useState<Request[]>(
+    []
+  );
+  const [filteredReceivedRequests, setFilteredReceivedRequests] = useState<
+    Request[]
+  >([]);
 
   // Load data on component mount
   useEffect(() => {
     fetchSentRequests();
     fetchReceivedRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Group sent requests by status
@@ -47,25 +51,19 @@ const Requests = () => {
     }
   }, [receivedRequests]);
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
-  // Get unique statusses for filtering
-  const getUniqueStatuses = (requests) => {
-    return [...new Set(requests.map((request) => request.status))];
-  };
-
   // Group requests by status
-  const groupRequestsByStatus = (requests) => {
-    const grouped = {};
+  const groupRequestsByStatus = (requests: Request[]) => {
+    const grouped: Record<string, Request[]> = {
+      pending: [],
+      approved: [],
+      denied: [],
+      completed: [],
+    };
 
-    // Initialize with all possible statuses
-    ["pending", "approved", "denied", "completed"].forEach((status) => {
-      grouped[status] = [];
-    });
-
-    // Group requests by status
     requests.forEach((request) => {
       if (grouped[request.status]) {
         grouped[request.status].push(request);
@@ -81,7 +79,11 @@ const Requests = () => {
   );
 
   // Render requests for a specific status
-  const renderRequestsByStatus = (requests, status, type) => {
+  const renderRequestsByStatus = (
+    requests: Request[],
+    status: string,
+    type: "sent" | "received"
+  ) => {
     if (!requests || requests.length === 0) {
       return (
         <Typography
@@ -145,52 +147,49 @@ const Requests = () => {
           ) : (
             <>
               {/* Pending Requests */}
-              {sentRequestsGrouped &&
-                sentRequestsGrouped.pending.length > 0 && (
-                  <Box sx={{ mb: 4 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Pending Approval ({sentRequestsGrouped.pending.length})
-                    </Typography>
-                    {renderRequestsByStatus(
-                      sentRequestsGrouped.pending,
-                      "pending",
-                      "sent"
-                    )}
-                  </Box>
-                )}
+              {sentRequestsGrouped.pending.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Pending Approval ({sentRequestsGrouped.pending.length})
+                  </Typography>
+                  {renderRequestsByStatus(
+                    sentRequestsGrouped.pending,
+                    "pending",
+                    "sent"
+                  )}
+                </Box>
+              )}
 
               {/* Approved Requests */}
-              {sentRequestsGrouped &&
-                sentRequestsGrouped.approved.length > 0 && (
-                  <Box sx={{ mb: 4 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Approved ({sentRequestsGrouped.approved.length})
-                    </Typography>
-                    {renderRequestsByStatus(
-                      sentRequestsGrouped.approved,
-                      "approved",
-                      "sent"
-                    )}
-                  </Box>
-                )}
+              {sentRequestsGrouped.approved.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Approved ({sentRequestsGrouped.approved.length})
+                  </Typography>
+                  {renderRequestsByStatus(
+                    sentRequestsGrouped.approved,
+                    "approved",
+                    "sent"
+                  )}
+                </Box>
+              )}
 
               {/* Completed Requests */}
-              {sentRequestsGrouped &&
-                sentRequestsGrouped.completed.length > 0 && (
-                  <Box sx={{ mb: 4 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Completed ({sentRequestsGrouped.completed.length})
-                    </Typography>
-                    {renderRequestsByStatus(
-                      sentRequestsGrouped.completed,
-                      "completed",
-                      "sent"
-                    )}
-                  </Box>
-                )}
+              {sentRequestsGrouped.completed.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Completed ({sentRequestsGrouped.completed.length})
+                  </Typography>
+                  {renderRequestsByStatus(
+                    sentRequestsGrouped.completed,
+                    "completed",
+                    "sent"
+                  )}
+                </Box>
+              )}
 
               {/* Denied Requests */}
-              {sentRequestsGrouped && sentRequestsGrouped.denied.length > 0 && (
+              {sentRequestsGrouped.denied.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                   <Typography variant="h6" gutterBottom>
                     Denied ({sentRequestsGrouped.denied.length})
