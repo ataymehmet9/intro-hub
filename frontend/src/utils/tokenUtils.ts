@@ -4,54 +4,54 @@
 
 // Token key names in localStorage
 const ACCESS_TOKEN_KEY = "accessToken";
-const REFRESH_TOKEN_KEY = "accessToken"; //'refreshToken';
+const REFRESH_TOKEN_KEY = "refreshToken";
 
 /**
  * Get the access token from localStorage
- * @returns {string|null} The access token or null if not found
+ * @returns The access token or null if not found
  */
-export const getAccessToken = () => {
+const getAccessToken = (): string | null => {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
 /**
  * Get the refresh token from localStorage
- * @returns {string|null} The refresh token or null if not found
+ * @returns The refresh token or null if not found
  */
-export const getRefreshToken = () => {
+const getRefreshToken = (): string | null => {
   return localStorage.getItem(REFRESH_TOKEN_KEY);
 };
 
 /**
  * Set the access token in localStorage
- * @param {string} token - The access token to store
+ * @param token - The access token to store
  */
-export const setAccessToken = (token) => {
+const setAccessToken = (token: string): void => {
   localStorage.setItem(ACCESS_TOKEN_KEY, token);
 };
 
 /**
  * Set the refresh token in localStorage
- * @param {string} token - The refresh token to store
+ * @param token - The refresh token to store
  */
-export const setRefreshToken = (token) => {
+const setRefreshToken = (token: string): void => {
   localStorage.setItem(REFRESH_TOKEN_KEY, token);
 };
 
 /**
  * Remove all authentication tokens from localStorage
  */
-export const clearTokens = () => {
+const clearTokens = (): void => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
 /**
  * Check if a token is expired
- * @param {string} token - The JWT token to check
- * @returns {boolean} Whether the token is expired
+ * @param token - The JWT token to check
+ * @returns Whether the token is expired
  */
-export const isTokenExpired = (token) => {
+const isTokenExpired = (token: string | null): boolean => {
   if (!token) {
     return true;
   }
@@ -60,7 +60,7 @@ export const isTokenExpired = (token) => {
     // JWT tokens are in the format header.payload.signature
     // We only need the payload part
     const payload = token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
+    const decoded: { exp?: number } = JSON.parse(atob(payload));
 
     // Check if token has an expiration time (exp)
     if (!decoded.exp) {
@@ -80,10 +80,10 @@ export const isTokenExpired = (token) => {
 
 /**
  * Get user data from a JWT token
- * @param {string} token - The JWT token
- * @returns {Object|null} User data from the token payload or null if invalid
+ * @param token - The JWT token
+ * @returns User data from the token payload or null if invalid
  */
-export const getUserFromToken = (token) => {
+const getUserFromToken = (token: string | null): Record<string, any> | null => {
   if (!token) {
     return null;
   }
@@ -103,9 +103,20 @@ export const getUserFromToken = (token) => {
 
 /**
  * Check if user is authenticated (has a valid, non-expired token)
- * @returns {boolean} Whether the user is authenticated
+ * @returns Whether the user is authenticated
  */
-export const isAuthenticated = () => {
+const isAuthenticated = (): boolean => {
   const token = getAccessToken();
-  return token && !isTokenExpired(token);
+  return !!token && !isTokenExpired(token);
+};
+
+export {
+  getAccessToken,
+  getRefreshToken,
+  setAccessToken,
+  setRefreshToken,
+  clearTokens,
+  isTokenExpired,
+  getUserFromToken,
+  isAuthenticated,
 };
