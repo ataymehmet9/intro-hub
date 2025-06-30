@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 // Create API instance with base URL
 const api = axios.create({
@@ -12,19 +12,19 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error)
 );
 
 // Response interceptor to handle token refresh
 // api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
+//   (response: AxiosResponse) => response,
+//   async (error: AxiosError) => {
+//     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
 //     // If error is 401 and we haven't retried yet
 //     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -43,7 +43,7 @@ api.interceptors.request.use(
 //         }
 
 //         // Call refresh endpoint
-//         const response = await axios.post(
+//         const response = await axios.post<{ access: string; refresh: string }>(
 //           `${api.defaults.baseURL}/auth/refresh`,
 //           {
 //             refresh: refreshToken,
@@ -58,7 +58,9 @@ api.interceptors.request.use(
 //         localStorage.setItem("refreshToken", refresh);
 
 //         // Update the authorization header
-//         originalRequest.headers.Authorization = `Bearer ${access}`;
+//         if (originalRequest.headers) {
+//           originalRequest.headers.Authorization = `Bearer ${access}`;
+//         }
 
 //         // Retry the original request
 //         return api(originalRequest);
