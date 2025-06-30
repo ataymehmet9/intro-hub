@@ -1,203 +1,178 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  ReactNode,
-  FC,
-} from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 
 import { useAuth } from "@hooks/useAuth";
 import {
-  getContacts,
-  createContact,
-  updateContact,
-  deleteContact,
-  bulkUploadContacts,
-} from "@services/contacts";
+  getRequests,
+  createRequest,
+  updateRequestStatus,
+  searchContacts,
+} from "@services/requests";
 
-// Types
-type Contact = {
+export type Request = {
   id: number;
-  name: string;
-  email?: string;
-  phone?: string;
+  sender: any;
+  receiver: any;
+  status: string;
   [key: string]: any;
 };
 
-type BulkUploadResult = {
-  contacts_created: number;
-  contacts_updated: number;
-  errors?: any[];
-};
-
-type ContactContextType = {
-  contacts: Contact[];
+export type RequestContextType = {
+  sentRequests: Request[];
+  receivedRequests: Request[];
   isLoading: boolean;
   error: string | null;
-  fetchContacts: () => Promise<void>;
-  addContact: (contactData: Partial<Contact>) => Promise<Contact>;
-  editContact: (id: number, contactData: Partial<Contact>) => Promise<Contact>;
-  removeContact: (id: number) => Promise<void>;
-  uploadContacts: (file: File) => Promise<BulkUploadResult>;
+  fetchAllRequests: () => Promise<void>;
+  fetchSentRequests: () => Promise<Request[]>;
+  fetchReceivedRequests: () => Promise<Request[]>;
+  addRequest: (requestData: Partial<Request>) => Promise<Request>;
+  updateStatus: (id: number, status: string) => Promise<Request>;
+  searchContacts: (query: string) => Promise<any[]>;
 };
 
-type ContactProviderProps = {
-  children: ReactNode;
-};
-
-// Create the context
 // eslint-disable-next-line react-refresh/only-export-components
-export const ContactContext = createContext<ContactContextType | undefined>(
+export const RequestContext = createContext<RequestContextType | undefined>(
   undefined
 );
 
-export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
-  const [contacts, setContacts] = useState<Contact[]>([]);
+export const RequestProvider = ({ children }: React.PropsWithChildren) => {
+  const [sentRequests, setSentRequests] = useState<Request[]>([]);
+  const [receivedRequests, setReceivedRequests] = useState<Request[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
-  // Fetch contacts when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      fetchContacts();
+      fetchAllRequests();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // Fetch all contacts
-  const fetchContacts = async (): Promise<void> => {
+  const fetchAllRequests = async (): Promise<void> => {
     try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getContacts();
-      setContacts(data);
+      await Promise.all([fetchSentRequests(), fetchReceivedRequests()]);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
-      setError("Failed to fetch contacts");
-      enqueueSnackbar("Failed to fetch contacts", { variant: "error" });
-    } finally {
-      setIsLoading(false);
+      setError("Failed to fetch requests");
+      enqueueSnackbar("Failed to fetch requests", { variant: "error" });
     }
   };
 
-  // Add new contact
-  const addContact = async (
-    contactData: Partial<Contact>
-  ): Promise<Contact> => {
+  const fetchSentRequests = async (): Promise<Request[]> => {
     try {
       setIsLoading(true);
       setError(null);
-      const newContact = await createContact(contactData);
-      setContacts((prevContacts) => [...prevContacts, newContact]);
-      enqueueSnackbar("Contact added successfully", { variant: "success" });
-      return newContact;
+      const data = await getRequests("sent");
+      setSentRequests(data);
+      return data;
     } catch (error) {
-      setError("Failed to add contact");
-      enqueueSnackbar("Failed to add contact", { variant: "error" });
+      setError("Failed to fetch sent requests");
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Update contact
-  const editContact = async (
-    id: number,
-    contactData: Partial<Contact>
-  ): Promise<Contact> => {
+  const fetchReceivedRequests = async (): Promise<Request[]> => {
     try {
       setIsLoading(true);
       setError(null);
-      const updatedContact = await updateContact(id, contactData);
-      setContacts((prevContacts) =>
-        prevContacts.map((contact) =>
-          contact.id === id ? updatedContact : contact
+      const data = await getRequests("received");
+      setReceivedRequests(data);
+      return data;
+    } catch (error) {
+      setError("Failed to fetch received requests");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addRequest = async (
+    requestData: Partial<Request>
+  ): Promise<Request> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const newRequest = await createRequest(requestData);
+      setSentRequests((prevRequests) => [newRequest, ...prevRequests]);
+      enqueueSnackbar("Introduction request sent successfully", {
+        variant: "success",
+      });
+      return newRequest;
+    } catch (error) {
+      setError("Failed to send request");
+      enqueueSnackbar("Failed to send request", { variant: "error" });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateStatus = async (id: number, status: string): Promise<Request> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const updatedRequest = await updateRequestStatus(id, { status });
+
+      setReceivedRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === id ? updatedRequest : request
         )
       );
-      enqueueSnackbar("Contact updated successfully", { variant: "success" });
-      return updatedContact;
-    } catch (error) {
-      setError("Failed to update contact");
-      enqueueSnackbar("Failed to update contact", { variant: "error" });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  // Delete contact
-  const removeContact = async (id: number): Promise<void> => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await deleteContact(id);
-      setContacts((prevContacts) =>
-        prevContacts.filter((contact) => contact.id !== id)
-      );
-      enqueueSnackbar("Contact deleted successfully", { variant: "success" });
-    } catch (error) {
-      setError("Failed to delete contact");
-      enqueueSnackbar("Failed to delete contact", { variant: "error" });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Bulk upload contacts
-  const uploadContacts = async (file: File): Promise<BulkUploadResult> => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const result: BulkUploadResult = await bulkUploadContacts(file);
-
-      // Refresh contacts after bulk upload
-      await fetchContacts();
-
-      enqueueSnackbar(
-        `${result.contacts_created} contacts added, ${result.contacts_updated} updated`,
-        {
-          variant: "success",
-        }
-      );
-
-      // If there are any errors, show them
-      if (result.errors && result.errors.length > 0) {
-        enqueueSnackbar(
-          `${result.errors.length} errors occurred during import`,
-          {
-            variant: "warning",
-          }
-        );
+      let message = "";
+      if (status === "approved") {
+        message = "Request approved. An introduction email has been sent.";
+      } else if (status === "denied") {
+        message = "Request denied.";
+      } else {
+        message = "Request status updated.";
       }
 
-      return result;
+      enqueueSnackbar(message, { variant: "success" });
+      return updatedRequest;
     } catch (error) {
-      setError("Failed to upload contacts");
-      enqueueSnackbar("Failed to upload contacts", { variant: "error" });
+      setError("Failed to update request status");
+      enqueueSnackbar("Failed to update request status", { variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Context value
-  const value: ContactContextType = {
-    contacts,
+  const search = async (query: string): Promise<any[]> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const results = await searchContacts(query);
+      return results;
+    } catch (error) {
+      setError("Failed to search contacts");
+      enqueueSnackbar("Failed to search contacts", { variant: "error" });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const value: RequestContextType = {
+    sentRequests,
+    receivedRequests,
     isLoading,
     error,
-    fetchContacts,
-    addContact,
-    editContact,
-    removeContact,
-    uploadContacts,
+    fetchAllRequests,
+    fetchSentRequests,
+    fetchReceivedRequests,
+    addRequest,
+    updateStatus,
+    searchContacts: search,
   };
 
   return (
-    <ContactContext.Provider value={value}>{children}</ContactContext.Provider>
+    <RequestContext.Provider value={value}>{children}</RequestContext.Provider>
   );
 };

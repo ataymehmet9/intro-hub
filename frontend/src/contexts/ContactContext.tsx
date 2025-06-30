@@ -17,7 +17,7 @@ import {
 } from "@services/contacts";
 
 // Types
-type Contact = {
+export type Contact = {
   id: number;
   name: string;
   email?: string;
