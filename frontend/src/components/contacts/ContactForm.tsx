@@ -1,8 +1,7 @@
-import React from 'react';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import React from "react";
+import { Formik, Form, Field, FormikHelpers } from "formik";
+import * as Yup from "yup";
 import {
-  Box,
   Button,
   CircularProgress,
   Dialog,
@@ -12,64 +11,102 @@ import {
   Grid,
   TextField,
   Typography,
-} from '@mui/material';
-import { useContacts } from '../../hooks/useContacts';
+} from "@mui/material";
+import { useContacts } from "@hooks/useContacts";
+
+type ContactFormValues = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  job_title?: string;
+  linkedin_profile?: string;
+  relationship?: string;
+  notes?: string;
+  [key: string]: any;
+};
+
+type Contact = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  job_title?: string;
+  linkedin_profile?: string;
+  relationship?: string;
+  notes?: string;
+  [key: string]: any;
+};
+
+type ContactFormProps = {
+  open: boolean;
+  onClose: () => void;
+  contact?: Contact | null;
+};
 
 // Validation schema
 const ContactSchema = Yup.object().shape({
-  first_name: Yup.string().required('First name is required'),
-  last_name: Yup.string().required('Last name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
+  first_name: Yup.string().required("First name is required"),
+  last_name: Yup.string().required("Last name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
   phone: Yup.string(),
   company: Yup.string(),
   job_title: Yup.string(),
-  linkedin_profile: Yup.string().url('Invalid URL'),
+  linkedin_profile: Yup.string().url("Invalid URL"),
   relationship: Yup.string(),
   notes: Yup.string(),
 });
 
-const ContactForm = ({ open, onClose, contact }) => {
+const ContactForm = ({ open, onClose, contact }: ContactFormProps) => {
   const { addContact, editContact } = useContacts();
-  
-  const isEditMode = Boolean(contact);
-  const initialValues = contact ? { ...contact } : {
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    company: '',
-    job_title: '',
-    linkedin_profile: '',
-    relationship: '',
-    notes: '',
-  };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+  const isEditMode = Boolean(contact);
+  const initialValues: ContactFormValues = contact
+    ? { ...contact }
+    : {
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        company: "",
+        job_title: "",
+        linkedin_profile: "",
+        relationship: "",
+        notes: "",
+      };
+
+  const handleSubmit = async (
+    values: ContactFormValues,
+    { setSubmitting, setErrors }: FormikHelpers<ContactFormValues>
+  ) => {
     try {
-      if (isEditMode) {
+      if (isEditMode && contact) {
         await editContact(contact.id, values);
       } else {
         await addContact(values);
       }
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       // Handle API errors
       const errorData = error.response?.data || {};
-      const formattedErrors = {};
-      
+      const formattedErrors: Record<string, string> = {};
+
       // Convert API error format to form error format
-      Object.keys(errorData).forEach(key => {
+      Object.keys(errorData).forEach((key) => {
         if (Array.isArray(errorData[key])) {
-          formattedErrors[key] = errorData[key].join(' ');
+          formattedErrors[key] = errorData[key].join(" ");
         } else {
           formattedErrors[key] = errorData[key];
         }
       });
-      
+
       if (Object.keys(formattedErrors).length === 0) {
-        formattedErrors.submit = 'An error occurred. Please try again.';
+        formattedErrors.submit = "An error occurred. Please try again.";
       }
-      
+
       setErrors(formattedErrors);
     } finally {
       setSubmitting(false);
@@ -79,10 +116,10 @@ const ContactForm = ({ open, onClose, contact }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        {isEditMode ? 'Edit Contact' : 'Add New Contact'}
+        {isEditMode ? "Edit Contact" : "Add New Contact"}
       </DialogTitle>
-      
-      <Formik
+
+      <Formik<ContactFormValues>
         initialValues={initialValues}
         validationSchema={ContactSchema}
         onSubmit={handleSubmit}
@@ -98,7 +135,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     Basic Information
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -110,7 +147,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     required
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -122,7 +159,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     required
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -135,7 +172,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     required
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -146,14 +183,14 @@ const ContactForm = ({ open, onClose, contact }) => {
                     helperText={touched.phone && errors.phone}
                   />
                 </Grid>
-                
+
                 {/* Professional Information */}
                 <Grid item xs={12} sx={{ mt: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     Professional Information
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -164,7 +201,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     helperText={touched.company && errors.company}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Field
                     as={TextField}
@@ -175,7 +212,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     helperText={touched.job_title && errors.job_title}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
@@ -183,18 +220,23 @@ const ContactForm = ({ open, onClose, contact }) => {
                     label="LinkedIn Profile"
                     name="linkedin_profile"
                     placeholder="https://linkedin.com/in/username"
-                    error={touched.linkedin_profile && Boolean(errors.linkedin_profile)}
-                    helperText={touched.linkedin_profile && errors.linkedin_profile}
+                    error={
+                      touched.linkedin_profile &&
+                      Boolean(errors.linkedin_profile)
+                    }
+                    helperText={
+                      touched.linkedin_profile && errors.linkedin_profile
+                    }
                   />
                 </Grid>
-                
+
                 {/* Relationship Information */}
                 <Grid item xs={12} sx={{ mt: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     Relationship Information
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
@@ -206,7 +248,7 @@ const ContactForm = ({ open, onClose, contact }) => {
                     helperText={touched.relationship && errors.relationship}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
@@ -219,22 +261,18 @@ const ContactForm = ({ open, onClose, contact }) => {
                     helperText={touched.notes && errors.notes}
                   />
                 </Grid>
-                
+
                 {/* Form-level errors */}
                 {errors.submit && (
                   <Grid item xs={12}>
-                    <Typography color="error">
-                      {errors.submit}
-                    </Typography>
+                    <Typography color="error">{errors.submit}</Typography>
                   </Grid>
                 )}
               </Grid>
             </DialogContent>
-            
+
             <DialogActions>
-              <Button onClick={onClose}>
-                Cancel
-              </Button>
+              <Button onClick={onClose}>Cancel</Button>
               <Button
                 type="submit"
                 variant="contained"
@@ -244,9 +282,9 @@ const ContactForm = ({ open, onClose, contact }) => {
                 {isSubmitting ? (
                   <CircularProgress size={24} />
                 ) : isEditMode ? (
-                  'Save Changes'
+                  "Save Changes"
                 ) : (
-                  'Add Contact'
+                  "Add Contact"
                 )}
               </Button>
             </DialogActions>

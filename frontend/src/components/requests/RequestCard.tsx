@@ -29,15 +29,20 @@ import {
 } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
 
-import { useRequests } from "../../hooks/useRequests";
+import { useRequests, type Request } from "@hooks/useRequests";
 
-const RequestCard = ({ request, type }) => {
+type RequestCardProps = {
+  request: Request;
+  type: "sent" | "received";
+};
+
+const RequestCard = ({ request, type }: RequestCardProps) => {
   const { updateStatus } = useRequests();
 
-  const [expanded, setExpanded] = useState(false);
-  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [denyDialogOpen, setDenyDialogOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState<boolean>(false);
+  const [denyDialogOpen, setDenyDialogOpen] = useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -122,8 +127,7 @@ const RequestCard = ({ request, type }) => {
   };
 
   // Generate avatar color based on name
-  const stringToColor = (string) => {
-    return "8CCDEB";
+  const stringToColor = (string: string): string => {
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
       hash = string.charCodeAt(i) + ((hash << 5) - hash);
@@ -136,6 +140,11 @@ const RequestCard = ({ request, type }) => {
     return color;
   };
 
+  const avatarName =
+    type === "received"
+      ? request.requester?.full_name || ""
+      : request.target_contact?.full_name || "";
+
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
@@ -143,25 +152,15 @@ const RequestCard = ({ request, type }) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
               sx={{
-                bgcolor: stringToColor(
-                  type === "received"
-                    ? request.requester?.full_name
-                    : request.target_contact?.full_name
-                ),
+                bgcolor: stringToColor(avatarName),
                 mr: 2,
               }}
             >
-              {/* {(type === "received"
-                ? request.requester
-                : request.contact_name
-              ).charAt(0)} */}
-              S
+              {avatarName.charAt(0) || "S"}
             </Avatar>
             <Box>
               <Typography variant="h6" component="div">
-                {type === "received"
-                  ? request.requester?.full_name
-                  : request.target_contact?.full_name}
+                {avatarName}
               </Typography>
               {request.contact_company && (
                 <Typography variant="body2" color="text.secondary">
@@ -178,7 +177,7 @@ const RequestCard = ({ request, type }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {type === "received"
             ? `${request.requester?.full_name} requested an introduction to ${request.target_contact?.full_name}`
-            : `You requested an introduction to ${request.target_contact.full_name}`}
+            : `You requested an introduction to ${request.target_contact?.full_name}`}
         </Typography>
 
         <IconButton
@@ -225,10 +224,11 @@ const RequestCard = ({ request, type }) => {
 
       <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
         <Typography variant="caption" color="text.secondary">
-          {/* {formatDistanceToNow(new Date(request.created_at), {
-            addSuffix: true,
-          })} */}
-          {new Date(request.created_at).toISOString}
+          {request.created_at
+            ? formatDistanceToNow(new Date(request.created_at), {
+                addSuffix: true,
+              })
+            : ""}
         </Typography>
 
         {type === "received" && request.status === "pending" && (

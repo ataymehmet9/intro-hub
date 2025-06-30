@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, MouseEvent } from "react";
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
-} from '@mui/material';
+} from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   Edit as EditIcon,
@@ -20,16 +20,21 @@ import {
   Phone as PhoneIcon,
   Email as EmailIcon,
   LinkedIn as LinkedInIcon,
-} from '@mui/icons-material';
-import { useContacts } from '../../hooks/useContacts';
+} from "@mui/icons-material";
+import { useContacts, type Contact } from "@hooks/useContacts";
 
-const ContactCard = ({ contact, onEdit }) => {
+type ContactCardProps = {
+  contact: Contact;
+  onEdit: (contact: Contact) => void;
+};
+
+const ContactCard = ({ contact, onEdit }: ContactCardProps) => {
   const { removeContact } = useContacts();
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const handleMenuOpen = (event) => {
+  const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -45,23 +50,23 @@ const ContactCard = ({ contact, onEdit }) => {
   const handleDeleteClick = async () => {
     handleMenuClose();
     setIsDeleting(true);
-    
+
     try {
       await removeContact(contact.id);
     } catch (error) {
-      console.error('Error deleting contact:', error);
+      console.error("Error deleting contact:", error);
     } finally {
       setIsDeleting(false);
     }
   };
 
   // Generate avatar color based on contact name
-  const stringToColor = (string) => {
+  const stringToColor = (string: string): string => {
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
       hash = string.charCodeAt(i) + ((hash << 5) - hash);
     }
-    let color = '#';
+    let color = "#";
     for (let i = 0; i < 3; i++) {
       const value = (hash >> (i * 8)) & 0xff;
       color += `00${value.toString(16)}`.slice(-2);
@@ -72,19 +77,19 @@ const ContactCard = ({ contact, onEdit }) => {
   return (
     <Card
       sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        transition: "transform 0.2s",
+        "&:hover": {
+          transform: "translateY(-4px)",
           boxShadow: 3,
         },
       }}
     >
       <CardContent sx={{ flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
               sx={{
                 bgcolor: stringToColor(contact.full_name),
@@ -116,8 +121,8 @@ const ContactCard = ({ contact, onEdit }) => {
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
             <MenuItem onClick={handleEditClick}>
               <ListItemIcon>
@@ -138,25 +143,44 @@ const ContactCard = ({ contact, onEdit }) => {
 
         <Box sx={{ mb: 2 }}>
           {contact.company && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <BusinessIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+              <BusinessIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "text.secondary" }}
+              />
               <Typography variant="body2">{contact.company}</Typography>
             </Box>
           )}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <EmailIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+            <EmailIcon
+              fontSize="small"
+              sx={{ mr: 1, color: "text.secondary" }}
+            />
             <Typography variant="body2">{contact.email}</Typography>
           </Box>
           {contact.phone && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <PhoneIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+              <PhoneIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "text.secondary" }}
+              />
               <Typography variant="body2">{contact.phone}</Typography>
             </Box>
           )}
           {contact.linkedin_profile && (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <LinkedInIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body2" component="a" href={contact.linkedin_profile} target="_blank" rel="noopener noreferrer" sx={{ color: 'primary.main', textDecoration: 'none' }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <LinkedInIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "text.secondary" }}
+              />
+              <Typography
+                variant="body2"
+                component="a"
+                href={contact.linkedin_profile}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: "primary.main", textDecoration: "none" }}
+              >
                 LinkedIn Profile
               </Typography>
             </Box>
@@ -171,9 +195,12 @@ const ContactCard = ({ contact, onEdit }) => {
           />
         )}
       </CardContent>
-      <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
+      <CardActions sx={{ justifyContent: "flex-end", p: 2, pt: 0 }}>
         <Typography variant="caption" color="text.secondary">
-          Added: {new Date(contact.created_at).toLocaleDateString()}
+          Added:{" "}
+          {contact.created_at
+            ? new Date(contact.created_at).toLocaleDateString()
+            : ""}
         </Typography>
       </CardActions>
     </Card>

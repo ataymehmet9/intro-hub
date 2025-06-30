@@ -1,34 +1,40 @@
-import React, { useState, useEffect, forwardRef } from 'react';
-import PropTypes from 'prop-types';
-import { 
-  Box, 
-  Collapse, 
-  IconButton, 
+import React, { useState, useEffect, forwardRef, ReactNode, Ref } from "react";
+import {
+  Box,
+  Collapse,
+  IconButton,
   Alert as MuiAlert,
-  AlertTitle 
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+  AlertTitle,
+  AlertProps as MuiAlertProps,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
+
+type AlertSeverity = "error" | "warning" | "info" | "success";
+
+type AlertProps = {
+  severity?: AlertSeverity;
+  title?: string;
+  children?: ReactNode;
+  open?: boolean;
+  onClose?: () => void;
+  autoHideDuration?: number;
+} & Omit<MuiAlertProps, "severity">;
 
 /**
  * Custom alert component with auto-dismiss functionality
- * 
- * @param {Object} props - Component props
- * @param {string} props.severity - Alert severity (error, warning, info, success)
- * @param {string} props.title - Alert title
- * @param {React.ReactNode} props.children - Alert content
- * @param {boolean} props.open - Whether the alert is visible
- * @param {Function} props.onClose - Function to call when closing the alert
- * @param {number} props.autoHideDuration - Duration in milliseconds before auto-dismissing (0 to disable)
  */
-const Alert = forwardRef(function Alert({
-  severity = 'info',
-  title,
-  children,
-  open = true,
-  onClose,
-  autoHideDuration = 0,
-  ...props
-}, ref) {
+const Alert = forwardRef(function Alert(
+  {
+    severity = "info",
+    title,
+    children,
+    open = true,
+    onClose,
+    autoHideDuration = 0,
+    ...props
+  }: AlertProps,
+  ref: Ref<HTMLDivElement>
+) {
   const [isVisible, setIsVisible] = useState(open);
 
   useEffect(() => {
@@ -82,14 +88,5 @@ const Alert = forwardRef(function Alert({
     </Collapse>
   );
 });
-
-Alert.propTypes = {
-  severity: PropTypes.oneOf(['error', 'warning', 'info', 'success']),
-  title: PropTypes.string,
-  children: PropTypes.node,
-  open: PropTypes.bool,
-  onClose: PropTypes.func,
-  autoHideDuration: PropTypes.number,
-};
 
 export default Alert;
