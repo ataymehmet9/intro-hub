@@ -1,5 +1,7 @@
 import { useContext } from "react";
-import { ContactContext } from "@contexts/ContactContext";
+import { ContactContext, type Contact } from "@contexts/ContactContext";
+
+export type { Contact };
 
 /**
  * Custom hook to provide access to the ContactContext
