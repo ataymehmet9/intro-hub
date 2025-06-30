@@ -1,10 +1,9 @@
 import { useContext } from "react";
-
-import { ContactContext } from "../contexts/ContactContext";
+import { ContactContext } from "@contexts/ContactContext";
 
 /**
  * Custom hook to provide access to the ContactContext
- * @returns {Object} - Contact context values and methods
+ * @returns Contact context values and methods
  */
 export const useContacts = () => {
   const context = useContext(ContactContext);
