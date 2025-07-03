@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ContactContext, type Contact } from "@contexts/ContactContext";
+import { ContactContext, type Contact } from "@context/ContactContext";
 
 export type { Contact };
 

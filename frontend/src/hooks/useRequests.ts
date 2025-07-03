@@ -3,7 +3,7 @@ import {
   RequestContext,
   type Request,
   type RequestContextType,
-} from "@contexts/RequestContext";
+} from "@context/RequestContext";
 
 export type { Request, RequestContextType };
 
