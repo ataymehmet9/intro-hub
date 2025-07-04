@@ -6,7 +6,7 @@ import {
   ChevronLeftIcon,
   EyeSlashIcon as EyeCloseIcon,
   EyeIcon,
-} from "@heroicons/react/24/outline";
+} from "@heroicons/react/24/solid";
 
 import { useAuth } from "@hooks/useAuth";
 import Form from "@components/form/Form";
@@ -48,6 +48,7 @@ const Login = () => {
     try {
       await login(values.email, values.password);
       // Note: Redirect is handled by the useAuth hook
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // Handle API errors
       const errorMessage =
@@ -148,8 +149,19 @@ const Login = () => {
                     name="email"
                     type="email"
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     value={formik.values.email}
                     placeholder="info@gmail.com"
+                    error={
+                      formik.touched.email && formik.errors.email
+                        ? !!formik.errors.email
+                        : undefined
+                    }
+                    hint={
+                      formik.touched.email && formik.errors.email
+                        ? formik.errors.email
+                        : undefined
+                    }
                   />
                 </div>
                 <div>
@@ -162,18 +174,31 @@ const Login = () => {
                       name="password"
                       type={showPassword ? "text" : "password"}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       placeholder="Enter your password"
+                      error={
+                        formik.touched.password && formik.errors.password
+                          ? !!formik.errors.password
+                          : undefined
+                      }
+                      hint={
+                        formik.touched.password && formik.errors.password
+                          ? formik.errors.password
+                          : undefined
+                      }
+                      suffix={
+                        <span
+                          onClick={handleClickShowPassword}
+                          className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                        >
+                          {showPassword ? (
+                            <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                          ) : (
+                            <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                          )}
+                        </span>
+                      }
                     />
-                    <span
-                      onClick={handleClickShowPassword}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                    >
-                      {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      )}
-                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
