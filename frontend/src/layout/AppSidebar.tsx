@@ -8,7 +8,7 @@ import {
   HandThumbUpIcon,
   ChevronDownIcon,
   EllipsisHorizontalIcon as HorizontaLDots,
-} from "@heroicons/react/24/outline";
+} from "@heroicons/react/24/solid";
 
 // Assume these icons are imported from an icon library
 import { useSidebar } from "@context/SidebarContext";

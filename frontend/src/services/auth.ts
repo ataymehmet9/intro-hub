@@ -3,7 +3,8 @@ import api from "./api";
 type LoginResponse = {
   access: string;
   refresh: string;
-  user: Record<string, any>;
+  user: User;
+  token: string;
 };
 
 type RegisterResponse = {
@@ -15,9 +16,14 @@ type RefreshTokenResponse = {
   refresh: string;
 };
 
-type UserProfile = Record<string, any>;
+export type User = {
+  id: number;
+  email: string;
+  username?: string;
+  [key: string]: any;
+};
 
-type UpdateProfileResponse = UserProfile;
+type UpdateProfileResponse = User;
 
 type ChangePasswordData = {
   old_password: string;
@@ -72,8 +78,8 @@ export const refreshToken = async (
  * Get the current user's profile
  * @returns API response with user data
  */
-export const getCurrentUser = async (): Promise<UserProfile> => {
-  const response = await api.get<UserProfile>("/profile");
+export const getCurrentUser = async (): Promise<User> => {
+  const response = await api.get<User>("/profile");
   return response.data;
 };
 

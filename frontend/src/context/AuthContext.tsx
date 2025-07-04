@@ -7,15 +7,13 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { login, register, refreshToken, getCurrentUser } from "@services/auth";
-
-// Define types for user and context
-type User = {
-  id: number;
-  email: string;
-  username?: string;
-  [key: string]: any;
-};
+import {
+  login,
+  register,
+  refreshToken,
+  getCurrentUser,
+  type User,
+} from "@services/auth";
 
 type AuthContextType = {
   user: User | null;
