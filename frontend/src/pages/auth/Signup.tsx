@@ -1,3 +1,22 @@
+import React from "react";
+
+import PageMeta from "@components/common/PageMeta";
+import SignupForm from "@components/auth/SignupForm";
+
+const Signup = () => {
+  return (
+    <>
+      <PageMeta
+        title="IntroHub | SignUp"
+        description="Create a new IntroHub account"
+      />
+      <SignupForm />
+    </>
+  );
+};
+
+export default Signup;
+
 // import React, { useState } from "react";
 // import { Link as RouterLink } from "react-router-dom";
 // import { Formik, Form, Field, FormikHelpers } from "formik";
@@ -374,9 +393,3 @@
 //     </Box>
 //   );
 // };
-
-// export default Signup;
-
-export default function () {
-  return <></>;
-}
