@@ -20,6 +20,10 @@ import Profile from "@pages/Profile";
 
 // Other Pages
 import NotFound from "@pages/NotFound";
+import Maintenance from "@pages/Maintenance";
+import FiveZeroThree from "@pages/FiveZeroThree";
+import FiveZeroZero from "@pages/FiveZeroZero";
+import ComingSoon from "@pages/ComingSoon";
 
 type RouteGuardProps = {
   children: ReactNode;
@@ -114,6 +118,11 @@ const AppRoutes = () => {
         }
       />
 
+      {/* Other pages */}
+      <Route path="/maintenance" element={<Maintenance />} />
+      <Route path="/503" element={<FiveZeroThree />} />
+      <Route path="/500" element={<FiveZeroZero />} />
+      <Route path="/coming-soon" element={<ComingSoon />} />
       {/* Fallback Route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
