@@ -2,8 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { DropdownItem } from "@components/ui/dropdown/DropdownItem";
 import { Dropdown } from "@components/ui/dropdown/Dropdown";
+import { User } from "@services/auth";
 
-export default function UserDropdown() {
+type UserDropdownProps = {
+  user: User | null;
+};
+
+export default function UserDropdown({ user }: UserDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
@@ -13,6 +18,11 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="relative">
       <button
@@ -23,7 +33,9 @@ export default function UserDropdown() {
           <img src="/images/user/owner.jpg" alt="User" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user.username}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -50,11 +62,13 @@ export default function UserDropdown() {
         className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
         <div>
-          <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Musharof Chowdhury
-          </span>
+          {user.full_name && (
+            <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
+              {user.full_name}
+            </span>
+          )}
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
+            {user.email}
           </span>
         </div>
 
