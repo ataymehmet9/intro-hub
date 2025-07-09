@@ -1,6 +1,6 @@
 import React from "react";
 
-import Breadcrumb from "@components/ui/breadcrumb/Breadcrumb";
+import { Breadcrumb } from "@components/ui/breadcrumb";
 
 interface BreadcrumbProps {
   pageTitle: string;

@@ -13,7 +13,7 @@ import Form from "@components/form/Form";
 import Label from "@components/form/Label";
 import Input from "@components/form/input/InputField";
 import Checkbox from "@components/form/input/Checkbox";
-import Button from "@components/ui/button/Button";
+import { Button } from "@components/ui/button";
 
 // Validation schema
 const LoginSchema = Yup.object().shape({

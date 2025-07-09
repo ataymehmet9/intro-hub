@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { DropdownItem } from "@components/ui/dropdown/DropdownItem";
-import { Dropdown } from "@components/ui/dropdown/Dropdown";
+import { Dropdown, DropdownItem } from "@components/ui/dropdown";
 import { User } from "@services/auth";
 
 type UserDropdownProps = {

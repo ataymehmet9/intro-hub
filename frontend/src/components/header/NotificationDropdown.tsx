@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Dropdown } from "@components/ui/dropdown/Dropdown";
-import { DropdownItem } from "@components/ui/dropdown/DropdownItem";
+import { Dropdown, DropdownItem } from "@components/ui/dropdown";
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
