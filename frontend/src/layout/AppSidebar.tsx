@@ -3,9 +3,9 @@ import { Link, useLocation } from "react-router";
 import {
   ComputerDesktopIcon,
   UserGroupIcon,
-  Cog6ToothIcon,
+  IdentificationIcon,
   MagnifyingGlassIcon,
-  HandThumbUpIcon,
+  UserPlusIcon,
   ChevronDownIcon,
   EllipsisHorizontalIcon as HorizontaLDots,
 } from "@heroicons/react/24/solid";
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
     path: "/contacts",
   },
   {
-    icon: <Cog6ToothIcon />,
+    icon: <IdentificationIcon />,
     name: "User Profile",
     path: "/profile",
   },
@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   },
   {
     name: "Requests",
-    icon: <HandThumbUpIcon />,
+    icon: <UserPlusIcon />,
     path: "/requests",
   },
 ];
@@ -266,7 +266,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/">
+        <Link to="/dashboard">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
