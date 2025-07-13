@@ -1,6 +1,6 @@
 import { BrowserRouter as Router } from "react-router";
 
-import { ScrollToTop } from "@components/common/ScrollToTop";
+import { ScrollToTop } from "@components/common";
 import AppRoutes from "./routes";
 import { AuthProvider } from "@context/AuthContext";
 import { ContactProvider } from "@context/ContactContext";

@@ -1,6 +1,5 @@
 import { Link } from "react-router";
-import GridShape from "@components/common/GridShape";
-import PageMeta from "@components/common/PageMeta";
+import { GridShape, PageMeta } from "@components/common";
 
 export default function FiveZeroZero() {
   return (

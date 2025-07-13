@@ -1,3 +1,179 @@
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from "react";
+
+import { PageMeta, PageBreadcrumb } from "@components/common";
+import { Contact, useContacts } from "@hooks/useContacts";
+import { Card } from "@components/ui/card";
+import ContactsHeader from "@components/contacts/ContactsHeader";
+
+const Contacts = () => {
+  const { contacts, isLoading, error, fetchContacts, uploadContacts } =
+    useContacts();
+
+  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [openAddContact, setOpenAddContact] = useState<boolean>(false);
+  const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+  const [editContact, setEditContact] = useState<Contact | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [sortOrder, setSortOrder] = useState<string>("name_asc");
+  const [filterCompany, setFilterCompany] = useState<string>("");
+
+  // Get unique companies for filter menu
+  const companies = [...new Set(contacts.map((contact) => contact.company))]
+    .filter(Boolean)
+    .sort();
+
+  // Handle initial data load
+  useEffect(() => {
+    fetchContacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle filtering and sorting
+  useEffect(() => {
+    let result = [...contacts];
+
+    // Apply search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter((contact: Contact) => {
+        return (
+          contact.full_name?.toLowerCase().includes(term) ||
+          contact.email?.toLowerCase().includes(term) ||
+          (contact.company && contact.company.toLowerCase().includes(term)) ||
+          (contact.job_title && contact.job_title.toLowerCase().includes(term))
+        );
+      });
+    }
+
+    // Apply company filter
+    if (filterCompany) {
+      result = result.filter(
+        (contact: Contact) => contact.company === filterCompany
+      );
+    }
+
+    // Apply sorting
+    switch (sortOrder) {
+      case "name_asc":
+        result.sort((a, b) => a.full_name.localeCompare(b.full_name));
+        break;
+      case "name_desc":
+        result.sort((a, b) => b.full_name.localeCompare(a.full_name));
+        break;
+      case "company_asc":
+        result.sort((a, b) => (a.company || "").localeCompare(b.company || ""));
+        break;
+      case "company_desc":
+        result.sort((a, b) => (b.company || "").localeCompare(a.company || ""));
+        break;
+      case "recent":
+        result.sort(
+          (a, b) =>
+            new Date(b.created_at || "").getTime() -
+            new Date(a.created_at || "").getTime()
+        );
+        break;
+      default:
+        break;
+    }
+
+    setFilteredContacts(result);
+  }, [contacts, searchTerm, sortOrder, filterCompany]);
+
+  const handleAddContactOpen = () => {
+    setEditContact(null);
+    setOpenAddContact(true);
+  };
+
+  const handleEditContactOpen = (contact: Contact) => {
+    setEditContact(contact);
+    setOpenAddContact(true);
+  };
+
+  const handleContactDialogClose = () => {
+    setOpenAddContact(false);
+    setEditContact(null);
+  };
+
+  const handleUploadDialogOpen = () => {
+    setOpenUploadDialog(true);
+  };
+
+  const handleUploadDialogClose = () => {
+    setOpenUploadDialog(false);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      await uploadContacts(file);
+      handleUploadDialogClose();
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSortMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    setSortMenuAnchor(event.currentTarget);
+  };
+
+  const handleSortMenuClose = () => {
+    setSortMenuAnchor(null);
+  };
+
+  const handleFilterMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    setFilterMenuAnchor(event.currentTarget);
+  };
+
+  const handleFilterMenuClose = () => {
+    setFilterMenuAnchor(null);
+  };
+
+  const handleSortChange = (order: string) => {
+    setSortOrder(order);
+    handleSortMenuClose();
+  };
+
+  const handleFilterChange = (company: string) => {
+    setFilterCompany(company);
+    handleFilterMenuClose();
+  };
+
+  const clearFilter = () => {
+    setFilterCompany("");
+  };
+
+  return (
+    <>
+      <PageMeta
+        title="IntroHub | Contacts"
+        description="Manage your contacts and build your network"
+      />
+      <PageBreadcrumb pageTitle="Contacts" />
+      <
+      <Card largerRounded>
+        <ContactsHeader handleAddContact={handleAddContactOpen} />
+        <div className="p-4 space-y-8 border-t border-gray-200 mt-7 dark:border-gray-800 sm:mt-0 xl:p-6"></div>
+      </Card>
+    </>
+  );
+};
+
+export default Contacts;
+
 // import React, { useState, useEffect, MouseEvent, ChangeEvent } from "react";
 // import {
 //   Box,
@@ -429,7 +605,3 @@
 // };
 
 // export default Contacts;
-
-export default function () {
-  return <></>;
-}
