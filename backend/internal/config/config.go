@@ -47,7 +47,7 @@ func NewConfig() *Config {
 		LogLevel:       getEnv("LOG_LEVEL", "info"),
 
 		// Database
-		MySQLDSN: getEnv("MYSQL_DSN", "root:password@tcp(localhost:3306)/introhub?parseTime=true"),
+		MySQLDSN: getEnv("MYSQL_DSN", "introuser:H4ck3r534tc0ck!@tcp(localhost:3306)/introhub?parseTime=true"),
 
 		// JWT
 		JWTSecret:      getEnv("JWT_SECRET", "your-secret-key"),

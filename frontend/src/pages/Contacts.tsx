@@ -2,17 +2,30 @@ import React, { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 
 import { PageMeta, PageBreadcrumb } from "@components/common";
 import { Contact, useContacts } from "@hooks/useContacts";
-import { Card } from "@components/ui/card";
+import { ComponentCard } from "@components/common";
 import ContactsHeader from "@components/contacts/ContactsHeader";
+import ContactForm from "@components/contacts/ContactForm";
+import { ContactList } from "@components/contacts/ContactList";
+import { useModal } from "@hooks/useModal";
+import { Modal } from "@components/ui/modal";
+import ContactImport from "@components/contacts/ContactImport";
+import { Button } from "@components/ui/button";
 
 const Contacts = () => {
-  const { contacts, isLoading, error, fetchContacts, uploadContacts } =
-    useContacts();
+  const {
+    contacts,
+    isLoading,
+    error,
+    addContact,
+    editContact: doEditContact,
+    fetchContacts,
+    uploadContacts,
+  } = useContacts();
+  const { isOpen, openModal, closeModal } = useModal();
 
-  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
+  const [formValues, setFormValues] = useState<any>(null);
+  const [filteredContacts, setFilteredContacts] = useState<Contact[]>(contacts);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [openAddContact, setOpenAddContact] = useState<boolean>(false);
-  const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
   const [editContact, setEditContact] = useState<Contact | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(
@@ -89,32 +102,24 @@ const Contacts = () => {
 
   const handleAddContactOpen = () => {
     setEditContact(null);
-    setOpenAddContact(true);
+    openModal();
   };
 
   const handleEditContactOpen = (contact: Contact) => {
     setEditContact(contact);
-    setOpenAddContact(true);
+    openModal();
   };
 
   const handleContactDialogClose = () => {
-    setOpenAddContact(false);
+    closeModal();
     setEditContact(null);
-  };
-
-  const handleUploadDialogOpen = () => {
-    setOpenUploadDialog(true);
-  };
-
-  const handleUploadDialogClose = () => {
-    setOpenUploadDialog(false);
   };
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
       await uploadContacts(file);
-      handleUploadDialogClose();
+      closeModal();
     } catch (error) {
       console.error("Error uploading file:", error);
     } finally {
@@ -123,7 +128,7 @@ const Contacts = () => {
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.target?.value ?? "");
   };
 
   const handleSortMenuOpen = (event: MouseEvent<HTMLElement>) => {
@@ -156,6 +161,27 @@ const Contacts = () => {
     setFilterCompany("");
   };
 
+  const handleFormChange = (values: any) => {
+    setFormValues(values);
+  };
+
+  const handleSave = async () => {
+    if (!formValues) return;
+    try {
+      if (editContact) {
+        await doEditContact(editContact.id, formValues);
+      } else {
+        await addContact(formValues);
+      }
+      closeModal();
+      setEditContact(null);
+      setFormValues(null);
+    } catch (error) {
+      // handle error (show notification, etc.)
+      console.error("Error saving contact:", error);
+    }
+  };
+
   return (
     <>
       <PageMeta
@@ -163,11 +189,47 @@ const Contacts = () => {
         description="Manage your contacts and build your network"
       />
       <PageBreadcrumb pageTitle="Contacts" />
-      <
-      <Card largerRounded>
-        <ContactsHeader handleAddContact={handleAddContactOpen} />
-        <div className="p-4 space-y-8 border-t border-gray-200 mt-7 dark:border-gray-800 sm:mt-0 xl:p-6"></div>
-      </Card>
+      <ComponentCard
+        header={
+          <ContactsHeader
+            handleSearchChange={handleSearchChange}
+            searchTerm={searchTerm}
+            handleAddContact={handleAddContactOpen}
+          />
+        }
+      >
+        <ContactList
+          contacts={filteredContacts}
+          handleEdit={handleEditContactOpen}
+        />
+      </ComponentCard>
+      <Modal isOpen={isOpen} onClose={closeModal} isFullscreen showCloseButton>
+        <div className="fixed inset-0 flex flex-col bg-white dark:bg-gray-900 p-6 lg:p-10 z-50">
+          <div className="flex-1 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+              <div className="flex flex-col justify-start h-full">
+                <ContactForm
+                  contact={editContact}
+                  onClose={closeModal}
+                  open={isOpen}
+                  onChange={handleFormChange}
+                />
+              </div>
+              <div className="flex flex-col justify-start h-full">
+                <ContactImport />
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-end w-full gap-3 pt-4 bg-white dark:bg-gray-900">
+            <Button size="sm" variant="outline" onClick={closeModal}>
+              Close
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={!formValues}>
+              Add Contact
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

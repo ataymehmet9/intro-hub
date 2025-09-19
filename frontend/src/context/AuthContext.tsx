@@ -6,7 +6,6 @@ import React, {
   FC,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import {
   login,
   register,
@@ -14,6 +13,7 @@ import {
   getCurrentUser,
   type User,
 } from "@services/auth";
+import { toast } from "@components/ui/notification";
 
 type AuthContextType = {
   user: User | null;
@@ -47,8 +47,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   );
 
   const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
-
   // Initialize auth state
   useEffect(() => {
     const initializeAuth = async () => {
@@ -117,7 +115,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
 
       // Success notification and redirect
-      enqueueSnackbar("Login successful!", { variant: "success" });
+      toast({ title: "Login successful!", variant: "success" });
       navigate("/dashboard");
 
       return data;
@@ -125,7 +123,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       const errorMessage =
         error.response?.data?.detail ||
         "Login failed. Please check your credentials.";
-      enqueueSnackbar(errorMessage, { variant: "error" });
+      toast({ title: errorMessage, variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -141,13 +139,13 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       // Automatically log in after successful registration
       await handleLogin(userData.email, userData.password);
 
-      enqueueSnackbar("Account created successfully!", { variant: "success" });
+      toast({ title: "Account created successfully!", variant: "success" });
       return data;
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.detail ||
         "Registration failed. Please try again.";
-      enqueueSnackbar(errorMessage, { variant: "error" });
+      toast({ title: errorMessage, variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -167,7 +165,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
     // Redirect to login
     navigate("/login");
-    enqueueSnackbar("You have been logged out.", { variant: "info" });
+    toast({ title: "You have been logged out.", variant: "info" });
   };
 
   // Update user profile

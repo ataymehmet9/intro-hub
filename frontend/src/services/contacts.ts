@@ -2,9 +2,16 @@ import api from "./api";
 
 type Contact = {
   id: number;
-  name: string;
-  email?: string;
+  first_name: string;
+  last_name: string;
+  full_name?: string;
+  email: string;
+  company?: string;
+  position?: string;
+  notes?: string;
   phone?: string;
+  linkedin_url?: string;
+  relationship?: string;
   [key: string]: any;
 };
 

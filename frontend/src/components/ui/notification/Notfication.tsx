@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { toast as sonnerToast } from "sonner";
 import {
   ExclamationCircleIcon as AlertHexaIcon,
   CheckCircleIcon,
@@ -7,21 +7,20 @@ import {
   InformationCircleIcon as InfoIcon,
 } from "@heroicons/react/24/solid";
 
-interface NotificationProps {
+export type NotificationProps = {
+  id: string | number;
   variant: "success" | "info" | "warning" | "error"; // Notification type
   title: string; // Title text
   description?: string; // Optional description
   hideDuration?: number; // Time in milliseconds to hide the notification (default: 5000ms)
-}
+};
 
 const Notification: React.FC<NotificationProps> = ({
+  id,
   variant,
   title,
   description,
-  hideDuration = 3000, // Default hide duration: 5 seconds
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
   // Styling configuration for each alert type
   const variantStyles = {
     success: {
@@ -48,21 +47,9 @@ const Notification: React.FC<NotificationProps> = ({
 
   const { borderColor, iconBg, icon } = variantStyles[variant];
 
-  const handleClose = () => {
-    // Hide the notification
-    setIsVisible(false);
-
-    // Show it again after the specified time
-    setTimeout(() => {
-      setIsVisible(true);
-    }, hideDuration);
-  };
-
-  if (!isVisible) return null; // Don't render anything if not visible
-
   return (
     <div
-      className={`flex items-center justify-between gap-3 w-full sm:max-w-[340px] rounded-md border-b-4 p-3 shadow-theme-sm dark:bg-[#1E2634] ${borderColor}`}
+      className={`flex items-center justify-between gap-3 w-full bg-white sm:max-w-[340px] rounded-md border-b-4 p-3 shadow-theme-sm dark:bg-[#1E2634] ${borderColor}`}
     >
       <div className="flex items-center gap-4">
         {/* Icon */}
@@ -87,7 +74,9 @@ const Notification: React.FC<NotificationProps> = ({
 
       {/* Close Button */}
       <button
-        onClick={handleClose}
+        onClick={() => {
+          sonnerToast.dismiss(id);
+        }}
         className="text-gray-400 hover:text-gray-800 dark:hover:text-white/90"
       >
         <CloseIcon />

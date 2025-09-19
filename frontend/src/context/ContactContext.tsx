@@ -5,7 +5,6 @@ import React, {
   ReactNode,
   FC,
 } from "react";
-import { useSnackbar } from "notistack";
 
 import { useAuth } from "@hooks/useAuth";
 import {
@@ -15,6 +14,7 @@ import {
   deleteContact,
   bulkUploadContacts,
 } from "@services/contacts";
+import { toast } from "@components/ui/notification";
 
 // Types
 export type Contact = {
@@ -58,7 +58,6 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuth();
-  const { enqueueSnackbar } = useSnackbar();
 
   // Fetch contacts when authenticated
   useEffect(() => {
@@ -78,7 +77,7 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       setError("Failed to fetch contacts");
-      enqueueSnackbar("Failed to fetch contacts", { variant: "error" });
+      toast({ title: "Failed to fetch contacts", variant: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -93,11 +92,11 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
       setError(null);
       const newContact = await createContact(contactData);
       setContacts((prevContacts) => [...prevContacts, newContact]);
-      enqueueSnackbar("Contact added successfully", { variant: "success" });
+      toast({ title: "Contact added successfully", variant: "success" });
       return newContact;
     } catch (error) {
       setError("Failed to add contact");
-      enqueueSnackbar("Failed to add contact", { variant: "error" });
+      toast({ title: "Failed to add contact", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -118,11 +117,11 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
           contact.id === id ? updatedContact : contact
         )
       );
-      enqueueSnackbar("Contact updated successfully", { variant: "success" });
+      toast({ title: "Contact updated successfully", variant: "success" });
       return updatedContact;
     } catch (error) {
       setError("Failed to update contact");
-      enqueueSnackbar("Failed to update contact", { variant: "error" });
+      toast({ title: "Failed to update contact", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -138,10 +137,10 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
       setContacts((prevContacts) =>
         prevContacts.filter((contact) => contact.id !== id)
       );
-      enqueueSnackbar("Contact deleted successfully", { variant: "success" });
+      toast({ title: "Contact deleted successfully", variant: "success" });
     } catch (error) {
       setError("Failed to delete contact");
-      enqueueSnackbar("Failed to delete contact", { variant: "error" });
+      toast({ title: "Failed to delete contact", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -158,27 +157,23 @@ export const ContactProvider: FC<ContactProviderProps> = ({ children }) => {
       // Refresh contacts after bulk upload
       await fetchContacts();
 
-      enqueueSnackbar(
-        `${result.contacts_created} contacts added, ${result.contacts_updated} updated`,
-        {
-          variant: "success",
-        }
-      );
+      toast({
+        title: `${result.contacts_created} contacts added, ${result.contacts_updated} updated`,
+        variant: "success",
+      });
 
       // If there are any errors, show them
       if (result.errors && result.errors.length > 0) {
-        enqueueSnackbar(
-          `${result.errors.length} errors occurred during import`,
-          {
-            variant: "warning",
-          }
-        );
+        toast({
+          title: `${result.errors.length} errors occurred during import`,
+          variant: "warning",
+        });
       }
 
       return result;
     } catch (error) {
       setError("Failed to upload contacts");
-      enqueueSnackbar("Failed to upload contacts", { variant: "error" });
+      toast({ title: "Failed to upload contacts", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);

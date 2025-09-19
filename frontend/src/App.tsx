@@ -1,4 +1,5 @@
 import { BrowserRouter as Router } from "react-router";
+import { Toaster } from "sonner";
 
 import { ScrollToTop } from "@components/common";
 import AppRoutes from "./routes";
@@ -18,6 +19,7 @@ export default function App() {
             </RequestProvider>
           </ContactProvider>
         </AuthProvider>
+        <Toaster />
       </Router>
     </>
   );

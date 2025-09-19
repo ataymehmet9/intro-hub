@@ -1,29 +1,18 @@
 version: "3.8"
 
 services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
-    depends_on:
-      - db
-    restart: unless-stopped
-
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: H4ck3r534tc0ck! # Set a strong root password
+      MYSQL_DATABASE: introhub # Optional: Create a default database
+      MYSQL_USER: introuser # Optional: Create a default user
+      MYSQL_PASSWORD: H4ck3r534tc0ck! # Optional: Set password for the default user
     ports:
-      - "3306:3306"
+      - "3306:3306" # Maps host port 3306 to container port 3306
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
-    restart: unless-stopped
+      - db_data:/var/lib/mysql # Persist data using a named volume
+    restart: always # Ensures the container restarts if it stops
 
 volumes:
-  mysql_data:
+  db_data:

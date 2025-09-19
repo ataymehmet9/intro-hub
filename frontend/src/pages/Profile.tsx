@@ -43,7 +43,7 @@
 //   old_password: Yup.string().required("Current password is required"),
 //   new_password: Yup.string()
 //     .required("New password is required")
-//     .min(8, "Password must be at least 8 characters")
+//     .min(6, "Password must be at least 6 characters")
 //     .matches(/[a-z]/, "Password must contain at least one lowercase letter")
 //     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
 //     .matches(/[0-9]/, "Password must contain at least one number"),
@@ -228,13 +228,6 @@
 //                     Email:
 //                   </Box>
 //                   {user.email}
-//                 </Typography>
-
-//                 <Typography variant="body2" gutterBottom>
-//                   <Box component="span" sx={{ fontWeight: "bold", mr: 1 }}>
-//                     Username:
-//                   </Box>
-//                   {user.username}
 //                 </Typography>
 
 //                 {user.linkedin_profile && (

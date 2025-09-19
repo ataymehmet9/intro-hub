@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
+import clsx from "clsx";
 
 // Props interfaces for Card, CardTitle, and CardDescription
 interface CardProps {
   children?: ReactNode; // Optional additional content
+  className?: string;
+  largerRounded?: boolean;
 }
 
 interface CardTitleProps {
@@ -14,9 +17,15 @@ interface CardDescriptionProps {
 }
 
 // Card Component
-const Card: React.FC<CardProps> = ({ children }) => {
+const Card: React.FC<CardProps> = ({ children, className, largerRounded }) => {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+    <div
+      className={clsx(
+        "border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6",
+        { "rounded-xl": !largerRounded, "rounded-2xl": largerRounded },
+        className
+      )}
+    >
       {children}
     </div>
   );

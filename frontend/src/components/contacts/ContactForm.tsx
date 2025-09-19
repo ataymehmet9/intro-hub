@@ -1,45 +1,14 @@
 import React from "react";
-import { Formik, Form, Field, FormikHelpers } from "formik";
+import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useContacts } from "@hooks/useContacts";
+import { useContacts, type Contact } from "@hooks/useContacts";
 
-type ContactFormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  job_title?: string;
-  linkedin_profile?: string;
-  relationship?: string;
-  notes?: string;
-  [key: string]: any;
-};
+import { ComponentCard } from "@components/common";
+import Form from "@components/form/Form";
+import Label from "@components/form/Label";
+import { Input, TextArea } from "@components/form/input";
 
-type Contact = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  job_title?: string;
-  linkedin_profile?: string;
-  relationship?: string;
-  notes?: string;
-  [key: string]: any;
-};
+type ContactFormValues = Omit<Contact, "id">;
 
 type ContactFormProps = {
   open: boolean;
@@ -54,8 +23,8 @@ const ContactSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   phone: Yup.string(),
   company: Yup.string(),
-  job_title: Yup.string(),
-  linkedin_profile: Yup.string().url("Invalid URL"),
+  position: Yup.string(),
+  linkedin_url: Yup.string().url("Invalid URL"),
   relationship: Yup.string(),
   notes: Yup.string(),
 });
@@ -72,8 +41,8 @@ const ContactForm = ({ open, onClose, contact }: ContactFormProps) => {
         email: "",
         phone: "",
         company: "",
-        job_title: "",
-        linkedin_profile: "",
+        position: "",
+        linkedin_url: "",
         relationship: "",
         notes: "",
       };
@@ -90,11 +59,8 @@ const ContactForm = ({ open, onClose, contact }: ContactFormProps) => {
       }
       onClose();
     } catch (error: any) {
-      // Handle API errors
       const errorData = error.response?.data || {};
       const formattedErrors: Record<string, string> = {};
-
-      // Convert API error format to form error format
       Object.keys(errorData).forEach((key) => {
         if (Array.isArray(errorData[key])) {
           formattedErrors[key] = errorData[key].join(" ");
@@ -102,196 +68,240 @@ const ContactForm = ({ open, onClose, contact }: ContactFormProps) => {
           formattedErrors[key] = errorData[key];
         }
       });
-
       if (Object.keys(formattedErrors).length === 0) {
         formattedErrors.submit = "An error occurred. Please try again.";
       }
-
       setErrors(formattedErrors);
     } finally {
       setSubmitting(false);
     }
   };
 
+  const formik = useFormik<ContactFormValues>({
+    initialValues,
+    validationSchema: ContactSchema,
+    onSubmit: handleSubmit,
+    enableReinitialize: true,
+  });
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        {isEditMode ? "Edit Contact" : "Add New Contact"}
-      </DialogTitle>
-
-      <Formik<ContactFormValues>
-        initialValues={initialValues}
-        validationSchema={ContactSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ errors, touched, isSubmitting }) => (
-          <Form>
-            <DialogContent>
-              <Grid container spacing={2}>
-                {/* Basic Information */}
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Basic Information
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="First Name"
-                    name="first_name"
-                    error={touched.first_name && Boolean(errors.first_name)}
-                    helperText={touched.first_name && errors.first_name}
-                    required
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Last Name"
-                    name="last_name"
-                    error={touched.last_name && Boolean(errors.last_name)}
-                    helperText={touched.last_name && errors.last_name}
-                    required
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
-                    required
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Phone"
-                    name="phone"
-                    error={touched.phone && Boolean(errors.phone)}
-                    helperText={touched.phone && errors.phone}
-                  />
-                </Grid>
-
-                {/* Professional Information */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Professional Information
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Company"
-                    name="company"
-                    error={touched.company && Boolean(errors.company)}
-                    helperText={touched.company && errors.company}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Job Title"
-                    name="job_title"
-                    error={touched.job_title && Boolean(errors.job_title)}
-                    helperText={touched.job_title && errors.job_title}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="LinkedIn Profile"
-                    name="linkedin_profile"
-                    placeholder="https://linkedin.com/in/username"
-                    error={
-                      touched.linkedin_profile &&
-                      Boolean(errors.linkedin_profile)
-                    }
-                    helperText={
-                      touched.linkedin_profile && errors.linkedin_profile
-                    }
-                  />
-                </Grid>
-
-                {/* Relationship Information */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Relationship Information
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Relationship"
-                    name="relationship"
-                    placeholder="e.g. Former colleague, College friend, Industry peer"
-                    error={touched.relationship && Boolean(errors.relationship)}
-                    helperText={touched.relationship && errors.relationship}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Notes"
-                    name="notes"
-                    multiline
-                    rows={4}
-                    error={touched.notes && Boolean(errors.notes)}
-                    helperText={touched.notes && errors.notes}
-                  />
-                </Grid>
-
-                {/* Form-level errors */}
-                {errors.submit && (
-                  <Grid item xs={12}>
-                    <Typography color="error">{errors.submit}</Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </DialogContent>
-
-            <DialogActions>
-              <Button onClick={onClose}>Cancel</Button>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <CircularProgress size={24} />
-                ) : isEditMode ? (
-                  "Save Changes"
-                ) : (
-                  "Add Contact"
-                )}
-              </Button>
-            </DialogActions>
-          </Form>
-        )}
-      </Formik>
-    </Dialog>
+    <ComponentCard
+      title={isEditMode ? "Edit contact" : "Create contact - Manual entry"}
+    >
+      <Form onSubmit={formik.handleSubmit}>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="col-span-full">
+            <h4 className="pb-4 text-base font-medium text-gray-800 border-b border-gray-200 dark:border-gray-800 dark:text-white/90">
+              Basic Information
+            </h4>
+          </div>
+          <div className="">
+            <Label htmlFor="first_name" isRequired>
+              First Name
+            </Label>
+            <Input
+              type="text"
+              placeholder="Enter first name"
+              id="first_name"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.first_name}
+              error={
+                formik.touched.first_name && formik.errors.first_name
+                  ? !!formik.errors.first_name
+                  : undefined
+              }
+              hint={
+                formik.touched.first_name && formik.errors.first_name
+                  ? (formik.errors.first_name as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="">
+            <Label htmlFor="last_name" isRequired>
+              Last Name
+            </Label>
+            <Input
+              type="text"
+              placeholder="Enter last name"
+              id="last_name"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.last_name}
+              error={
+                formik.touched.last_name && formik.errors.last_name
+                  ? !!formik.errors.last_name
+                  : undefined
+              }
+              hint={
+                formik.touched.last_name && formik.errors.last_name
+                  ? (formik.errors.last_name as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="">
+            <Label htmlFor="email" isRequired>
+              Email
+            </Label>
+            <Input
+              type="email"
+              placeholder="Enter email address"
+              id="email"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.email}
+              error={
+                formik.touched.email && formik.errors.email
+                  ? !!formik.errors.email
+                  : undefined
+              }
+              hint={
+                formik.touched.email && formik.errors.email
+                  ? (formik.errors.email as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="">
+            <Label htmlFor="phone">Phone number</Label>
+            <Input
+              type="text"
+              placeholder="Enter phone number"
+              id="phone"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.phone}
+              error={
+                formik.touched.phone && formik.errors.phone
+                  ? !!formik.errors.phone
+                  : undefined
+              }
+              hint={
+                formik.touched.phone && formik.errors.phone
+                  ? (formik.errors.phone as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <h4 className="pb-4 text-base font-medium text-gray-800 border-b border-gray-200 dark:border-gray-800 dark:text-white/90">
+              Professional Information
+            </h4>
+          </div>
+          <div className="">
+            <Label htmlFor="company">Company</Label>
+            <Input
+              type="text"
+              placeholder="Enter company"
+              id="company"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.company}
+              error={
+                formik.touched.company && formik.errors.company
+                  ? !!formik.errors.company
+                  : undefined
+              }
+              hint={
+                formik.touched.company && formik.errors.company
+                  ? (formik.errors.company as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="">
+            <Label htmlFor="position">Position</Label>
+            <Input
+              type="text"
+              placeholder="Enter position"
+              id="position"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.position}
+              error={
+                formik.touched.position && formik.errors.position
+                  ? !!formik.errors.position
+                  : undefined
+              }
+              hint={
+                formik.touched.position && formik.errors.position
+                  ? (formik.errors.position as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="linkedin_url">LinkedIn Profile</Label>
+            <Input
+              type="url"
+              placeholder="Enter LinkedIn Profile"
+              id="linkedin_url"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.linkedin_url}
+              error={
+                formik.touched.linkedin_url && formik.errors.linkedin_url
+                  ? !!formik.errors.linkedin_url
+                  : undefined
+              }
+              hint={
+                formik.touched.linkedin_url && formik.errors.linkedin_url
+                  ? (formik.errors.linkedin_url as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <h4 className="pb-4 text-base font-medium text-gray-800 border-b border-gray-200 dark:border-gray-800 dark:text-white/90">
+              Relationship Information
+            </h4>
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="relationship">Relationship</Label>
+            <Input
+              type="url"
+              placeholder="e.g. Former colleague, College friend, Industry peer"
+              id="relationship"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.relationship}
+              error={
+                formik.touched.relationship && formik.errors.relationship
+                  ? !!formik.errors.relationship
+                  : undefined
+              }
+              hint={
+                formik.touched.relationship && formik.errors.relationship
+                  ? (formik.errors.relationship as string)
+                  : undefined
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="notes">Notes</Label>
+            <TextArea
+              placeholder="Type your notes here..."
+              rows={6}
+              className=" bg-gray-50 dark:bg-gray-800"
+              onChange={formik.handleChange}
+              value={formik.values.notes}
+              error={
+                formik.touched.notes && formik.errors.notes
+                  ? !!formik.errors.notes
+                  : undefined
+              }
+              hint={
+                formik.touched.notes && formik.errors.notes
+                  ? (formik.errors.notes as string)
+                  : undefined
+              }
+            />
+          </div>
+        </div>
+      </Form>
+    </ComponentCard>
   );
 };
 

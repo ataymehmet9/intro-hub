@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from "react";
-import { useSnackbar } from "notistack";
 
 import { useAuth } from "@hooks/useAuth";
 import {
@@ -8,6 +7,7 @@ import {
   updateRequestStatus,
   searchContacts,
 } from "@services/requests";
+import { toast } from "@components/ui/notification";
 
 export type Request = {
   id: number;
@@ -42,7 +42,6 @@ export const RequestProvider = ({ children }: React.PropsWithChildren) => {
   const [error, setError] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuth();
-  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -57,7 +56,7 @@ export const RequestProvider = ({ children }: React.PropsWithChildren) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       setError("Failed to fetch requests");
-      enqueueSnackbar("Failed to fetch requests", { variant: "error" });
+      toast({ title: "Failed to fetch requests", variant: "error" });
     }
   };
 
@@ -99,13 +98,14 @@ export const RequestProvider = ({ children }: React.PropsWithChildren) => {
       setError(null);
       const newRequest = await createRequest(requestData);
       setSentRequests((prevRequests) => [newRequest, ...prevRequests]);
-      enqueueSnackbar("Introduction request sent successfully", {
+      toast({
+        title: "Introduction request sent successfully",
         variant: "success",
       });
       return newRequest;
     } catch (error) {
       setError("Failed to send request");
-      enqueueSnackbar("Failed to send request", { variant: "error" });
+      toast({ title: "Failed to send request", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -133,11 +133,11 @@ export const RequestProvider = ({ children }: React.PropsWithChildren) => {
         message = "Request status updated.";
       }
 
-      enqueueSnackbar(message, { variant: "success" });
+      toast({ title: message, variant: "success" });
       return updatedRequest;
     } catch (error) {
       setError("Failed to update request status");
-      enqueueSnackbar("Failed to update request status", { variant: "error" });
+      toast({ title: "Failed to update request status", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
@@ -152,7 +152,7 @@ export const RequestProvider = ({ children }: React.PropsWithChildren) => {
       return results;
     } catch (error) {
       setError("Failed to search contacts");
-      enqueueSnackbar("Failed to search contacts", { variant: "error" });
+      toast({ title: "Failed to search contacts", variant: "error" });
       throw error;
     } finally {
       setIsLoading(false);
