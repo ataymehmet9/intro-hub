@@ -13,7 +13,7 @@ type SignUpProps = {
     onSignUp?: OnSignUp
 }
 
-export const SignUp = ({ onSignUp, signInUrl = '/sign-in' }: SignUpProps) => {
+export const SignUp = ({ onSignUp, signInUrl = '/login' }: SignUpProps) => {
     const [message, setMessage] = useTimeOutMessage()
 
     const mode = useTheme((state) => state.mode)
