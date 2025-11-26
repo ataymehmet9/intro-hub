@@ -82,8 +82,8 @@ This document outlines the complete migration strategy for converting the Intro-
 ```javascript
 // Old: routes.js
 <Routes>
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/contacts" element={<Contacts />} />
+  <Route path="/dashboard" element={<Dashboard />} />
+  <Route path="/contacts" element={<Contacts />} />
 </Routes>
 ```
 
@@ -157,9 +157,9 @@ src/app/
 
 ```typescript
 const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: { email: '', password: '' },
-})
+  resolver: zodResolver(schema),
+  defaultValues: { email: "", password: "" },
+});
 ```
 
 ### 5. Notifications
@@ -167,8 +167,8 @@ const form = useForm({
 **From: Notistack**
 
 ```javascript
-const { enqueueSnackbar } = useSnackbar()
-enqueueSnackbar('Success!', { variant: 'success' })
+const { enqueueSnackbar } = useSnackbar();
+enqueueSnackbar("Success!", { variant: "success" });
 ```
 
 **To: ECME Toast**
@@ -318,24 +318,24 @@ src/
 #### 3.1 Context & Hooks
 
 - [ ] Migrate `contexts/AuthContext.tsx`
-    - Convert to TypeScript
-    - Adapt for Next.js client components
-    - Update token storage strategy
-    - Integrate with ECME toast for notifications
+  - Convert to TypeScript
+  - Adapt for Next.js client components
+  - Update token storage strategy
+  - Integrate with ECME toast for notifications
 - [ ] Migrate `hooks/useAuth.ts`
-    - Update type definitions
-    - Ensure compatibility with Next.js
+  - Update type definitions
+  - Ensure compatibility with Next.js
 
 #### 3.2 Auth Pages
 
 - [ ] Create `app/(auth-pages)/login/page.tsx`
-    - Convert Login component to Next.js page
-    - Replace Material UI components with ECME components
-    - Update form handling to react-hook-form + zod
+  - Convert Login component to Next.js page
+  - Replace Material UI components with ECME components
+  - Update form handling to react-hook-form + zod
 - [ ] Create `app/(auth-pages)/signup/page.tsx`
-    - Convert Signup component to Next.js page
-    - Replace Material UI components with ECME components
-    - Update form handling
+  - Convert Signup component to Next.js page
+  - Replace Material UI components with ECME components
+  - Update form handling
 
 #### 3.3 Route Protection
 
@@ -348,11 +348,11 @@ src/
 #### 4.1 Main Layout
 
 - [ ] Create `app/(protected-pages)/layout.tsx`
-    - Migrate MainLayout component
-    - Replace Material UI Drawer with ECME Drawer
-    - Replace Material UI AppBar with custom header
-    - Update navigation menu styling
-    - Add responsive mobile menu
+  - Migrate MainLayout component
+  - Replace Material UI Drawer with ECME Drawer
+  - Replace Material UI AppBar with custom header
+  - Update navigation menu styling
+  - Add responsive mobile menu
 
 #### 4.2 Navigation
 
@@ -366,118 +366,118 @@ src/
 #### 5.1 Reusable Components
 
 - [ ] Migrate `ConfirmationDialog.tsx`
-    - Replace Material UI Dialog with ECME Dialog
-    - Update button styling
+  - Replace Material UI Dialog with ECME Dialog
+  - Update button styling
 - [ ] Migrate `DateFormat.tsx`
-    - Update date formatting library (use dayjs, already available)
+  - Update date formatting library (use dayjs, already available)
 - [ ] Migrate `FileUploadButton.tsx`
-    - Replace Material UI Button with ECME Button
-    - Update file upload handling
+  - Replace Material UI Button with ECME Button
+  - Update file upload handling
 - [ ] Create `LoadingSpinner.tsx`
-    - Use ECME Spinner component
+  - Use ECME Spinner component
 
 ### Phase 6: Contact Management (Priority: High)
 
 #### 6.1 Context & Hooks
 
 - [ ] Migrate `contexts/ContactContext.tsx`
-    - Convert to TypeScript
-    - Update API integration
-    - Add error handling
+  - Convert to TypeScript
+  - Update API integration
+  - Add error handling
 - [ ] Migrate `hooks/useContacts.ts`
-    - Update type definitions
-    - Consider using SWR for data fetching
+  - Update type definitions
+  - Consider using SWR for data fetching
 
 #### 6.2 Components
 
 - [ ] Migrate `ContactCard.tsx`
-    - Replace Material UI Card with ECME Card
-    - Replace Material UI Avatar with ECME Avatar
-    - Replace Material UI Chip with ECME Tag
-    - Update menu/dropdown functionality
-    - Update icon library to react-icons
+  - Replace Material UI Card with ECME Card
+  - Replace Material UI Avatar with ECME Avatar
+  - Replace Material UI Chip with ECME Tag
+  - Update menu/dropdown functionality
+  - Update icon library to react-icons
 - [ ] Migrate `ContactForm.tsx`
-    - Replace Material UI TextField with ECME Input
-    - Convert Formik to react-hook-form
-    - Convert Yup to Zod validation
-    - Update form layout with Tailwind
+  - Replace Material UI TextField with ECME Input
+  - Convert Formik to react-hook-form
+  - Convert Yup to Zod validation
+  - Update form layout with Tailwind
 
 #### 6.3 Page
 
 - [ ] Create `app/(protected-pages)/contacts/page.tsx`
-    - Migrate Contacts page component
-    - Replace Material UI Grid with Tailwind grid
-    - Update layout and styling
-    - Add search and filter functionality
+  - Migrate Contacts page component
+  - Replace Material UI Grid with Tailwind grid
+  - Update layout and styling
+  - Add search and filter functionality
 
 ### Phase 7: Request Management (Priority: High)
 
 #### 7.1 Context & Hooks
 
 - [ ] Migrate `contexts/RequestContext.tsx`
-    - Convert to TypeScript
-    - Update API integration
+  - Convert to TypeScript
+  - Update API integration
 - [ ] Migrate `hooks/useRequests.ts`
-    - Update type definitions
-    - Consider using SWR
+  - Update type definitions
+  - Consider using SWR
 
 #### 7.2 Components
 
 - [ ] Migrate `RequestCard.tsx`
-    - Replace Material UI components with ECME
-    - Update status badges
-    - Add action buttons
-    - Update styling
+  - Replace Material UI components with ECME
+  - Update status badges
+  - Add action buttons
+  - Update styling
 
 #### 7.3 Page
 
 - [ ] Create `app/(protected-pages)/requests/page.tsx`
-    - Migrate Requests page component
-    - Add tabs for sent/received requests
-    - Update layout and styling
+  - Migrate Requests page component
+  - Add tabs for sent/received requests
+  - Update layout and styling
 
 ### Phase 8: Dashboard (Priority: High)
 
 #### 8.1 Dashboard Components
 
 - [ ] Create `WelcomeSection.tsx`
-    - Replace Material UI Paper with ECME Card
-    - Update gradient styling with Tailwind
-    - Add responsive layout
+  - Replace Material UI Paper with ECME Card
+  - Update gradient styling with Tailwind
+  - Add responsive layout
 - [ ] Create `NetworkStats.tsx`
-    - Display contact and introduction counts
-    - Use ECME Card component
-    - Add visual indicators
+  - Display contact and introduction counts
+  - Use ECME Card component
+  - Add visual indicators
 - [ ] Create `QuickLinks.tsx`
-    - Create quick action buttons
-    - Use ECME Button component
+  - Create quick action buttons
+  - Use ECME Button component
 
 #### 8.2 Dashboard Page
 
 - [ ] Create `app/(protected-pages)/dashboard/page.tsx`
-    - Migrate Dashboard component
-    - Replace Material UI Grid with Tailwind grid
-    - Integrate all dashboard sub-components
-    - Add loading states
-    - Update styling
+  - Migrate Dashboard component
+  - Replace Material UI Grid with Tailwind grid
+  - Integrate all dashboard sub-components
+  - Add loading states
+  - Update styling
 
 ### Phase 9: Search & Profile (Priority: Medium)
 
 #### 9.1 Search Page
 
 - [ ] Create `app/(protected-pages)/search/page.tsx`
-    - Migrate Search component
-    - Create search filters
-    - Add results display
-    - Update styling
+  - Migrate Search component
+  - Create search filters
+  - Add results display
+  - Update styling
 
 #### 9.2 Profile Page
 
 - [ ] Create `app/(protected-pages)/profile/page.tsx`
-    - Migrate Profile component
-    - Create profile form
-    - Add image upload
-    - Update styling
+  - Migrate Profile component
+  - Create profile form
+  - Add image upload
+  - Update styling
 
 ### Phase 10: Theme & Styling (Priority: Medium)
 
@@ -546,28 +546,26 @@ src/
 **Before (Material UI):**
 
 ```jsx
-import { Button } from '@mui/material'
-import { Add as AddIcon } from '@mui/icons-material'
-
-;<Button
-    variant="contained"
-    color="primary"
-    startIcon={<AddIcon />}
-    onClick={handleClick}
+import { Button } from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
+<Button
+  variant="contained"
+  color="primary"
+  startIcon={<AddIcon />}
+  onClick={handleClick}
 >
-    Add Contact
-</Button>
+  Add Contact
+</Button>;
 ```
 
 **After (ECME):**
 
 ```tsx
-import { Button } from '@/components/ui'
-import { HiPlus } from 'react-icons/hi2'
-
-;<Button variant="solid" icon={<HiPlus />} onClick={handleClick}>
-    Add Contact
-</Button>
+import { Button } from "@/components/ui";
+import { HiPlus } from "react-icons/hi2";
+<Button variant="solid" icon={<HiPlus />} onClick={handleClick}>
+  Add Contact
+</Button>;
 ```
 
 ### Example 2: Card Migration
@@ -575,30 +573,28 @@ import { HiPlus } from 'react-icons/hi2'
 **Before (Material UI):**
 
 ```jsx
-import { Card, CardContent, CardActions, Typography } from '@mui/material'
-
-;<Card>
-    <CardContent>
-        <Typography variant="h6">Title</Typography>
-        <Typography variant="body2">Content</Typography>
-    </CardContent>
-    <CardActions>
-        <Button>Action</Button>
-    </CardActions>
-</Card>
+import { Card, CardContent, CardActions, Typography } from "@mui/material";
+<Card>
+  <CardContent>
+    <Typography variant="h6">Title</Typography>
+    <Typography variant="body2">Content</Typography>
+  </CardContent>
+  <CardActions>
+    <Button>Action</Button>
+  </CardActions>
+</Card>;
 ```
 
 **After (ECME):**
 
 ```tsx
-import { Card, Button } from '@/components/ui'
-
-;<Card
-    header={{ content: <h6>Title</h6> }}
-    footer={{ content: <Button>Action</Button> }}
+import { Card, Button } from "@/components/ui";
+<Card
+  header={{ content: <h6>Title</h6> }}
+  footer={{ content: <Button>Action</Button> }}
 >
-    <p className="text-sm">Content</p>
-</Card>
+  <p className="text-sm">Content</p>
+</Card>;
 ```
 
 ### Example 3: Form Migration
@@ -606,66 +602,66 @@ import { Card, Button } from '@/components/ui'
 **Before (Formik + Material UI):**
 
 ```jsx
-import { Formik, Form, Field } from 'formik'
-import { TextField } from '@mui/material'
-import * as Yup from 'yup'
+import { Formik, Form, Field } from "formik";
+import { TextField } from "@mui/material";
+import * as Yup from "yup";
 
 const validationSchema = Yup.object({
-    email: Yup.string().email().required(),
-    password: Yup.string().min(8).required(),
-})
+  email: Yup.string().email().required(),
+  password: Yup.string().min(8).required(),
+});
 
-;<Formik
-    initialValues={{ email: '', password: '' }}
-    validationSchema={validationSchema}
-    onSubmit={handleSubmit}
+<Formik
+  initialValues={{ email: "", password: "" }}
+  validationSchema={validationSchema}
+  onSubmit={handleSubmit}
 >
-    {({ errors, touched }) => (
-        <Form>
-            <Field
-                as={TextField}
-                name="email"
-                label="Email"
-                error={touched.email && errors.email}
-                helperText={touched.email && errors.email}
-            />
-        </Form>
-    )}
-</Formik>
+  {({ errors, touched }) => (
+    <Form>
+      <Field
+        as={TextField}
+        name="email"
+        label="Email"
+        error={touched.email && errors.email}
+        helperText={touched.email && errors.email}
+      />
+    </Form>
+  )}
+</Formik>;
 ```
 
 **After (React Hook Form + ECME):**
 
 ```tsx
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Input, FormItem, FormContainer } from '@/components/ui'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input, FormItem, FormContainer } from "@/components/ui";
 
 const schema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-})
+  email: z.string().email(),
+  password: z.string().min(8),
+});
 
 const {
-    register,
-    handleSubmit,
-    formState: { errors },
+  register,
+  handleSubmit,
+  formState: { errors },
 } = useForm({
-    resolver: zodResolver(schema),
-})
+  resolver: zodResolver(schema),
+});
 
-;<FormContainer>
-    <form onSubmit={handleSubmit(onSubmit)}>
-        <FormItem
-            label="Email"
-            invalid={!!errors.email}
-            errorMessage={errors.email?.message}
-        >
-            <Input {...register('email')} />
-        </FormItem>
-    </form>
-</FormContainer>
+<FormContainer>
+  <form onSubmit={handleSubmit(onSubmit)}>
+    <FormItem
+      label="Email"
+      invalid={!!errors.email}
+      errorMessage={errors.email?.message}
+    >
+      <Input {...register("email")} />
+    </FormItem>
+  </form>
+</FormContainer>;
 ```
 
 ### Example 4: Layout Migration
@@ -673,44 +669,42 @@ const {
 **Before (Material UI):**
 
 ```jsx
-import { AppBar, Drawer, Toolbar, List, ListItem } from '@mui/material'
-
-;<Box sx={{ display: 'flex' }}>
-    <AppBar position="fixed">
-        <Toolbar>
-            <Typography>Intro-Hub</Typography>
-        </Toolbar>
-    </AppBar>
-    <Drawer variant="permanent">
-        <List>
-            <ListItem button>Dashboard</ListItem>
-        </List>
-    </Drawer>
-    <Box component="main">{children}</Box>
-</Box>
+import { AppBar, Drawer, Toolbar, List, ListItem } from "@mui/material";
+<Box sx={{ display: "flex" }}>
+  <AppBar position="fixed">
+    <Toolbar>
+      <Typography>Intro-Hub</Typography>
+    </Toolbar>
+  </AppBar>
+  <Drawer variant="permanent">
+    <List>
+      <ListItem button>Dashboard</ListItem>
+    </List>
+  </Drawer>
+  <Box component="main">{children}</Box>
+</Box>;
 ```
 
 **After (ECME):**
 
 ```tsx
-import { Drawer } from '@/components/ui'
-import Link from 'next/link'
-
-;<div className="flex">
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b">
-        <div className="flex items-center h-full px-4">
-            <h1 className="text-xl font-bold">Intro-Hub</h1>
-        </div>
-    </header>
-    <Drawer isOpen={true} placement="left" width={240}>
-        <nav>
-            <Link href="/dashboard" className="block p-4 hover:bg-gray-100">
-                Dashboard
-            </Link>
-        </nav>
-    </Drawer>
-    <main className="flex-1 p-6 mt-16">{children}</main>
-</div>
+import { Drawer } from "@/components/ui";
+import Link from "next/link";
+<div className="flex">
+  <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b">
+    <div className="flex items-center h-full px-4">
+      <h1 className="text-xl font-bold">Intro-Hub</h1>
+    </div>
+  </header>
+  <Drawer isOpen={true} placement="left" width={240}>
+    <nav>
+      <Link href="/dashboard" className="block p-4 hover:bg-gray-100">
+        Dashboard
+      </Link>
+    </nav>
+  </Drawer>
+  <main className="flex-1 p-6 mt-16">{children}</main>
+</div>;
 ```
 
 ---
@@ -721,33 +715,33 @@ import Link from 'next/link'
 
 1. **Authentication Flow**
 
-    - **Risk**: Token management differences between SPA and Next.js
-    - **Mitigation**: Thorough testing of auth flow, implement proper error handling
+   - **Risk**: Token management differences between SPA and Next.js
+   - **Mitigation**: Thorough testing of auth flow, implement proper error handling
 
 2. **API Integration**
 
-    - **Risk**: CORS issues, different request patterns in Next.js
-    - **Mitigation**: Configure API properly, use Next.js API routes if needed
+   - **Risk**: CORS issues, different request patterns in Next.js
+   - **Mitigation**: Configure API properly, use Next.js API routes if needed
 
 3. **State Management**
-    - **Risk**: Context API behavior differences in Next.js
-    - **Mitigation**: Mark contexts as 'use client', test thoroughly
+   - **Risk**: Context API behavior differences in Next.js
+   - **Mitigation**: Mark contexts as 'use client', test thoroughly
 
 ### Medium Risk Areas
 
 1. **Form Validation**
 
-    - **Risk**: Different validation patterns between Formik/Yup and RHF/Zod
-    - **Mitigation**: Create validation schema mapping guide
+   - **Risk**: Different validation patterns between Formik/Yup and RHF/Zod
+   - **Mitigation**: Create validation schema mapping guide
 
 2. **Routing**
 
-    - **Risk**: Different routing paradigms
-    - **Mitigation**: Create routing migration guide, test all routes
+   - **Risk**: Different routing paradigms
+   - **Mitigation**: Create routing migration guide, test all routes
 
 3. **Styling**
-    - **Risk**: Visual inconsistencies during migration
-    - **Mitigation**: Create component-by-component comparison
+   - **Risk**: Visual inconsistencies during migration
+   - **Mitigation**: Create component-by-component comparison
 
 ---
 
@@ -805,10 +799,10 @@ import Link from 'next/link'
 
 1. **Review this plan** with stakeholders
 2. **Answer key questions**:
-    - Integration approach (new module vs. replacement)
-    - Authentication strategy (custom JWT vs. NextAuth)
-    - API backend location and configuration
-    - Feature prioritization
+   - Integration approach (new module vs. replacement)
+   - Authentication strategy (custom JWT vs. NextAuth)
+   - API backend location and configuration
+   - Feature prioritization
 3. **Set up development environment**
 4. **Begin Phase 1: Foundation Setup**
 
@@ -858,35 +852,35 @@ NEXTAUTH_SECRET=your-secret-key
 ```typescript
 // User types
 interface User {
-    id: number
-    email: string
-    first_name: string
-    last_name: string
-    full_name: string
-    profile_image?: string
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  profile_image?: string;
 }
 
 // Contact types
 interface Contact {
-    id: number
-    first_name: string
-    last_name: string
-    full_name: string
-    email: string
-    phone?: string
-    company?: string
-    job_title?: string
-    linkedin_profile?: string
-    relationship?: string
-    created_at: string
+  id: number;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  position: string;
+  linkedin_profile?: string;
+  relationship?: string;
+  created_at: string;
 }
 
 // Request types
 interface Request {
-    id: number
-    status: 'pending' | 'approved' | 'rejected'
-    created_at: string
-    // Add other fields as needed
+  id: number;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  // Add other fields as needed
 }
 ```
 
