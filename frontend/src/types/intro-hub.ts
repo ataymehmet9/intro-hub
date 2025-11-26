@@ -19,7 +19,7 @@ export interface Contact {
   email: string;
   phone?: string;
   company?: string;
-  job_title?: string;
+  position?: string;
   linkedin_profile?: string;
   relationship?: string;
   notes?: string;
@@ -64,7 +64,7 @@ export interface ContactFormData {
   email: string;
   phone?: string;
   company?: string;
-  job_title?: string;
+  position: string;
   linkedin_profile?: string;
   relationship?: string;
   notes?: string;
@@ -179,7 +179,7 @@ export interface ContactFormSchema {
   email: string;
   phone?: string;
   company?: string;
-  job_title?: string;
+  position: string;
   linkedin_profile?: string;
   relationship?: string;
   notes?: string;

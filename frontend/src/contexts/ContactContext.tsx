@@ -28,7 +28,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       setIsLoading(true)
       setError(null)
       const response = await getContacts()
-      setContacts(response.results)
+      // Backend returns array directly
+      setContacts(response)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch contacts'
       setError(errorMessage)
@@ -44,7 +45,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       setIsLoading(true)
       setError(null)
       const newContact = await createContact(contactData)
-      setContacts(prev => [newContact, ...prev])
+      setContacts(prev => [newContact, ...(Array.isArray(prev) ? prev : [])])
       
       toast.push(
         <NotificationComponent title="Success!" type="success">
@@ -76,8 +77,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       setError(null)
       const updatedContact = await updateContact(id, contactData)
       
-      setContacts(prev => 
-        prev.map(contact => 
+      setContacts(prev =>
+        (Array.isArray(prev) ? prev : []).map(contact =>
           contact.id === id ? updatedContact : contact
         )
       )
@@ -112,7 +113,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       setError(null)
       await deleteContact(id)
       
-      setContacts(prev => prev.filter(contact => contact.id !== id))
+      setContacts(prev => (Array.isArray(prev) ? prev : []).filter(contact => contact.id !== id))
       
       toast.push(
         <NotificationComponent title="Success!" type="success">
@@ -144,7 +145,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       contact.full_name.toLowerCase().includes(lowercaseQuery) ||
       contact.email.toLowerCase().includes(lowercaseQuery) ||
       contact.company?.toLowerCase().includes(lowercaseQuery) ||
-      contact.job_title?.toLowerCase().includes(lowercaseQuery)
+      contact.position?.toLowerCase().includes(lowercaseQuery)
     )
   }
 

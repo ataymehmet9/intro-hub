@@ -18,7 +18,7 @@ export const getContacts = async (params?: {
   company?: string;
   relationship?: string;
   ordering?: string;
-}): Promise<PaginatedResponse<Contact>> => {
+}): Promise<Contact[]> => {
   const queryParams = new URLSearchParams();
 
   if (params) {
@@ -30,7 +30,8 @@ export const getContacts = async (params?: {
   }
 
   const url = `${CONTACTS_ENDPOINTS.LIST}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-  const response = await api.get<PaginatedResponse<Contact>>(url);
+  // Backend returns array directly, not wrapped in pagination object
+  const response = await api.get<Contact[]>(url);
   return response;
 };
 

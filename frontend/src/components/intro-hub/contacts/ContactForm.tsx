@@ -14,7 +14,7 @@ const contactSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().optional().or(z.literal('')),
   company: z.string().optional().or(z.literal('')),
-  job_title: z.string().optional().or(z.literal('')),
+  position: z.string().min(1, 'Position is required').max(100, 'Position is too long'),
   linkedin_profile: z.string().url('Invalid URL').optional().or(z.literal('')),
   relationship: z.string().optional().or(z.literal('')),
   notes: z.string().optional().or(z.literal('')),
@@ -49,7 +49,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
       email: initialData?.email || '',
       phone: initialData?.phone || '',
       company: initialData?.company || '',
-      job_title: initialData?.job_title || '',
+      position: initialData?.position || '',
       linkedin_profile: initialData?.linkedin_profile || '',
       relationship: initialData?.relationship || '',
       notes: initialData?.notes || '',
@@ -135,13 +135,13 @@ const ContactForm: React.FC<ContactFormProps> = ({
           </FormItem>
 
           <FormItem
-            label="Job Title"
-            invalid={!!errors.job_title}
-            errorMessage={errors.job_title?.message}
+            label="Position"
+            invalid={!!errors.position}
+            errorMessage={errors.position?.message}
           >
             <Input
-              {...register('job_title')}
-              placeholder="Enter job title (optional)"
+              {...register('position')}
+              placeholder="Enter position/role"
               disabled={isFormLoading}
             />
           </FormItem>

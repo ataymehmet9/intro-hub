@@ -95,9 +95,9 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, onEdit, onDelete }) 
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {contact.full_name}
               </h3>
-              {contact.job_title && (
+              {contact.position && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {contact.job_title}
+                  {contact.position}
                 </p>
               )}
             </div>
