@@ -249,4 +249,4 @@ const RequestCard: React.FC<RequestCardProps> = ({ request, type, onRespond }) =
 
 export default RequestCard
 
-// Made with Bob
+

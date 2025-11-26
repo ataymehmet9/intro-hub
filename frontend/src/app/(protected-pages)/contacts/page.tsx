@@ -14,7 +14,7 @@ export default function ContactsPage() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
 
-  const filteredContacts = contacts.filter((contact) => {
+  const filteredContacts = (contacts || []).filter((contact) => {
     const query = searchQuery.toLowerCase()
     return (
       contact.full_name.toLowerCase().includes(query) ||
@@ -57,7 +57,7 @@ export default function ContactsPage() {
             Contacts
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage your network of {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
+            Manage your network of {contacts?.length || 0} contact{(contacts?.length || 0) !== 1 ? 's' : ''}
           </p>
         </div>
         <Button
@@ -116,9 +116,9 @@ export default function ContactsPage() {
       <Dialog
         isOpen={showAddDialog}
         onClose={() => setShowAddDialog(false)}
-        width={600}
+        width={900}
       >
-        <div className="p-6">
+        <div className="p-6 max-h-[85vh] overflow-y-auto">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Add New Contact
           </h2>
@@ -134,9 +134,9 @@ export default function ContactsPage() {
       <Dialog
         isOpen={!!editingContact}
         onClose={() => setEditingContact(null)}
-        width={600}
+        width={900}
       >
-        <div className="p-6">
+        <div className="p-6 max-h-[85vh] overflow-y-auto">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Edit Contact
           </h2>
@@ -154,4 +154,4 @@ export default function ContactsPage() {
   )
 }
 
-// Made with Bob
+

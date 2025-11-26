@@ -56,4 +56,4 @@ export default function SearchPage() {
   )
 }
 
-// Made with Bob
+

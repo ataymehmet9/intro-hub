@@ -196,4 +196,4 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, onEdit, onDelete }) 
 
 export default ContactCard
 
-// Made with Bob
+
