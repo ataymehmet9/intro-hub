@@ -12,14 +12,20 @@ export interface User {
   first_name: string
   last_name: string
   full_name: string
+  company?: string
+  position?: string
+  bio?: string
   profile_image?: string
 }
 
 export interface SignupData {
   email: string
   password: string
+  password_confirm: string
   first_name: string
   last_name: string
+  company?: string
+  position?: string
 }
 
 export interface AuthContextType {
@@ -50,7 +56,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initializeAuth = async () => {
       const storedToken = tokenUtils.getToken()
       
-      if (storedToken) {
+      // Only fetch user if we have a token but no user data
+      if (storedToken && !user) {
         try {
           const userData = await getCurrentUser()
           setUser(userData)
@@ -65,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     initializeAuth()
-  }, [])
+  }, [user])
 
   const login = async (email: string, password: string) => {
     try {
@@ -85,17 +92,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       )
       
-      router.navigate({ to: '/dashboard' })
+      // Only navigate on successful login
+      await router.navigate({ to: '/dashboard' })
     } catch (error: any) {
-      toast.push(
-        <div className="flex items-center gap-2">
-          <span className="text-red-600">✗</span>
-          <span>{error.message || 'Login failed'}</span>
-        </div>,
-        {
-          placement: 'top-end',
-        }
-      )
+      // Don't show toast here, let the login page handle the error display
+      console.error('Login error in AuthContext:', error)
       throw error
     }
   }

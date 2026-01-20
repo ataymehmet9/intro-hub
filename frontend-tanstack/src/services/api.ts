@@ -71,15 +71,51 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      tokenUtils.clearTokens();
-      // Redirect to login will be handled by route guards
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
+      // Only clear tokens and redirect if we're not already on the login page
+      // and if the request wasn't to the login endpoint
+      const isLoginRequest = error.config?.url?.includes("/auth/login");
+      const isOnLoginPage =
+        typeof window !== "undefined" && window.location.pathname === "/login";
+
+      if (!isLoginRequest && !isOnLoginPage) {
+        tokenUtils.clearTokens();
+        // Redirect to login will be handled by route guards
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
   },
 );
+
+// API wrapper with common methods
+export const api = {
+  get: async <T>(url: string): Promise<T> => {
+    const response = await apiClient.get<T>(url);
+    return response.data;
+  },
+
+  post: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.post<T>(url, data);
+    return response.data;
+  },
+
+  put: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.put<T>(url, data);
+    return response.data;
+  },
+
+  delete: async <T>(url: string): Promise<T> => {
+    const response = await apiClient.delete<T>(url);
+    return response.data;
+  },
+
+  patch: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.patch<T>(url, data);
+    return response.data;
+  },
+};
 
 export default apiClient;
 

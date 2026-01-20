@@ -13,6 +13,9 @@ const profileSchema = z.object({
   first_name: z.string().min(1, 'First name is required').max(50),
   last_name: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email address'),
+  company: z.string().optional(),
+  position: z.string().optional(),
+  bio: z.string().optional(),
 })
 
 type ProfileFormSchema = z.infer<typeof profileSchema>
@@ -35,6 +38,9 @@ function ProfilePage() {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       email: user?.email || '',
+      company: user?.company || '',
+      position: user?.position || '',
+      bio: user?.bio || '',
     },
   })
 
@@ -186,6 +192,46 @@ function ProfilePage() {
                   />
                 </FormItem>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormItem
+                    label="Company"
+                    invalid={!!errors.company}
+                    errorMessage={errors.company?.message}
+                  >
+                    <Input
+                      {...register('company')}
+                      placeholder="Enter company (optional)"
+                      disabled={isSubmitting}
+                    />
+                  </FormItem>
+
+                  <FormItem
+                    label="Position"
+                    invalid={!!errors.position}
+                    errorMessage={errors.position?.message}
+                  >
+                    <Input
+                      {...register('position')}
+                      placeholder="Enter position (optional)"
+                      disabled={isSubmitting}
+                    />
+                  </FormItem>
+                </div>
+
+                <FormItem
+                  label="Bio"
+                  invalid={!!errors.bio}
+                  errorMessage={errors.bio?.message}
+                >
+                  <Input
+                    {...register('bio')}
+                    textArea
+                    rows={4}
+                    placeholder="Tell us about yourself (optional)"
+                    disabled={isSubmitting}
+                  />
+                </FormItem>
+
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <Button
                     type="button"
@@ -232,6 +278,32 @@ function ProfilePage() {
                 </label>
                 <p className="text-gray-900 dark:text-gray-100 mt-1">
                   {user?.email}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Company
+                  </label>
+                  <p className="text-gray-900 dark:text-gray-100 mt-1">
+                    {user?.company || 'Not specified'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Position
+                  </label>
+                  <p className="text-gray-900 dark:text-gray-100 mt-1">
+                    {user?.position || 'Not specified'}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Bio
+                </label>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">
+                  {user?.bio || 'No bio added yet'}
                 </p>
               </div>
             </div>

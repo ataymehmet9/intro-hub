@@ -2,6 +2,7 @@ import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { tokenUtils } from '~/services/api'
 import { ContactProvider } from '~/contexts/ContactContext'
 import { RequestProvider } from '~/contexts/RequestContext'
+import IntroHubLayout from '~/components/intro-hub/layouts/IntroHubLayout'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
@@ -20,9 +21,9 @@ function AuthenticatedLayout() {
   return (
     <ContactProvider>
       <RequestProvider>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <IntroHubLayout>
           <Outlet />
-        </div>
+        </IntroHubLayout>
       </RequestProvider>
     </ContactProvider>
   )

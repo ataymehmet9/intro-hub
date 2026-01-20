@@ -24,6 +24,9 @@ function SignupPage() {
     last_name: '',
     email: '',
     password: '',
+    password_confirm: '',
+    company: '',
+    position: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -143,6 +146,61 @@ function SignupPage() {
                 onChange={handleChange}
                 placeholder="••••••••"
                 required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password_confirm"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Confirm Password
+              </label>
+              <Input
+                id="password_confirm"
+                name="password_confirm"
+                type="password"
+                value={formData.password_confirm}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="company"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Company (Optional)
+              </label>
+              <Input
+                id="company"
+                name="company"
+                type="text"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="Acme Inc."
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="position"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Position (Optional)
+              </label>
+              <Input
+                id="position"
+                name="position"
+                type="text"
+                value={formData.position}
+                onChange={handleChange}
+                placeholder="Software Engineer"
                 disabled={isLoading}
               />
             </div>

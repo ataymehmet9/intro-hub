@@ -1,9 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { Drawer, Avatar, Dropdown } from '@/components/ui'
+import { Link, useRouter, useRouterState } from '@tanstack/react-router'
+import { Drawer, Avatar, Dropdown } from '~/components/ui'
 import { 
   HiSquares2X2, 
   HiUsers, 
@@ -13,7 +12,7 @@ import {
   HiBars3,
   HiXMark
 } from 'react-icons/hi2'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '~/contexts/AuthContext'
 
 interface IntroHubLayoutProps {
   children: React.ReactNode
@@ -21,8 +20,9 @@ interface IntroHubLayoutProps {
 
 const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth()
-  const pathname = usePathname()
   const router = useRouter()
+  const routerState = useRouterState()
+  const pathname = routerState.location.pathname
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const menuItems = [
@@ -37,7 +37,7 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
   }
 
   const handleProfileClick = () => {
-    router.push('/profile')
+    router.navigate({ to: '/profile' })
   }
 
   const stringToColor = (string: string): string => {
@@ -60,7 +60,7 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
       {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Intro-Hub
+          IntroHub
         </h1>
       </div>
 
@@ -71,7 +71,7 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
           return (
             <Link
               key={item.path}
-              href={item.path}
+              to={item.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-primary text-white'
@@ -116,7 +116,7 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-40 flex items-center justify-between px-4">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          Intro-Hub
+          IntroHub
         </h1>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -151,7 +151,7 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
         {/* Top Bar */}
         <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-6 mt-16 lg:mt-0">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            {menuItems.find((item) => item.path === pathname)?.text || 'Intro-Hub'}
+            {menuItems.find((item) => item.path === pathname)?.text || 'IntroHub'}
           </h2>
           
           <Dropdown
@@ -195,4 +195,4 @@ const IntroHubLayout: React.FC<IntroHubLayoutProps> = ({ children }) => {
 
 export default IntroHubLayout
 
-
+// Made with Bob
