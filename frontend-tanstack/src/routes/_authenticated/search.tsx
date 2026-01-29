@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import React, { useState } from 'react'
-import { Input, Button, Card, Avatar, Badge, Notification as NotificationComponent } from '~/components/ui'
-import { HiMagnifyingGlass, HiEnvelope, HiPhone, HiBriefcase, HiUserPlus } from 'react-icons/hi2'
+import React, { useState, useEffect } from 'react'
+import { Input, Button, Card, Avatar, Badge, Notification as NotificationComponent, Dialog, Select } from '~/components/ui'
+import { HiMagnifyingGlass, HiEnvelope, HiPhone, HiBriefcase, HiUserPlus, HiXMark } from 'react-icons/hi2'
 import { NoData } from '~/components/intro-hub/common'
-import { searchContacts } from '~/services/contacts'
+import { searchContacts, getContacts } from '~/services/contacts'
+import { createRequest } from '~/services/requests'
 import { Contact } from '~/types/intro-hub'
 import { toast } from '~/components/ui'
 
@@ -16,6 +17,27 @@ function SearchPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<Contact[]>([])
   const [hasSearched, setHasSearched] = useState(false)
+  
+  // Request dialog state
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false)
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [connectors, setConnectors] = useState<Contact[]>([])
+  const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null)
+  const [requestMessage, setRequestMessage] = useState('')
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false)
+
+  // Load connectors (user's contacts) when component mounts
+  useEffect(() => {
+    const loadConnectors = async () => {
+      try {
+        const contacts = await getContacts()
+        setConnectors(contacts)
+      } catch (error) {
+        console.error('Failed to load connectors:', error)
+      }
+    }
+    loadConnectors()
+  }, [])
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
@@ -59,11 +81,54 @@ function SearchPage() {
   }
 
   const handleRequestIntro = (contact: Contact) => {
-    toast.push(
-      <NotificationComponent title="Feature coming soon" type="info">
-        Request introduction to {contact.full_name}
-      </NotificationComponent>
-    )
+    setSelectedContact(contact)
+    setSelectedConnectorId(null)
+    setRequestMessage('')
+    setIsRequestDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setIsRequestDialogOpen(false)
+    setSelectedContact(null)
+    setSelectedConnectorId(null)
+    setRequestMessage('')
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!selectedContact || !selectedConnectorId || !requestMessage.trim()) {
+      toast.push(
+        <NotificationComponent title="Validation Error" type="warning">
+          Please select a connector and provide a message
+        </NotificationComponent>
+      )
+      return
+    }
+
+    setIsSubmittingRequest(true)
+    try {
+      await createRequest({
+        target_contact_id: selectedContact.id,
+        connector_id: selectedConnectorId,
+        message: requestMessage,
+      })
+
+      toast.push(
+        <NotificationComponent title="Success!" type="success">
+          Introduction request sent successfully to {selectedContact.full_name}
+        </NotificationComponent>
+      )
+
+      handleCloseDialog()
+    } catch (error) {
+      console.error('Failed to create request:', error)
+      toast.push(
+        <NotificationComponent title="Request Failed" type="danger">
+          Failed to send introduction request. Please try again.
+        </NotificationComponent>
+      )
+    } finally {
+      setIsSubmittingRequest(false)
+    }
   }
 
   return (
@@ -194,6 +259,94 @@ function SearchPage() {
           </div>
         </div>
       )}
+
+      {/* Request Introduction Dialog */}
+      <Dialog
+        isOpen={isRequestDialogOpen}
+        onClose={handleCloseDialog}
+        width={600}
+      >
+        <div className="p-6 space-y-6">
+          {/* Dialog Header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Request Introduction
+              </h2>
+              {selectedContact && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  To: {selectedContact.full_name}
+                  {selectedContact.company && ` at ${selectedContact.company}`}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="plain"
+              size="sm"
+              icon={<HiXMark />}
+              onClick={handleCloseDialog}
+            />
+          </div>
+
+          {/* Connector Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Select Connector <span className="text-red-500">*</span>
+            </label>
+            <Select
+              placeholder="Choose someone who knows both of you"
+              value={selectedConnectorId?.toString() || ''}
+              onChange={(value) => setSelectedConnectorId(value ? Number(value) : null)}
+            >
+              {connectors.map((connector) => (
+                <option key={connector.id} value={connector.id}>
+                  {connector.full_name}
+                  {connector.company && ` - ${connector.company}`}
+                </option>
+              ))}
+            </Select>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Select a mutual connection who can introduce you
+            </p>
+          </div>
+
+          {/* Message Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Message <span className="text-red-500">*</span>
+            </label>
+            <Input
+              textArea
+              rows={5}
+              placeholder="Explain why you'd like to be introduced and what you hope to discuss..."
+              value={requestMessage}
+              onChange={(e) => setRequestMessage(e.target.value)}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {requestMessage.length} characters
+            </p>
+          </div>
+
+          {/* Dialog Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="plain"
+              onClick={handleCloseDialog}
+              disabled={isSubmittingRequest}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="solid"
+              onClick={handleSubmitRequest}
+              loading={isSubmittingRequest}
+              disabled={!selectedConnectorId || !requestMessage.trim()}
+            >
+              Send Request
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   )
 }
