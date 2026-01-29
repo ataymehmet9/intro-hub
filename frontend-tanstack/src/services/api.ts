@@ -70,6 +70,27 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Extract error message from response
+    let errorMessage = "An error occurred";
+
+    if (error.response?.data) {
+      // Try to get error message from various possible fields
+      errorMessage =
+        error.response.data.error ||
+        error.response.data.message ||
+        error.response.data.detail ||
+        error.message ||
+        `Request failed with status ${error.response.status}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    // Create a new error with the extracted message
+    const enhancedError = new Error(errorMessage);
+    (enhancedError as any).response = error.response;
+    (enhancedError as any).config = error.config;
+    (enhancedError as any).status = error.response?.status;
+
     if (error.response?.status === 401) {
       // Only clear tokens and redirect if we're not already on the login page
       // and if the request wasn't to the login endpoint
@@ -85,7 +106,8 @@ apiClient.interceptors.response.use(
         }
       }
     }
-    return Promise.reject(error);
+
+    return Promise.reject(enhancedError);
   },
 );
 

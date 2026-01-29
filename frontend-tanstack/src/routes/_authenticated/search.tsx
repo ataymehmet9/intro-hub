@@ -10,6 +10,26 @@ export const Route = createFileRoute('/_authenticated/search')({
 
 function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return
+    
+    setIsSearching(true)
+    // TODO: Implement actual search API call
+    console.log('Searching for:', searchQuery)
+    
+    // Placeholder - remove when implementing real search
+    setTimeout(() => {
+      setIsSearching(false)
+    }, 1000)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -31,10 +51,17 @@ function SearchPage() {
               placeholder="Search for contacts by name, company, or industry..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
               prefix={<HiMagnifyingGlass className="text-gray-400" />}
               className="flex-1"
             />
-            <Button variant="solid" icon={<HiMagnifyingGlass />}>
+            <Button
+              variant="solid"
+              icon={<HiMagnifyingGlass />}
+              onClick={handleSearch}
+              loading={isSearching}
+              disabled={!searchQuery.trim()}
+            >
               Search
             </Button>
           </div>
