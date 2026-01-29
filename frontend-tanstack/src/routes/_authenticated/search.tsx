@@ -25,9 +25,13 @@ function SearchPage() {
     
     try {
       const results = await searchContacts(searchQuery)
-      setSearchResults(results)
+      console.log('Search results:', results)
       
-      if (results.length === 0) {
+      // Handle case where results might be undefined or null
+      const contactsArray = Array.isArray(results) ? results : []
+      setSearchResults(contactsArray)
+      
+      if (contactsArray.length === 0) {
         toast.push(
           <NotificationComponent title="No results found" type="info">
             No contacts found matching "{searchQuery}"
@@ -36,6 +40,7 @@ function SearchPage() {
       }
     } catch (error) {
       console.error('Search error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       toast.push(
         <NotificationComponent title="Search failed" type="danger">
           Failed to search contacts. Please try again.

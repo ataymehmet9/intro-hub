@@ -43,11 +43,11 @@ export const getContact = async (id: number): Promise<Contact> => {
 
 // Create new contact
 export const createContact = async (
-  contactData: ContactFormData
+  contactData: ContactFormData,
 ): Promise<Contact> => {
   const response = await api.post<Contact>(
     CONTACTS_ENDPOINTS.LIST,
-    contactData
+    contactData,
   );
   return response;
 };
@@ -55,11 +55,11 @@ export const createContact = async (
 // Update existing contact
 export const updateContact = async (
   id: number,
-  contactData: Partial<ContactFormData>
+  contactData: Partial<ContactFormData>,
 ): Promise<Contact> => {
   const response = await api.patch<Contact>(
     CONTACTS_ENDPOINTS.DETAIL(id),
-    contactData
+    contactData,
   );
   return response;
 };
@@ -76,7 +76,7 @@ export const searchContacts = async (
     company?: string;
     relationship?: string;
     limit?: number;
-  }
+  },
 ): Promise<Contact[]> => {
   const params = new URLSearchParams();
   if (query) params.append("q", query);
@@ -89,28 +89,40 @@ export const searchContacts = async (
     });
   }
 
-  const response = await api.get<{ results: Contact[] }>(
-    `${CONTACTS_ENDPOINTS.SEARCH_ALL}${params.toString() ? `?${params.toString()}` : ""}`
+  const response = await api.get<Contact[] | { results: Contact[] }>(
+    `${CONTACTS_ENDPOINTS.SEARCH_ALL}${params.toString() ? `?${params.toString()}` : ""}`,
   );
-  return response.results;
+
+  // Handle both array response and object with results property
+  if (Array.isArray(response)) {
+    return response;
+  } else if (
+    response &&
+    typeof response === "object" &&
+    "results" in response
+  ) {
+    return response.results;
+  }
+
+  return [];
 };
 
 // Get contacts by relationship type
 export const getContactsByRelationship = async (
-  relationship: string
+  relationship: string,
 ): Promise<Contact[]> => {
   const response = await api.get<PaginatedResponse<Contact>>(
-    `${CONTACTS_ENDPOINTS.LIST}?relationship=${relationship}`
+    `${CONTACTS_ENDPOINTS.LIST}?relationship=${relationship}`,
   );
   return response.results;
 };
 
 // Get contacts by company
 export const getContactsByCompany = async (
-  company: string
+  company: string,
 ): Promise<Contact[]> => {
   const response = await api.get<PaginatedResponse<Contact>>(
-    `${CONTACTS_ENDPOINTS.LIST}?company=${company}`
+    `${CONTACTS_ENDPOINTS.LIST}?company=${company}`,
   );
   return response.results;
 };
@@ -121,7 +133,7 @@ export const batchImportContacts = async (
   options?: {
     skip_duplicates?: boolean;
     update_existing?: boolean;
-  }
+  },
 ): Promise<{
   imported: number;
   updated: number;
@@ -154,7 +166,7 @@ export const batchImportContacts = async (
 
 // Bulk upload contacts (uses /contacts/bulk_upload endpoint)
 export const bulkUploadContacts = async (
-  file: File
+  file: File,
 ): Promise<{
   imported: number;
   updated: number;
@@ -198,37 +210,37 @@ export const getContactStats = async (): Promise<{
 
 // Bulk operations
 export const bulkDeleteContacts = async (
-  contactIds: number[]
+  contactIds: number[],
 ): Promise<{ deleted: number }> => {
   const response = await api.post<{ deleted: number }>(
     "/contacts/bulk-delete/",
     {
       contact_ids: contactIds,
-    }
+    },
   );
   return response;
 };
 
 export const bulkUpdateContacts = async (
   contactIds: number[],
-  updateData: Partial<ContactFormData>
+  updateData: Partial<ContactFormData>,
 ): Promise<{ updated: number }> => {
   const response = await api.post<{ updated: number }>(
     "/contacts/bulk-update/",
     {
       contact_ids: contactIds,
       update_data: updateData,
-    }
+    },
   );
   return response;
 };
 
 // Get suggested contacts (if AI/ML features are implemented)
 export const getSuggestedContacts = async (
-  limit: number = 10
+  limit: number = 10,
 ): Promise<Contact[]> => {
   const response = await api.get<{ results: Contact[] }>(
-    `/contacts/suggestions/?limit=${limit}`
+    `/contacts/suggestions/?limit=${limit}`,
   );
   return response.results;
 };
