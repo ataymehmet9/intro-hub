@@ -60,7 +60,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -96,7 +96,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -126,7 +126,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       

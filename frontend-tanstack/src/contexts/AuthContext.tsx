@@ -124,7 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       toast.push(
         <div className="flex items-center gap-2">
           <span className="text-red-600">✗</span>
-          <span>{error.message || 'Signup failed'}</span>
+          <span className="capitalize">{error.message || 'Signup failed'}</span>
         </div>,
         {
           placement: 'top-end',

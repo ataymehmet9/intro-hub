@@ -76,7 +76,7 @@ export const RequestProvider: React.FC<RequestProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -117,7 +117,7 @@ export const RequestProvider: React.FC<RequestProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
