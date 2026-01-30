@@ -1,14 +1,14 @@
 'use client'
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react'
-import { toast, Notification as NotificationComponent } from '@/components/ui'
-import { 
-  getContacts, 
-  createContact, 
-  updateContact, 
+import { toast, Notification as NotificationComponent } from '~/components/ui'
+import {
+  getContacts,
+  createContact,
+  updateContact,
   deleteContact
-} from '@/services/contacts'
-import { ContactContextType, Contact, ContactFormData } from '@/types/intro-hub'
+} from '~/services/contacts'
+import { ContactContextType, Contact, ContactFormData } from '~/types/intro-hub'
 
 // Create the context
 export const ContactContext = createContext<ContactContextType | undefined>(undefined)
@@ -60,7 +60,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -96,7 +96,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -126,7 +126,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       

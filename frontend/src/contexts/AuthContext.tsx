@@ -1,17 +1,43 @@
 'use client'
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
-import { toast, Notification as NotificationComponent } from '@/components/ui'
-import {
-  login as loginService,
-  register as registerService,
-  getCurrentUser
-} from '@/services/auth'
-import { tokenUtils } from '@/services/api'
-import { AuthContextType, User, SignupData } from '@/types/intro-hub'
+import { useRouter } from '@tanstack/react-router'
+import { toast } from '~/components/ui'
+import { loginUser, signupUser, getCurrentUser } from '~/server/auth.functions'
+import { tokenUtils } from '~/services/api'
 
-// Create the context
+export interface User {
+  id: number
+  email: string
+  first_name: string
+  last_name: string
+  full_name: string
+  company?: string
+  position?: string
+  bio?: string
+  profile_image?: string
+}
+
+export interface SignupData {
+  email: string
+  password: string
+  password_confirm: string
+  first_name: string
+  last_name: string
+  company?: string
+  position?: string
+}
+
+export interface AuthContextType {
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<void>
+  signup: (data: SignupData) => Promise<void>
+  logout: () => void
+  updateUserProfile: (userData: Partial<User>) => void
+}
+
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
@@ -22,8 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [token, setToken] = useState<string | null>(null)
-
+  
   const router = useRouter()
 
   // Initialize auth state
@@ -31,158 +56,129 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initializeAuth = async () => {
       const storedToken = tokenUtils.getToken()
       
-      if (storedToken) {
-        setToken(storedToken)
-        // Sync token to cookie for middleware
-        document.cookie = `intro_hub_token=${storedToken}; path=/; max-age=${60 * 60 * 24 * 7}` // 7 days
-        
+      // Only fetch user if we have a token but no user data
+      if (storedToken && !user) {
         try {
-          console.log('Attempting to fetch user data...')
           const userData = await getCurrentUser()
           setUser(userData)
           setIsAuthenticated(true)
-          console.log('User data fetched successfully:', userData)
         } catch (error) {
           console.error('Error fetching user data:', error)
           handleLogout()
         }
-      } else {
-        console.log('No token found. Skipping authentication.')
       }
       
       setIsLoading(false)
     }
 
     initializeAuth()
-  }, [])
+  }, [user])
 
-  // Handle login
-  const handleLogin = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true)
-      const data = await loginService({ email, password })
-
-      console.log('Login response:', data)
-
-      // Store token in localStorage
-      tokenUtils.setToken(data.token)
-      setToken(data.token)
+      const result = await loginUser({ data: { email, password } })
       
-      // Also set token as cookie for middleware
-      document.cookie = `intro_hub_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}` // 7 days
-
-      // Set user data
-      setUser(data.user)
+      tokenUtils.setToken(result.token)
+      setUser(result.user)
       setIsAuthenticated(true)
-
-      // Success notification
-      toast.push(
-        <NotificationComponent title="Success!" type="success">
-          Welcome back!
-        </NotificationComponent>
-      )
-      
-      // Redirect to dashboard after successful login
-      console.log('Redirecting to dashboard...')
-      if (typeof window !== 'undefined') {
-        window.location.href = '/dashboard'
-      }
-    } catch (error: unknown) {
-      console.error('Login error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please check your credentials.'
       
       toast.push(
-        <NotificationComponent title="Error" type="danger">
-          {errorMessage}
-        </NotificationComponent>
+        <div className="flex items-center gap-2">
+          <span className="text-green-600">✓</span>
+          <span>Login successful!</span>
+        </div>,
+        {
+          placement: 'top-end',
+        }
       )
       
-      // Don't throw error - just show notification and stay on login page
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Handle signup
-  const handleSignup = async (userData: SignupData): Promise<void> => {
-    try {
-      setIsLoading(true)
-      await registerService(userData)
-
-      // Automatically log in after successful registration
-      await handleLogin(userData.email, userData.password)
-
-      toast.push(
-        <NotificationComponent title="Success!" type="success">
-          Account created successfully!
-        </NotificationComponent>
-      )
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.'
-      
-      toast.push(
-        <NotificationComponent title="Error" type="danger">
-          {errorMessage}
-        </NotificationComponent>
-      )
-      
+      // Only navigate on successful login
+      await router.navigate({ to: '/dashboard' })
+    } catch (error: any) {
+      // Don't show toast here, let the login page handle the error display
+      console.error('Login error in AuthContext:', error)
       throw error
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  // Handle logout
-  const handleLogout = (): void => {
-    console.log('handleLogout called')
-    
-    // Clear tokens and state
+  const signup = async (data: SignupData) => {
+    try {
+      const result = await signupUser({ data })
+      
+      tokenUtils.setToken(result.token)
+      setUser(result.user)
+      setIsAuthenticated(true)
+      
+      toast.push(
+        <div className="flex items-center gap-2">
+          <span className="text-green-600">✓</span>
+          <span>Account created successfully!</span>
+        </div>,
+        {
+          placement: 'top-end',
+        }
+      )
+      
+      router.navigate({ to: '/dashboard' })
+    } catch (error: any) {
+      toast.push(
+        <div className="flex items-center gap-2">
+          <span className="text-red-600">✗</span>
+          <span className="capitalize">{error.message || 'Signup failed'}</span>
+        </div>,
+        {
+          placement: 'top-end',
+        }
+      )
+      throw error
+    }
+  }
+
+  const updateUserProfile = (userData: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...userData })
+    }
+  }
+
+  const logout = () => {
     tokenUtils.clearTokens()
-    setToken(null)
     setUser(null)
     setIsAuthenticated(false)
-    
-    // Clear cookie
-    document.cookie = 'intro_hub_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-
-    // Redirect to login
-    router.push('/login')
+    router.navigate({ to: '/login' })
     
     toast.push(
-      <NotificationComponent title="Logged Out" type="info">
-        You have been logged out
-      </NotificationComponent>
+      <div className="flex items-center gap-2">
+        <span className="text-blue-600">ℹ</span>
+        <span>Logged out successfully</span>
+      </div>,
+      {
+        placement: 'top-end',
+      }
     )
   }
 
-  // Update user profile
-  const updateUserProfile = (updatedUserData: Partial<User>): void => {
-    setUser((prevUser) => {
-      if (!prevUser) return null
-      return {
-        ...prevUser,
-        ...updatedUserData,
-      }
-    })
+  const handleLogout = () => {
+    logout()
   }
 
-  // Context value
-  const value: AuthContextType = {
-    user,
-    token,
-    isAuthenticated,
-    isLoading,
-    login: handleLogin,
-    signup: handleSignup,
-    logout: handleLogout,
-    updateUserProfile,
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        isLoading,
+        login,
+        signup,
+        logout,
+        updateUserProfile,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
-// Custom hook to use auth context
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = React.useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
@@ -190,4 +186,4 @@ export const useAuth = (): AuthContextType => {
   return context
 }
 
-
+// Made with Bob

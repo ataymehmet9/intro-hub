@@ -1,14 +1,14 @@
 'use client'
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react'
-import { toast, Notification as NotificationComponent } from '@/components/ui'
-import { 
-  getSentRequests, 
-  getReceivedRequests, 
-  createRequest, 
+import { toast, Notification as NotificationComponent } from '~/components/ui'
+import {
+  getSentRequests,
+  getReceivedRequests,
+  createRequest,
   respondToRequest as respondToRequestService
-} from '@/services/requests'
-import { RequestContextType, IntroductionRequest, RequestFormData } from '@/types/intro-hub'
+} from '~/services/requests'
+import { RequestContextType, IntroductionRequest, RequestFormData } from '~/types/intro-hub'
 
 // Create the context
 export const RequestContext = createContext<RequestContextType | undefined>(undefined)
@@ -76,7 +76,7 @@ export const RequestProvider: React.FC<RequestProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       
@@ -117,7 +117,7 @@ export const RequestProvider: React.FC<RequestProviderProps> = ({ children }) =>
       
       toast.push(
         <NotificationComponent title="Error" type="danger">
-          {errorMessage}
+          <span className="capitalize">{errorMessage}</span>
         </NotificationComponent>
       )
       

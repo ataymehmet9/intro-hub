@@ -1,17 +1,16 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ApiError } from "@/types/intro-hub";
+import axios, { AxiosInstance } from "axios";
 
 // API Configuration
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
-const API_TIMEOUT = parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || "30000");
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || "30000");
 
 // Token storage keys
 const TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
 // Create axios instance
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   headers: {
@@ -64,97 +63,82 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
-    // Handle 401 errors (unauthorized) - clear tokens and redirect to login
+    // Extract error message from response
+    let errorMessage = "An error occurred";
+
+    if (error.response?.data) {
+      // Try to get error message from various possible fields
+      errorMessage =
+        error.response.data.error ||
+        error.response.data.message ||
+        error.response.data.detail ||
+        error.message ||
+        `Request failed with status ${error.response.status}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    // Create a new error with the extracted message
+    const enhancedError = new Error(errorMessage);
+    (enhancedError as any).response = error.response;
+    (enhancedError as any).config = error.config;
+    (enhancedError as any).status = error.response?.status;
+
     if (error.response?.status === 401) {
-      tokenUtils.clearTokens();
+      // Only clear tokens and redirect if we're not already on the login page
+      // and if the request wasn't to the login endpoint
+      const isLoginRequest = error.config?.url?.includes("/auth/login");
+      const isOnLoginPage =
+        typeof window !== "undefined" && window.location.pathname === "/login";
 
-      // Clear cookie as well
-      if (typeof window !== "undefined") {
-        document.cookie =
-          "intro_hub_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-        // Only redirect if not already on login page
-        if (!window.location.pathname.includes("/login")) {
+      if (!isLoginRequest && !isOnLoginPage) {
+        tokenUtils.clearTokens();
+        // Redirect to login will be handled by route guards
+        if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
       }
     }
 
-    // Transform error to our ApiError format
-    const apiError: ApiError = {
-      message:
-        error.response?.data?.message || error.message || "An error occurred",
-      status: error.response?.status || 500,
-      details: error.response?.data?.details || error.response?.data,
-    };
-
-    return Promise.reject(apiError);
-  }
+    return Promise.reject(enhancedError);
+  },
 );
 
-// Generic API methods
+// API wrapper with common methods
 export const api = {
-  get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.get(url, config).then((response) => response.data),
+  get: async <T>(url: string): Promise<T> => {
+    const response = await apiClient.get<T>(url);
+    return response.data;
+  },
 
-  post: <T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<T> =>
-    apiClient.post(url, data, config).then((response) => response.data),
+  post: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.post<T>(url, data);
+    return response.data;
+  },
 
-  put: <T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<T> =>
-    apiClient.put(url, data, config).then((response) => response.data),
+  put: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.put<T>(url, data);
+    return response.data;
+  },
 
-  patch: <T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<T> =>
-    apiClient.patch(url, data, config).then((response) => response.data),
+  delete: async <T>(url: string): Promise<T> => {
+    const response = await apiClient.delete<T>(url);
+    return response.data;
+  },
 
-  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    apiClient.delete(url, config).then((response) => response.data),
-};
-
-// File upload helper
-export const uploadFile = async (
-  url: string,
-  file: File,
-  onProgress?: (progress: number) => void
-): Promise<unknown> => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  return apiClient.post(url, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    onUploadProgress: (progressEvent) => {
-      if (onProgress && progressEvent.total) {
-        const progress = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        onProgress(progress);
-      }
-    },
-  });
+  patch: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.patch<T>(url, data);
+    return response.data;
+  },
 };
 
 export default apiClient;
+
+// Made with Bob
