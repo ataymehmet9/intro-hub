@@ -1,5 +1,15 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  serial,
+  varchar,
+  pgEnum,
+  integer,
+} from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -73,9 +83,61 @@ export const verification = pgTable(
   (table) => [index('verification_identifier_idx').on(table.identifier)],
 )
 
+// ============================================================================
+// APPLICATION TABLES (Custom schema)
+// ============================================================================
+
+export const contacts = pgTable('contacts', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  email: varchar('email', { length: 255 }).notNull(),
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  company: varchar('company', { length: 255 }),
+  position: varchar('position', { length: 255 }),
+  notes: text('notes'),
+  phone: varchar('phone', { length: 50 }),
+  linkedinUrl: varchar('linkedin_url', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const requestStatusEnum = pgEnum('request_status', [
+  'pending',
+  'approved',
+  'declined',
+])
+
+export const introductionRequests = pgTable('introduction_requests', {
+  id: serial('id').primaryKey(),
+  requesterId: text('requester_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  approverId: text('approver_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  targetContactId: integer('target_contact_id')
+    .notNull()
+    .references(() => contacts.id, { onDelete: 'cascade' }),
+  message: text('message').notNull(),
+  status: requestStatusEnum('status').default('pending').notNull(),
+  responseMessage: text('response_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ============================================================================
+// RELATIONS (Drizzle ORM relationships)
+// ============================================================================
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  contacts: many(contacts),
+  sentRequests: many(introductionRequests, { relationName: 'requester' }),
+  receivedRequests: many(introductionRequests, { relationName: 'approver' }),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -91,3 +153,52 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }))
+
+export const contactsRelations = relations(contacts, ({ one, many }) => ({
+  user: one(user, {
+    fields: [contacts.userId],
+    references: [user.id],
+  }),
+  introductionRequests: many(introductionRequests),
+}))
+
+export const introductionRequestsRelations = relations(
+  introductionRequests,
+  ({ one }) => ({
+    requester: one(user, {
+      fields: [introductionRequests.requesterId],
+      references: [user.id],
+      relationName: 'requester',
+    }),
+    approver: one(user, {
+      fields: [introductionRequests.approverId],
+      references: [user.id],
+      relationName: 'approver',
+    }),
+    targetContact: one(contacts, {
+      fields: [introductionRequests.targetContactId],
+      references: [contacts.id],
+    }),
+  }),
+)
+
+// ============================================================================
+// TYPE EXPORTS (For use in your application)
+// ============================================================================
+
+export type User = typeof user.$inferSelect
+export type NewUser = typeof user.$inferInsert
+
+export type Session = typeof session.$inferSelect
+export type NewSession = typeof session.$inferInsert
+
+export type Account = typeof account.$inferSelect
+export type NewAccount = typeof account.$inferInsert
+
+export type Contact = typeof contacts.$inferSelect
+export type NewContact = typeof contacts.$inferInsert
+
+export type IntroductionRequest = typeof introductionRequests.$inferSelect
+export type NewIntroductionRequest = typeof introductionRequests.$inferInsert
+
+export type RequestStatus = 'pending' | 'approved' | 'declined'
