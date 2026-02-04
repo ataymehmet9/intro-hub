@@ -4,8 +4,9 @@ import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import { useSessionUser } from '@/store/authStore'
 import { Link } from '@tanstack/react-router'
 import { PiUserDuotone, PiSignOutDuotone } from 'react-icons/pi'
-import { useAuth } from '@/auth'
+import { signOut } from '@/lib/auth-client'
 import type { JSX } from 'react'
+import { User } from '@/@types/auth'
 
 type DropdownList = {
     label: string
@@ -16,9 +17,9 @@ type DropdownList = {
 const dropdownItemList: DropdownList[] = []
 
 const _UserDropdown = () => {
-    const { avatar, userName, email } = useSessionUser((state) => state.user)
-
-    const { signOut } = useAuth()
+    const { user = {} } = useSessionUser()
+    const mainUser: User = user as User;
+    const { image: avatar, name: userName, email } = mainUser
 
     const handleSignOut = () => {
         signOut()

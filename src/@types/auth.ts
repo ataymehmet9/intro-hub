@@ -1,56 +1,54 @@
+import type { Session } from 'better-auth/types'
+
+// Better Auth sign-in credentials
 export type SignInCredential = {
-    email: string
-    password: string
+  email: string
+  password: string
 }
 
-export type SignInResponse = {
-    token: string
-    user: {
-        userId: string
-        userName: string
-        authority: string[]
-        avatar: string
-        email: string
-    }
-}
-
-export type SignUpResponse = SignInResponse
-
+// Better Auth sign-up credentials
 export type SignUpCredential = {
-    userName: string
-    email: string
-    password: string
+  name: string
+  email: string
+  password: string
 }
 
+// Better Auth forgot password
 export type ForgotPassword = {
-    email: string
+  email: string
 }
 
+// Better Auth reset password
 export type ResetPassword = {
-    password: string
+  password: string
+  token?: string
 }
 
+// Auth request status
 export type AuthRequestStatus = 'success' | 'failed' | ''
 
+// Auth result type
 export type AuthResult = Promise<{
-    status: AuthRequestStatus
-    message: string
+  status: AuthRequestStatus
+  message: string
 }>
 
+// Better Auth User type (extends the session user)
 export type User = {
-    userId?: string | null
-    avatar?: string | null
-    userName?: string | null
-    email?: string | null
-    authority?: string[]
+  id: string
+  email: string
+  name: string
+  emailVerified: boolean
+  image?: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
-export type Token = {
-    accessToken: string
-    refereshToken?: string
-}
+// Better Auth Session type
+export type AuthSession = Session
 
+// OAuth sign-in callback payload
 export type OauthSignInCallbackPayload = {
-    onSignIn: (tokens: Token, user?: User) => void
-    redirect: () => void
+  onSignIn: (session: AuthSession) => void
+  redirect: () => void
 }

@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import Loading from '@/components/shared/Loading'
 import type { CommonProps } from '@/@types/common'
-import { useAuth } from '@/auth'
+import { useSession } from '@/lib/auth-client'
 import { useThemeStore } from '@/store/themeStore'
 import PostLoginLayout from './PostLoginLayout'
 import PreLoginLayout from './PreLoginLayout'
@@ -9,7 +9,7 @@ import PreLoginLayout from './PreLoginLayout'
 const Layout = ({ children }: CommonProps) => {
     const layoutType = useThemeStore((state) => state.layout.type)
 
-    const { authenticated } = useAuth()
+    const { data: session } = useSession()
 
     return (
         <Suspense
@@ -19,7 +19,7 @@ const Layout = ({ children }: CommonProps) => {
                 </div>
             }
         >
-            {authenticated ? (
+            {session ? (
                 <PostLoginLayout layoutType={layoutType}>
                     {children}
                 </PostLoginLayout>
