@@ -93,8 +93,7 @@ export const contacts = pgTable('contacts', {
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
   email: varchar('email', { length: 255 }).notNull(),
-  firstName: varchar('first_name', { length: 100 }).notNull(),
-  lastName: varchar('last_name', { length: 100 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
   company: varchar('company', { length: 255 }),
   position: varchar('position', { length: 255 }),
   notes: text('notes'),

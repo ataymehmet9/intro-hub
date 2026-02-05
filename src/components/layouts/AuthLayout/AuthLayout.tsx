@@ -1,20 +1,23 @@
-import { useMemo, lazy } from 'react'
+import { useMemo } from 'react'
 import type { CommonProps } from '@/@types/common'
-import type { LazyExoticComponent, JSX } from 'react'
+import type { ComponentType } from 'react'
+import Simple from './Simple'
+import Split from './Split'
+import Side from './Side'
 
 type LayoutType = 'simple' | 'split' | 'side'
 
 type Layouts = Record<
     LayoutType,
-    LazyExoticComponent<<T extends CommonProps>(props: T) => JSX.Element>
+    ComponentType<CommonProps>
 >
 
 const currentLayoutType: LayoutType = 'side'
 
 const layouts: Layouts = {
-    simple: lazy(() => import('./Simple')),
-    split: lazy(() => import('./Split')),
-    side: lazy(() => import('./Side')),
+    simple: Simple,
+    split: Split,
+    side: Side,
 }
 
 const AuthLayout = ({ children }: CommonProps) => {

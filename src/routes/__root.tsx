@@ -17,6 +17,8 @@ import type { QueryClient } from '@tanstack/react-query'
 
 import type { TRPCRouter } from '@/integrations/trpc/router'
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import { DefaultCatchBoundary } from '@/components/DefaultCatchBoundary';
+import { NotFound } from '@/components/NotFound';
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -35,7 +37,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Intro Hub',
+        title: 'IntroHub - Professional Introduction Management',
+      },
+      {
+        name: 'description',
+        content: 'Manage your professional network and introductions efficiently',
       },
     ],
     links: [
@@ -46,6 +52,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
 
+  errorComponent: DefaultCatchBoundary,
+  notFoundComponent: () => <NotFound />,
   shellComponent: RootDocument,
 })
 

@@ -12,18 +12,13 @@ export const userSchema = z.object({
     .min(1, { message: 'Name cannot be empty' })
     .max(255, { message: 'Name must be less than 255 characters' }),
   email: z
-    .string({ message: 'Email must be a string' })
     .email({ message: 'Please enter a valid email address' })
     .toLowerCase()
     .trim(),
   emailVerified: z
     .boolean({ message: 'Email verified must be a boolean' })
     .default(false),
-  image: z
-    .string({ message: 'Image must be a string' })
-    .url({ message: 'Image must be a valid URL' })
-    .nullable()
-    .optional(),
+  image: z.url({ message: 'Image must be a valid URL' }).nullable().optional(),
   createdAt: z
     .date({ message: 'Created at must be a date' })
     .default(() => new Date()),
@@ -31,6 +26,26 @@ export const userSchema = z.object({
     .date({ message: 'Updated at must be a date' })
     .default(() => new Date()),
 })
+
+export const userSignupSchema = z
+  .object({
+    name: z.string().min(1, { message: 'Name is required' }),
+    email: z.email({ message: 'Please enter a valid email address' }),
+    password: z
+      .string()
+      .min(8, { message: 'Password must be at least 8 characters' }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: 'Confirm password must be at least 8 characters' }),
+    company: z.string().optional(),
+    position: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+
+export type UserSignup = z.infer<typeof userSignupSchema>
 
 /**
  * User Insert Schema - For creating new users
