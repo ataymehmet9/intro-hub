@@ -10,42 +10,65 @@ export const requestStatusEnum = z.enum(['pending', 'approved', 'declined'], {
 /**
  * Introduction Request Schema - Validation for introduction_requests table
  */
-export const introductionRequestSchema = z
-  .object({
-    id: z
-      .number({ message: 'Request ID must be a number' })
-      .int({ message: 'Request ID must be an integer' })
-      .positive({ message: 'Request ID must be positive' }),
-    requesterId: z
-      .string({ message: 'Requester ID must be a string' })
-      .min(1, { message: 'Requester ID cannot be empty' }),
-    approverId: z
-      .string({ message: 'Approver ID must be a string' })
-      .min(1, { message: 'Approver ID cannot be empty' }),
-    targetContactId: z
-      .number({ message: 'Target contact ID must be a number' })
-      .int({ message: 'Target contact ID must be an integer' })
-      .positive({ message: 'Target contact ID must be positive' }),
-    message: z
-      .string({ message: 'Message must be a string' })
-      .min(1, { message: 'Message cannot be empty' })
-      .max(5000, { message: 'Message must be less than 5000 characters' })
-      .trim(),
-    status: requestStatusEnum.default('pending'),
-    responseMessage: z
-      .string({ message: 'Response message must be a string' })
-      .max(5000, {
-        message: 'Response message must be less than 5000 characters',
-      })
-      .trim()
-      .nullable()
-      .optional(),
-    createdAt: z
-      .date({ message: 'Created at must be a date' })
-      .default(() => new Date()),
-    updatedAt: z
-      .date({ message: 'Updated at must be a date' })
-      .default(() => new Date()),
+/**
+ * Base schema without refinements - used for creating derived schemas
+ */
+const baseIntroductionRequestSchema = z.object({
+  id: z
+    .number({ message: 'Request ID must be a number' })
+    .int({ message: 'Request ID must be an integer' })
+    .positive({ message: 'Request ID must be positive' }),
+  requesterId: z
+    .string({ message: 'Requester ID must be a string' })
+    .min(1, { message: 'Requester ID cannot be empty' }),
+  approverId: z
+    .string({ message: 'Approver ID must be a string' })
+    .min(1, { message: 'Approver ID cannot be empty' }),
+  targetContactId: z
+    .number({ message: 'Target contact ID must be a number' })
+    .int({ message: 'Target contact ID must be an integer' })
+    .positive({ message: 'Target contact ID must be positive' }),
+  message: z
+    .string({ message: 'Message must be a string' })
+    .min(1, { message: 'Message cannot be empty' })
+    .max(5000, { message: 'Message must be less than 5000 characters' })
+    .trim(),
+  status: requestStatusEnum.default('pending'),
+  responseMessage: z
+    .string({ message: 'Response message must be a string' })
+    .max(5000, {
+      message: 'Response message must be less than 5000 characters',
+    })
+    .trim()
+    .nullable()
+    .optional(),
+  createdAt: z
+    .date({ message: 'Created at must be a date' })
+    .default(() => new Date()),
+  updatedAt: z
+    .date({ message: 'Updated at must be a date' })
+    .default(() => new Date()),
+})
+
+/**
+ * Introduction Request Schema - Full schema with refinements
+ */
+export const introductionRequestSchema = baseIntroductionRequestSchema.refine(
+  (data) => data.requesterId !== data.approverId,
+  {
+    message: 'Requester and approver cannot be the same person',
+    path: ['approverId'],
+  },
+)
+
+/**
+ * Introduction Request Insert Schema - For creating new requests
+ */
+export const insertIntroductionRequestSchema = baseIntroductionRequestSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
   })
   .refine((data) => data.requesterId !== data.approverId, {
     message: 'Requester and approver cannot be the same person',
@@ -53,18 +76,9 @@ export const introductionRequestSchema = z
   })
 
 /**
- * Introduction Request Insert Schema - For creating new requests
- */
-export const insertIntroductionRequestSchema = introductionRequestSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-})
-
-/**
  * Introduction Request Update Schema - For updating existing requests
  */
-export const updateIntroductionRequestSchema = introductionRequestSchema
+export const updateIntroductionRequestSchema = baseIntroductionRequestSchema
   .omit({
     id: true,
     requesterId: true,

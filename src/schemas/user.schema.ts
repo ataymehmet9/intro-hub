@@ -76,10 +76,15 @@ export const publicUserSchema = userSchema.pick({
   image: true,
 })
 
+export const userEmailSchema = userSchema.pick({
+  email: true,
+})
+
 // Type exports
 export type User = z.infer<typeof userSchema>
 export type InsertUser = z.infer<typeof insertUserSchema>
 export type UpdateUser = z.infer<typeof updateUserSchema>
 export type PublicUser = z.infer<typeof publicUserSchema>
+export type UserEmail = z.infer<typeof userEmailSchema>
 
 // Made with Bob

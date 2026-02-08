@@ -8,7 +8,7 @@ let resendInstance: Resend | null = null
  */
 export function getResendInstance(): Resend {
   if (!resendInstance) {
-    resendInstance = new Resend('')
+    resendInstance = new Resend(import.meta.env.RESEND_API_KEY)
   }
   return resendInstance
 }

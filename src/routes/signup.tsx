@@ -24,37 +24,29 @@ function SignupPage() {
   return (
     <>
       <div className="mb-8">
-          <Logo
-              type="streamline"
-              mode={mode}
-              imgClass="mx-auto"
-              logoWidth={60}
-          />
+        <Logo type="streamline" mode={mode} imgClass="mx-auto" logoWidth={60} />
       </div>
       <div className="mb-8">
-          <h3 className="mb-1">Sign Up</h3>
-          <p className="font-semibold heading-text">
-              And lets get started with your free trial
-          </p>
+        <h3 className="mb-1">Sign Up</h3>
+        <p className="font-semibold heading-text">
+          And lets get started with your free trial
+        </p>
       </div>
       {message && (
-          <Alert showIcon className="mb-4" type="danger">
-              <span className="break-all">{message}</span>
-          </Alert>
+        <Alert showIcon className="mb-4" type="danger">
+          <span className="break-all">{message}</span>
+        </Alert>
       )}
-      <SignUpForm
-          setMessage={setMessage}
-          onSignupSuccess={onSignupSuccess}
-      />
+      <SignUpForm setMessage={setMessage} onSignupSuccess={onSignupSuccess} />
       <div className="mt-6 text-center">
-          <span>Already have an account? </span>
-          <ActionLink
-              to={appConfig.authenticatePath}
-              className="heading-text font-bold"
-              themeColor={false}
-          >
-              Sign in
-          </ActionLink>
+        <span>Already have an account? </span>
+        <ActionLink
+          to={appConfig.authPaths.login}
+          className="heading-text font-bold"
+          themeColor={false}
+        >
+          Sign in
+        </ActionLink>
       </div>
     </>
   )

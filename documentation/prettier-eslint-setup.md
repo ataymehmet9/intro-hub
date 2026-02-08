@@ -15,7 +15,6 @@ The project uses:
 ### ESLint Dependencies
 
 - `eslint` - Core ESLint package
-- `@eslint/js` - ESLint JavaScript configurations
 - `@typescript-eslint/parser` - TypeScript parser for ESLint
 - `@typescript-eslint/eslint-plugin` - TypeScript-specific linting rules
 - `eslint-plugin-react` - React-specific linting rules

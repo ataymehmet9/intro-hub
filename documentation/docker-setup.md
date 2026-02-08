@@ -34,6 +34,7 @@ DATABASE_URL=postgresql://postgres:your_secure_password@postgres:5432/introhub
 # Better Auth Configuration (if applicable)
 BETTER_AUTH_SECRET=your_secret_key
 BETTER_AUTH_URL=http://localhost:3000
+RESEND_API_KEY=1234123
 ```
 
 ### 2. Start the Services

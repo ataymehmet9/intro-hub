@@ -37,6 +37,7 @@ services:
       # Add other environment variables as needed
       # BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       # BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      # VITE_RESEND_API_KEY: ${RESEND_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy

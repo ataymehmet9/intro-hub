@@ -1,8 +1,15 @@
+type AuthLinks = {
+  login: string
+  signUp: string
+  forgotPassword: string
+  resetPassword: string
+}
+
 export type AppConfig = {
   apiPrefix: string
   authenticatedEntryPath: string
   unAuthenticatedEntryPath: string
-  authenticatePath: string
+  authPaths: AuthLinks
   locale: string
   accessTokenPersistStrategy: 'localStorage' | 'sessionStorage' | 'cookies'
   enableMock: boolean
@@ -13,7 +20,12 @@ const appConfig: AppConfig = {
   apiPrefix: '/api',
   authenticatedEntryPath: '/dashboard',
   unAuthenticatedEntryPath: '/',
-  authenticatePath: '/login',
+  authPaths: {
+    login: '/login',
+    signUp: '/signup',
+    forgotPassword: '/forgot-password',
+    resetPassword: '/reset-password'
+  },
   locale: 'en',
   accessTokenPersistStrategy: 'cookies',
   enableMock: false,

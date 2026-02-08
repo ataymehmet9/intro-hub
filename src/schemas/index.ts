@@ -11,10 +11,12 @@ export {
   insertUserSchema,
   updateUserSchema,
   publicUserSchema,
+  userEmailSchema,
   type User,
   type InsertUser,
   type UpdateUser,
   type PublicUser,
+  type UserEmail,
 } from './user.schema'
 
 // Session schemas
@@ -77,4 +79,7 @@ export {
   type RequestStatus,
 } from './introduction-request.schema'
 
-// Made with Bob
+export {
+  forgotPasswordEmailSchema,
+  type ForgotPasswordEmail,
+} from './email.schema'

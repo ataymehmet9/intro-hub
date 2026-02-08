@@ -1,7 +1,9 @@
 import { COLORS } from '@/constants/chart.constant'
-import type { ApexOptions } from 'apexcharts'
 
-export const apexLineChartDefaultOption: ApexOptions = {
+// Use a generic type to avoid importing apexcharts on the server
+type ChartOptions = Record<string, any>
+
+export const apexLineChartDefaultOption: ChartOptions = {
     chart: {
         zoom: {
             enabled: false,
@@ -23,7 +25,7 @@ export const apexLineChartDefaultOption: ApexOptions = {
         itemMargin: {
             vertical: 10,
         },
-        tooltipHoverFormatter: function (val, opts) {
+        tooltipHoverFormatter: function (val: any, opts: any) {
             return (
                 val +
                 ' - ' +
@@ -50,7 +52,7 @@ export const apexAreaChartDefaultOption = {
     },
 }
 
-export const apexBarChartDefaultOption: ApexOptions = {
+export const apexBarChartDefaultOption: ChartOptions = {
     chart: {
         zoom: {
             enabled: false,
@@ -81,7 +83,7 @@ export const apexBarChartDefaultOption: ApexOptions = {
         itemMargin: {
             vertical: 10,
         },
-        tooltipHoverFormatter: function (val, opts) {
+        tooltipHoverFormatter: function (val: any, opts: any) {
             return (
                 val +
                 ' - ' +
@@ -98,12 +100,12 @@ export const apexBarChartDefaultOption: ApexOptions = {
     },
     tooltip: {
         y: {
-            formatter: (val) => `${val}`,
+            formatter: (val: any) => `${val}`,
         },
     },
 }
 
-export const apexDonutChartDefaultOption: ApexOptions = {
+export const apexDonutChartDefaultOption: ChartOptions = {
     colors: [...COLORS],
     plotOptions: {
         pie: {
@@ -114,7 +116,7 @@ export const apexDonutChartDefaultOption: ApexOptions = {
                         show: true,
                         showAlways: true,
                         label: '',
-                        formatter: function (w) {
+                        formatter: function (w: any) {
                             return w.globals.seriesTotals.reduce(
                                 (a: string, b: string) => {
                                     return a + b
@@ -140,7 +142,7 @@ export const apexDonutChartDefaultOption: ApexOptions = {
     },
 }
 
-export const apexSparklineChartDefultOption: ApexOptions = {
+export const apexSparklineChartDefultOption: ChartOptions = {
     chart: {
         type: 'line',
         sparkline: {
@@ -171,7 +173,7 @@ export const apexSparklineChartDefultOption: ApexOptions = {
     },
 }
 
-export const apexRadarChartDefultOption: ApexOptions = {
+export const apexRadarChartDefultOption: ChartOptions = {
     chart: {
         type: 'radar',
         zoom: {
