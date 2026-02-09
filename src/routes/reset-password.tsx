@@ -1,41 +1,43 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
+import appConfig from '@/configs/app.config'
 import { Alert, Button } from '@/components/ui'
 import { ActionLink } from '@/components/shared'
-import appConfig from '@/configs/app.config'
-import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
+import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
+import useQuery from '@/utils/hooks/useQuery'
 
-export const Route = createFileRoute('/forgot-password')({
+export const Route = createFileRoute('/reset-password')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const [emailSent, setEmailSent] = useState(false)
+  const [resetComplete, setResetComplete] = useState(false)
+  const token = useQuery()
+
   const [message, setMessage] = useTimeOutMessage()
 
   const navigate = useNavigate()
 
   const handleContinue = () => {
-    console.log('clicked here!!', appConfig.authPaths.login)
     navigate({ to: appConfig.authPaths.login })
   }
 
   return (
     <div>
       <div className="mb-6">
-        {emailSent ? (
+        {resetComplete ? (
           <>
-            <h3 className="mb-2">Check your email</h3>
+            <h3 className="mb-1">Reset done</h3>
             <p className="font-semibold heading-text">
-              We have sent a password recovery to your email
+              Your password has been successfully reset
             </p>
           </>
         ) : (
           <>
-            <h3 className="mb-2">Forgot Password</h3>
+            <h3 className="mb-1">Set new password</h3>
             <p className="font-semibold heading-text">
-              Please enter your email to receive a verification code
+              Your new password must different to previous password
             </p>
           </>
         )}
@@ -45,15 +47,16 @@ function RouteComponent() {
           <span className="break-all">{message}</span>
         </Alert>
       )}
-      <ForgotPasswordForm
-        emailSent={emailSent}
+      <ResetPasswordForm
+        resetComplete={resetComplete}
         setMessage={setMessage}
-        setEmailSent={setEmailSent}
+        setResetComplete={setResetComplete}
+        token={token.get('token') ?? ''}
       >
         <Button block variant="solid" type="button" onClick={handleContinue}>
           Continue
         </Button>
-      </ForgotPasswordForm>
+      </ResetPasswordForm>
       <div className="mt-4 text-center">
         <span>Back to </span>
         <ActionLink

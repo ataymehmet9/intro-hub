@@ -80,11 +80,26 @@ export const userEmailSchema = userSchema.pick({
   email: true,
 })
 
+export const userResetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: 'Password must be at least 8 characters' }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: 'Confirm password must be at least 8 characters' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+
 // Type exports
 export type User = z.infer<typeof userSchema>
 export type InsertUser = z.infer<typeof insertUserSchema>
 export type UpdateUser = z.infer<typeof updateUserSchema>
 export type PublicUser = z.infer<typeof publicUserSchema>
 export type UserEmail = z.infer<typeof userEmailSchema>
+export type UserResetPassword = z.infer<typeof userResetPasswordSchema>
 
 // Made with Bob

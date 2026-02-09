@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WhatIsIntrohubRouteImport } from './routes/what-is-introhub'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GetDemoRouteImport } from './routes/get-demo'
@@ -29,6 +30,11 @@ const WhatIsIntrohubRoute = WhatIsIntrohubRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/get-demo': typeof GetDemoRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/get-demo': typeof GetDemoRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/get-demo': typeof GetDemoRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/get-demo'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/get-demo'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/get-demo'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
     | '/_authenticated/dashboard'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   GetDemoRoute: typeof GetDemoRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   WhatIsIntrohubRoute: typeof WhatIsIntrohubRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -268,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   GetDemoRoute: GetDemoRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   WhatIsIntrohubRoute: WhatIsIntrohubRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

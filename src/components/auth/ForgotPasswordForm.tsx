@@ -1,20 +1,12 @@
 import { useState } from 'react'
-import { z } from 'zod'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
-import { authClient } from '@/lib/auth-client'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { CommonProps } from '@/@types/common'
-import appConfig from '@/configs/app.config'
 import { requestPasswordReset } from '@/services/auth.functions'
-
-const forgotPasswordSchema = z.object({
-  email: z.email('Invalid email address'),
-})
-
-type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>
+import { userEmailSchema, UserEmail } from '@/schemas'
 
 interface ForgotPasswordFormProps extends CommonProps {
   emailSent: boolean
@@ -31,11 +23,11 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
     handleSubmit,
     formState: { errors },
     control,
-  } = useForm<ForgotPasswordData>({
-    resolver: zodResolver(forgotPasswordSchema),
+  } = useForm<UserEmail>({
+    resolver: zodResolver(userEmailSchema),
   })
 
-  const onForgotPassword = async (values: ForgotPasswordData) => {
+  const onForgotPassword = async (values: UserEmail) => {
     const { email } = values
 
     try {

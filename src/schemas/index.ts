@@ -12,11 +12,13 @@ export {
   updateUserSchema,
   publicUserSchema,
   userEmailSchema,
+  userResetPasswordSchema,
   type User,
   type InsertUser,
   type UpdateUser,
   type PublicUser,
   type UserEmail,
+  type UserResetPassword,
 } from './user.schema'
 
 // Session schemas

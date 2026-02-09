@@ -3,13 +3,17 @@ import superjson from 'superjson'
 import { auth } from '@/lib/auth'
 import type { CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { TRPCError } from '@trpc/server'
+import { db } from '@/db'
 
 export const createContext = async ({ req }: CreateNextContextOptions) => {
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  })
+  const { session, user } =
+    (await auth.api.getSession({
+      headers: req.headers,
+    })) ?? {}
   return {
+    db,
     session,
+    user,
   }
 }
 

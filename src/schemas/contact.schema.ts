@@ -17,15 +17,10 @@ export const contactSchema = z.object({
     .max(255, { message: 'Email must be less than 255 characters' })
     .toLowerCase()
     .trim(),
-  firstName: z
-    .string({ message: 'First name must be a string' })
-    .min(1, { message: 'First name cannot be empty' })
-    .max(100, { message: 'First name must be less than 100 characters' })
-    .trim(),
-  lastName: z
-    .string({ message: 'Last name must be a string' })
-    .min(1, { message: 'Last name cannot be empty' })
-    .max(100, { message: 'Last name must be less than 100 characters' })
+  name: z
+    .string({ message: 'Name must be a string' })
+    .min(1, { message: 'Name cannot be empty' })
+    .max(200, { message: 'Name must be less than 100 characters' })
     .trim(),
   company: z
     .string({ message: 'Company must be a string' })

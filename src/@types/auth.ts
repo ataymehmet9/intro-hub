@@ -1,4 +1,4 @@
-import type { Session } from 'better-auth/types'
+import type { Session, User as BetterAuthUser } from 'better-auth/types'
 
 // Better Auth sign-in credentials
 export type SignInCredential = {
@@ -34,15 +34,7 @@ export type AuthResult = Promise<{
 }>
 
 // Better Auth User type (extends the session user)
-export type User = {
-  id: string
-  email: string
-  name: string
-  emailVerified: boolean
-  image?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
+export type User = BetterAuthUser
 
 // Better Auth Session type
 export type AuthSession = Session
