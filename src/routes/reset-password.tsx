@@ -1,19 +1,33 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import appConfig from '@/configs/app.config'
 import { Alert, Button } from '@/components/ui'
 import { ActionLink } from '@/components/shared'
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
-import useQuery from '@/utils/hooks/useQuery'
 
 export const Route = createFileRoute('/reset-password')({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { token: string; error: string } => {
+    return {
+      token: (search.token as string) || '',
+      error: (search.error as string) || '',
+    }
+  },
+  beforeLoad: async ({ search }) => {
+    const { error, token } = search
+
+    if (!token || error) {
+      throw redirect({ to: appConfig.authPaths.login })
+    }
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const { token } = Route.useSearch()
   const [resetComplete, setResetComplete] = useState(false)
-  const token = useQuery()
 
   const [message, setMessage] = useTimeOutMessage()
 
@@ -51,7 +65,7 @@ function RouteComponent() {
         resetComplete={resetComplete}
         setMessage={setMessage}
         setResetComplete={setResetComplete}
-        token={token.get('token') ?? ''}
+        token={token}
       >
         <Button block variant="solid" type="button" onClick={handleContinue}>
           Continue
