@@ -2,14 +2,16 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Theme from '@/components/template/Theme'
-import Layout from '@/components/layouts';
+import Layout from '@/components/layouts'
 
 import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
+import { Provider as TRPCQueryProvider } from '@/integrations/tanstack-query/root-provider'
 
 import appCss from '../index.css?url'
 
@@ -17,8 +19,8 @@ import type { QueryClient } from '@tanstack/react-query'
 
 import type { TRPCRouter } from '@/integrations/trpc/router'
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query'
-import { DefaultCatchBoundary } from '@/components/DefaultCatchBoundary';
-import { NotFound } from '@/components/NotFound';
+import { DefaultCatchBoundary } from '@/components/DefaultCatchBoundary'
+import { NotFound } from '@/components/NotFound'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -41,7 +43,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'description',
-        content: 'Manage your professional network and introductions efficiently',
+        content:
+          'Manage your professional network and introductions efficiently',
       },
     ],
     links: [
@@ -58,17 +61,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const routerState = useRouterState()
+  const queryClient = routerState.matches[0]?.context.queryClient
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <Theme>
-          <Layout>
-            {children}
-          </Layout>
-        </Theme>
+        <TRPCQueryProvider queryClient={queryClient}>
+          <Theme>
+            <Layout>{children}</Layout>
+          </Theme>
+        </TRPCQueryProvider>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
