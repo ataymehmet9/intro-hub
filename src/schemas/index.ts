@@ -56,11 +56,9 @@ export {
   contactSchema,
   insertContactSchema,
   updateContactSchema,
-  contactWithFullNameSchema,
   type Contact,
   type InsertContact,
   type UpdateContact,
-  type ContactWithFullName,
 } from './contact.schema'
 
 // Introduction Request schemas

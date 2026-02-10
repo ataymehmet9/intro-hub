@@ -55,6 +55,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.0",
+    "drizzle-zod": "^0.8.3",
     "framer-motion": "^12.30.0",
     "gantt-task-react": "^0.3.9",
     "i18next": "^25.8.0",

@@ -38,7 +38,7 @@ function RouteComponent() {
   }
 
   return (
-    <div>
+    <>
       <div className="mb-6">
         {resetComplete ? (
           <>
@@ -81,6 +81,6 @@ function RouteComponent() {
           Sign in
         </ActionLink>
       </div>
-    </div>
+    </>
   )
 }

@@ -19,7 +19,7 @@ const createContactSchema = insertContactSchema.omit({
 })
 
 export const contactRouter = {
-  listContacts: protectedProcedure
+  list: protectedProcedure
     .input(listContactsSchema)
     .query(async ({ input, ctx }) => {
       const { user, db } = ctx
@@ -54,7 +54,7 @@ export const contactRouter = {
 
       return results
     }),
-  createContact: protectedProcedure
+  create: protectedProcedure
     .input(createContactSchema)
     .mutation(async ({ input, ctx }) => {
       const { user, db } = ctx
