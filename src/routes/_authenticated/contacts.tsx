@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import {
   HiEye,
   HiFunnel,
@@ -9,8 +9,17 @@ import {
   HiPlus,
   HiTrash,
 } from 'react-icons/hi2'
-import { Avatar, Button, Checkbox, Dialog, Input } from '@/components/ui'
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Dialog,
+  Input,
+  Notification,
+  toast,
+} from '@/components/ui'
 import { useTRPC } from '@/integrations/trpc/react'
+import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { DateFormat, LoadingSpinner, NoData } from '@/components/shared/common'
 import { Contact, InsertContact, UpdateContact } from '@/schemas'
 import ContactForm from '@/components/shared/common/ContactForm'
@@ -24,9 +33,12 @@ export const Route = createFileRoute('/_authenticated/contacts')({
   },
   component: RouteComponent,
 })
-
 function RouteComponent() {
+  const { queryClient } = Route.useRouteContext()
   const trpc = useTRPC()
+
+  const queryKey = trpc.contacts.list.queryKey({ company: null })
+
   const { data: contacts, isFetching: isLoading } = useQuery(
     trpc.contacts.list.queryOptions({ company: null }),
   )
@@ -37,6 +49,143 @@ function RouteComponent() {
   const [selectedContacts, setSelectedContacts] = useState<Set<number>>(
     new Set(),
   )
+
+  // Mutations with optimistic updates and proper cache invalidation
+  const createContactMutation = useMutation({
+    mutationFn: (data: InsertContact) =>
+      trpcClient.contacts.create.mutate(data),
+    onMutate: async (newContact) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey })
+
+      // Snapshot the previous value
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
+
+      // Optimistically update to the new value
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+          if (!old) return old
+          return [
+            {
+              ...newContact,
+              id: Date.now(), // Temporary ID
+              userId: '', // Will be set by server
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            } as Contact,
+            ...old,
+          ]
+        })
+      }
+
+      return { previousContacts }
+    },
+    onError: (error: Error, _newContact, context) => {
+      // Rollback on error
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKey, context.previousContacts)
+      }
+      toast.push(
+        <Notification type="danger" title="Error">
+          {error.message || 'Failed to add contact'}
+        </Notification>,
+      )
+    },
+    onSuccess: () => {
+      toast.push(
+        <Notification type="success" title="Contact added">
+          Contact has been successfully added
+        </Notification>,
+      )
+      setShowAddDialog(false)
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure sync
+      queryClient.invalidateQueries({ queryKey })
+    },
+  })
+
+  const updateContactMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateContact }) =>
+      trpcClient.contacts.update.mutate({ id, data }),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
+
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+          if (!old) return old
+          return old.map((contact) =>
+            contact.id === id
+              ? { ...contact, ...data, updatedAt: new Date() }
+              : contact,
+          )
+        })
+      }
+
+      return { previousContacts }
+    },
+    onError: (error: Error, _variables, context) => {
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKey, context.previousContacts)
+      }
+      toast.push(
+        <Notification type="danger" title="Error">
+          {error.message || 'Failed to update contact'}
+        </Notification>,
+      )
+    },
+    onSuccess: () => {
+      toast.push(
+        <Notification type="success" title="Contact updated">
+          Contact has been successfully updated
+        </Notification>,
+      )
+      setEditingContact(null)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey })
+    },
+  })
+
+  const deleteContactMutation = useMutation({
+    mutationFn: (id: number) => trpcClient.contacts.delete.mutate({ id }),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
+
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+          if (!old) return old
+          return old.filter((contact) => contact.id !== id)
+        })
+      }
+
+      return { previousContacts }
+    },
+    onError: (error: Error, _variables, context) => {
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKey, context.previousContacts)
+      }
+      toast.push(
+        <Notification type="danger" title="Error">
+          {error.message || 'Failed to delete contact'}
+        </Notification>,
+      )
+    },
+    onSuccess: () => {
+      toast.push(
+        <Notification type="success" title="Contact deleted">
+          Contact has been successfully deleted
+        </Notification>,
+      )
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey })
+    },
+  })
 
   const filteredContacts = (contacts || []).filter((contact) => {
     const query = searchQuery.toLowerCase()
@@ -49,24 +198,37 @@ function RouteComponent() {
   })
 
   const handleAddContact = async (data: InsertContact) => {
-    // await addContact(data) TODO
+    try {
+      await createContactMutation.mutateAsync(data)
+    } catch (error) {
+      // Error is already handled in the mutation's onError callback
+      console.error('Failed to add contact:', error)
+      throw error // Re-throw so the form knows it failed
+    }
   }
 
   const handleBulkImportComplete = () => {
-    // Refresh contacts list - the context will handle this
-    // The modal will close automatically after successful import
+    // Refresh contacts list after bulk import
+    queryClient.invalidateQueries({ queryKey })
+    toast.push(
+      <Notification type="success" title="Import complete">
+        Contacts have been successfully imported
+      </Notification>,
+    )
   }
 
   const handleEditContact = async (data: UpdateContact) => {
     if (editingContact) {
-      // await updateContact(editingContact.id, data) TODO
-      setEditingContact(null)
+      await updateContactMutation.mutateAsync({
+        id: editingContact.id,
+        data,
+      })
     }
   }
 
   const handleDeleteContact = async (contactId: number) => {
     if (confirm('Are you sure you want to delete this contact?')) {
-      // await removeContact(contactId) TODO
+      await deleteContactMutation.mutateAsync(contactId)
     }
   }
 
