@@ -2,7 +2,6 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
-  useRouterState,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -11,7 +10,6 @@ import Theme from '@/components/template/Theme'
 import Layout from '@/components/layouts'
 
 import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
-import { Provider as TRPCQueryProvider } from '@/integrations/tanstack-query/root-provider'
 
 import appCss from '../index.css?url'
 
@@ -61,20 +59,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const routerState = useRouterState()
-  const queryClient = routerState.matches[0]?.context.queryClient
-
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <TRPCQueryProvider queryClient={queryClient}>
-          <Theme>
-            <Layout>{children}</Layout>
-          </Theme>
-        </TRPCQueryProvider>
+        <Theme>
+          <Layout>{children}</Layout>
+        </Theme>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
