@@ -77,7 +77,7 @@ const ContactForm = forwardRef<ContactFormHandle, ContactFormProps>(
       <FormContainer>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
           <FormItem
-            label="First Name"
+            label="Name"
             invalid={!!errors.name}
             errorMessage={errors.name?.message}
           >
