@@ -1,22 +1,18 @@
 import {
-    PiHouseLineDuotone,
-    PiArrowsInDuotone,
-    PiBookOpenUserDuotone,
-    PiBookBookmarkDuotone,
-    PiAcornDuotone,
-    PiBagSimpleDuotone,
+  PiHouseLineDuotone,
+  PiUsersDuotone,
+  PiMagnifyingGlassBold,
+  PiArrowsLeftRightBold,
 } from 'react-icons/pi'
 import type { JSX } from 'react'
 
 export type NavigationIcons = Record<string, JSX.Element>
 
 const navigationIcon: NavigationIcons = {
-    home: <PiHouseLineDuotone />,
-    singleMenu: <PiAcornDuotone />,
-    collapseMenu: <PiArrowsInDuotone />,
-    groupSingleMenu: <PiBookOpenUserDuotone />,
-    groupCollapseMenu: <PiBookBookmarkDuotone />,
-    groupMenu: <PiBagSimpleDuotone />,
+  home: <PiHouseLineDuotone />,
+  contacts: <PiUsersDuotone />,
+  search: <PiMagnifyingGlassBold />,
+  requests: <PiArrowsLeftRightBold />,
 }
 
 export default navigationIcon

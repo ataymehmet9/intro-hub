@@ -5,29 +5,30 @@ import { useSession } from '@/lib/auth-client'
 import { useThemeStore } from '@/store/themeStore'
 import PostLoginLayout from './PostLoginLayout'
 import PreLoginLayout from './PreLoginLayout'
+import PageContainer from '@/components/template/PageContainer'
 
 const Layout = ({ children }: CommonProps) => {
-    const layoutType = useThemeStore((state) => state.layout.type)
+  const layoutType = useThemeStore((state) => state.layout.type)
 
-    const { data: session } = useSession()
+  const { data: session } = useSession()
 
-    return (
-        <Suspense
-            fallback={
-                <div className="flex flex-auto flex-col h-[100vh]">
-                    <Loading loading={true} />
-                </div>
-            }
-        >
-            {session ? (
-                <PostLoginLayout layoutType={layoutType}>
-                    {children}
-                </PostLoginLayout>
-            ) : (
-                <PreLoginLayout>{children}</PreLoginLayout>
-            )}
-        </Suspense>
-    )
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-auto flex-col h-[100vh]">
+          <Loading loading={true} />
+        </div>
+      }
+    >
+      {session ? (
+        <PostLoginLayout layoutType={layoutType}>
+          <PageContainer>{children}</PageContainer>
+        </PostLoginLayout>
+      ) : (
+        <PreLoginLayout>{children}</PreLoginLayout>
+      )}
+    </Suspense>
+  )
 }
 
 export default Layout
