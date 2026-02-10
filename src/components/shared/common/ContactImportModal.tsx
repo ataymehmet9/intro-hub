@@ -10,6 +10,8 @@ import ContactForm, {
   ContactFormHandle,
 } from '@/components/shared/common/ContactForm'
 import { InsertContact } from '@/schemas'
+import { validateCSVFile } from '@/utils/fileParser'
+import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 
 interface ImportResult {
   imported: number
@@ -77,19 +79,19 @@ export default function ContactImportModal({
     if (!selectedFile) return
 
     // Validate file
-    // const validation = validateCSVFormat(selectedFile)
-    // if (!validation.valid) {
-    //   setError(validation.error || 'Invalid file')
-    //   setFile(null)
-    //   return
-    // }
+    const validation = validateCSVFile(selectedFile)
+    if (!validation.valid) {
+      setError(validation.error || 'Invalid file')
+      setFile(null)
+      return
+    }
 
-    // setFile(selectedFile)
-    // setError(null)
-    // setResult(null)
+    setFile(selectedFile)
+    setError(null)
+    setResult(null)
 
-    // // Auto-import immediately
-    // await handleImport(selectedFile)
+    // Auto-import immediately
+    await handleImport(selectedFile)
   }
 
   const handleImport = async (fileToImport: File) => {
@@ -98,12 +100,27 @@ export default function ContactImportModal({
     setResult(null)
 
     try {
-      // const importResult = await importContactsFromCSV(fileToImport, {
-      //   skipDuplicates,
-      //   updateExisting,
-      // })
+      // Read file content
+      const csvContent = await fileToImport.text()
 
-      // setResult(importResult)
+      // Call tRPC batch upload endpoint
+      const response = await trpcClient.contacts.batchUpload.mutate({
+        csvContent,
+      })
+
+      // Map response to ImportResult format
+      const importResult: ImportResult = {
+        imported: response.insertedCount,
+        updated: 0, // Current implementation doesn't support updates
+        skipped: 0, // Current implementation doesn't track skips
+        errors:
+          response.errors?.map((err) => ({
+            row: err.row,
+            message: err.error,
+          })) || [],
+      }
+
+      setResult(importResult)
       onBulkImportComplete()
 
       // Auto-close modal after 2 seconds on success
@@ -156,6 +173,25 @@ export default function ContactImportModal({
     }
   }
 
+  const handleDownloadTemplate = () => {
+    // Create CSV template with headers and example data
+    const csvTemplate = `email,name,company,position,notes,phone,linkedinUrl
+john.doe@example.com,John Doe,Acme Corp,CEO,Met at conference,+1234567890,https://linkedin.com/in/johndoe
+jane.smith@example.com,Jane Smith,Tech Inc,CTO,,+0987654321,
+bob.jones@example.com,Bob Jones,StartupXYZ,Developer,Referred by John,,https://linkedin.com/in/bobjones`
+
+    // Create blob and download
+    const blob = new Blob([csvTemplate], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'contacts-template.csv'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   const renderBulkUploadSection = () => (
     <div className="space-y-6">
       <div>
@@ -178,7 +214,7 @@ export default function ContactImportModal({
         <Button
           variant="plain"
           size="sm"
-          onClick={() => {}}
+          onClick={handleDownloadTemplate}
           icon={<HiDocumentArrowDown />}
         >
           Download
