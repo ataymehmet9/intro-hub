@@ -18,6 +18,10 @@ const listContactsSchema = contactSchema
     search: z.string().optional(),
   })
 
+const getContactByIdSchema = contactSchema.pick({
+  id: true,
+})
+
 const createContactSchema = insertContactSchema.omit({
   userId: true,
 })
@@ -33,6 +37,34 @@ const updateContactInputSchema = z.object({
 })
 
 export const contactRouter = {
+  getById: protectedProcedure
+    .input(getContactByIdSchema)
+    .query(async ({ input, ctx }) => {
+      const { user, db } = ctx
+
+      if (!user) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { id } = input
+
+      const existingContact = await db
+        .select()
+        .from(contacts)
+        .where(and(eq(contacts.id, id), eq(contacts.userId, user.id)))
+        .limit(1)
+
+      if (!existingContact.length) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Contact not found or you do not have permission to view it',
+        })
+      }
+
+      const [contact] = existingContact
+
+      return contact
+    }),
   list: protectedProcedure
     .input(listContactsSchema)
     .query(async ({ input, ctx }) => {
