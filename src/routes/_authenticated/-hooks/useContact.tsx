@@ -3,9 +3,11 @@ import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { Contact, InsertContact, UpdateContact } from '@/schemas'
 import { Notification, toast } from '@/components/ui'
+import { useContactStore } from '@/store/contactStore'
 
 interface UseContactOptions {
   company?: string | null
+  enabled?: boolean // Control whether to fetch data
   onCreateSuccess?: () => void
   onUpdateSuccess?: () => void
   onDeleteSuccess?: () => void
@@ -14,19 +16,30 @@ interface UseContactOptions {
 export function useContact(options: UseContactOptions = {}) {
   const {
     company = null,
+    enabled = true, // Default to true for backward compatibility
     onCreateSuccess,
     onUpdateSuccess,
     onDeleteSuccess,
   } = options
+
+  const {
+    tableData,
+    setTableData,
+    selectedContact,
+    setSelectedContact,
+    setSelectAllContact,
+  } = useContactStore((state) => state)
 
   const queryClient = useQueryClient()
   const trpc = useTRPC()
 
   const queryKey = trpc.contacts.list.queryKey({ company })
 
-  const { data: contacts, isFetching: isLoading } = useQuery(
-    trpc.contacts.list.queryOptions({ company }),
-  )
+  // Only fetch if enabled - prevents unnecessary queries in child components
+  const { data, isFetching: isLoading } = useQuery({
+    ...trpc.contacts.list.queryOptions({ company }),
+    enabled,
+  })
 
   // Create contact mutation with optimistic updates
   const createContactMutation = useMutation({
@@ -168,8 +181,17 @@ export function useContact(options: UseContactOptions = {}) {
     },
   })
 
+  const contacts = data ?? []
+  const contactsTotal = contacts.length
+
   return {
+    tableData,
+    setTableData,
+    selectedContact,
+    setSelectedContact,
+    setSelectAllContact,
     contacts,
+    contactsTotal,
     isLoading,
     createContact: createContactMutation.mutateAsync,
     updateContact: updateContactMutation.mutateAsync,
