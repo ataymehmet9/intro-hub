@@ -181,6 +181,49 @@ export function useContact(options: UseContactOptions = {}) {
     },
   })
 
+  // Batch delete contacts mutation with optimistic updates
+  const deleteBatchContactMutation = useMutation({
+    mutationFn: (ids: number[]) =>
+      trpcClient.contacts.batchDelete.mutate({ ids }),
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
+
+      if (previousContacts) {
+        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+          if (!old) return old
+          return old.filter((contact) => !ids.includes(contact.id))
+        })
+      }
+
+      return { previousContacts }
+    },
+    onError: (error: Error, _variables, context) => {
+      if (context?.previousContacts) {
+        queryClient.setQueryData(queryKey, context.previousContacts)
+      }
+      toast.push(
+        <Notification type="danger" title="Error">
+          {error.message || 'Failed to delete contacts'}
+        </Notification>,
+      )
+    },
+    onSuccess: (result) => {
+      const count = result.deletedCount
+      toast.push(
+        <Notification type="success" title="Contacts deleted">
+          {count} {count === 1 ? 'contact has' : 'contacts have'} been
+          successfully deleted
+        </Notification>,
+      )
+      onDeleteSuccess?.()
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey })
+    },
+  })
+
   const contacts = data ?? []
   const contactsTotal = contacts.length
 
@@ -196,9 +239,7 @@ export function useContact(options: UseContactOptions = {}) {
     createContact: createContactMutation.mutateAsync,
     updateContact: updateContactMutation.mutateAsync,
     deleteContact: deleteContactMutation.mutateAsync,
-    createContactMutation,
-    updateContactMutation,
-    deleteContactMutation,
+    deleteBatchContact: deleteBatchContactMutation.mutateAsync,
     queryKey,
     queryClient,
   }
