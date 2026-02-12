@@ -187,6 +187,56 @@ export const contactRouter = {
 
       return { success: true, id }
     }),
+  batchDelete: protectedProcedure
+    .input(
+      z.object({
+        ids: z.array(z.number()).min(1, 'At least one ID is required'),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user, db } = ctx
+
+      if (!user) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { ids } = input
+
+      // Verify all contacts belong to the user
+      const existingContacts = await db
+        .select()
+        .from(contacts)
+        .where(and(eq(contacts.userId, user.id)))
+
+      const existingIds = existingContacts.map((contact) => contact.id)
+      const validIds = ids.filter((id) => existingIds.includes(id))
+
+      if (validIds.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'No valid contacts found or you do not have permission to delete them',
+        })
+      }
+
+      // Delete all valid contacts
+      const deletedContacts = await db
+        .delete(contacts)
+        .where(
+          and(
+            eq(contacts.userId, user.id),
+            or(...validIds.map((id) => eq(contacts.id, id)))!,
+          ),
+        )
+        .returning()
+
+      return {
+        success: true,
+        deletedCount: deletedContacts.length,
+        deletedIds: deletedContacts.map((contact) => contact.id),
+        invalidIds: ids.filter((id) => !validIds.includes(id)),
+      }
+    }),
   batchUpload: protectedProcedure
     .input(
       z.object({
