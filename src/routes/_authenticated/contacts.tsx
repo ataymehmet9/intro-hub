@@ -12,6 +12,7 @@ import { useContact } from './-hooks/useContact'
 import ContactListTableTools from './-components/ContactListTableTools'
 import ContactListTable from './-components/ContactListTable'
 import { stringToColor } from '@/utils/colours'
+import ContactListSelected from './-components/ContactListSelected'
 
 export const Route = createFileRoute('/_authenticated/contacts')({
   loader: async ({ context }) => {
@@ -81,6 +82,7 @@ function RouteComponent() {
             />
           </div>
         </AdaptiveCard>
+        <ContactListSelected />
       </Container>
 
       {/* Add/Import Contacts Modal */}
