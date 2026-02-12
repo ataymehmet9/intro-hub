@@ -32,5 +32,16 @@ export const auth = betterAuth({
       sendForgotPasswordEmail({ data: { to: user.email, url, token } })
     },
   },
+  socialProviders: {
+    microsoft: {
+      clientId: process.env.MICROSOFT_CLIENT_ID as string,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+      authority: 'https://login.microsoftonline.com',
+    },
+    linkedin: {
+      clientId: process.env.LINKEDIN_CLIENT_ID as string,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
+    },
+  },
   plugins: [tanstackStartCookies()],
 })
