@@ -110,11 +110,11 @@ export default function ContactImportModal({
 
       // Map response to ImportResult format
       const importResult: ImportResult = {
-        imported: response.insertedCount,
+        imported: response.data.insertedCount,
         updated: 0, // Current implementation doesn't support updates
         skipped: 0, // Current implementation doesn't track skips
         errors:
-          response.errors?.map((err) => ({
+          response.data.errors?.map((err) => ({
             row: err.row,
             message: err.error,
           })) || [],

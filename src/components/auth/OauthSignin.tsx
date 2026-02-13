@@ -7,7 +7,7 @@ type OauthSignInProps = {
   disableSubmit?: boolean
 }
 
-const OauthSignIn = ({ setMessage, disableSubmit }: OauthSignInProps) => {
+const OauthSignIn = (_props: OauthSignInProps) => {
   const handleSocialSignIn = async (provider: 'linkedin' | 'microsoft') => {
     await signIn.social({
       provider,

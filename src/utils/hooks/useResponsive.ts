@@ -71,16 +71,13 @@ const useResponsive = () => {
     ),
   }))
 
-  const [isClient, setIsClient] = useState(false)
-
   const resizeHandler = () => {
     const responsiveState = getResponsiveState()
     setResponsive(responsiveState)
   }
 
   useEffect(() => {
-    // Mark as client-side and update state with actual values
-    setIsClient(true)
+    // Update state with actual values on client-side
     setResponsive(getResponsiveState())
 
     window.addEventListener('resize', resizeHandler)
