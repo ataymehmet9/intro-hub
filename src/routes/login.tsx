@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
 import Logo from '@/components/template/Logo'
@@ -15,11 +19,15 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const navigate = useNavigate()
   const [message, setMessage] = useTimeOutMessage()
+  const location = useLocation()
 
   const mode = useThemeStore((state) => state.mode)
 
   const onSignInSuccess = () => {
-    navigate({ to: '/dashboard' })
+    const query = new URLSearchParams(location.search)
+    const redirectUrl = query.get('redirect')
+
+    navigate({ to: redirectUrl ?? '/dashboard' })
   }
 
   return (
