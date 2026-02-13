@@ -18,10 +18,13 @@ import { Route as GetDemoRouteImport } from './routes/get-demo'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
+import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_authenticated/(contacts)/contacts'
+import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
 
 const WhatIsIntrohubRoute = WhatIsIntrohubRouteImport.update({
   id: '/what-is-introhub',
@@ -67,14 +70,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
-  id: '/contacts',
-  path: '/contacts',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
@@ -87,6 +90,23 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticateduserMeRoute = AuthenticateduserMeRouteImport.update({
+  id: '/(user)/me',
+  path: '/me',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedcontactsContactsRoute =
+  AuthenticatedcontactsContactsRouteImport.update({
+    id: '/(contacts)/contacts',
+    path: '/contacts',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticateduserMeIndexRoute =
+  AuthenticateduserMeIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticateduserMeRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,10 +117,13 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
-  '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/upload': typeof ApiUploadRoute
+  '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/me/': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,10 +134,12 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
-  '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/upload': typeof ApiUploadRoute
+  '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/me': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,10 +152,13 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
-  '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/upload': typeof ApiUploadRoute
+  '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/_authenticated/(user)/me/': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -143,10 +171,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
-    | '/contacts'
     | '/dashboard'
+    | '/api/upload'
+    | '/contacts'
+    | '/me'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/me/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -157,10 +188,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
-    | '/contacts'
     | '/dashboard'
+    | '/api/upload'
+    | '/contacts'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/me'
   id:
     | '__root__'
     | '/'
@@ -172,10 +205,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
-    | '/_authenticated/contacts'
     | '/_authenticated/dashboard'
+    | '/api/upload'
+    | '/_authenticated/(contacts)/contacts'
+    | '/_authenticated/(user)/me'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/_authenticated/(user)/me/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,6 +224,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   WhatIsIntrohubRoute: typeof WhatIsIntrohubRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
@@ -257,18 +294,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/contacts': {
-      id: '/_authenticated/contacts'
-      path: '/contacts'
-      fullPath: '/contacts'
-      preLoaderRoute: typeof AuthenticatedContactsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/api/trpc/$': {
@@ -285,17 +322,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/(user)/me': {
+      id: '/_authenticated/(user)/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof AuthenticateduserMeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/(contacts)/contacts': {
+      id: '/_authenticated/(contacts)/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof AuthenticatedcontactsContactsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/(user)/me/': {
+      id: '/_authenticated/(user)/me/'
+      path: '/'
+      fullPath: '/me/'
+      preLoaderRoute: typeof AuthenticateduserMeIndexRouteImport
+      parentRoute: typeof AuthenticateduserMeRoute
+    }
   }
 }
 
+interface AuthenticateduserMeRouteChildren {
+  AuthenticateduserMeIndexRoute: typeof AuthenticateduserMeIndexRoute
+}
+
+const AuthenticateduserMeRouteChildren: AuthenticateduserMeRouteChildren = {
+  AuthenticateduserMeIndexRoute: AuthenticateduserMeIndexRoute,
+}
+
+const AuthenticateduserMeRouteWithChildren =
+  AuthenticateduserMeRoute._addFileChildren(AuthenticateduserMeRouteChildren)
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedcontactsContactsRoute: typeof AuthenticatedcontactsContactsRoute
+  AuthenticateduserMeRoute: typeof AuthenticateduserMeRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedcontactsContactsRoute: AuthenticatedcontactsContactsRoute,
+  AuthenticateduserMeRoute: AuthenticateduserMeRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -312,6 +383,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   WhatIsIntrohubRoute: WhatIsIntrohubRoute,
+  ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }

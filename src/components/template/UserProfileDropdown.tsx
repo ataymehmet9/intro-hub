@@ -5,16 +5,8 @@ import { useSessionUser } from '@/store/authStore'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { PiUserDuotone, PiSignOutDuotone } from 'react-icons/pi'
 import { signOut } from '@/lib/auth-client'
-import type { JSX } from 'react'
 import { User } from '@/@types/auth'
-
-type DropdownList = {
-  label: string
-  path: string
-  icon: JSX.Element
-}
-
-const dropdownItemList: DropdownList[] = []
+import { dropdownItemList } from '@/configs/navigation.config/user'
 
 const UserDropdown = () => {
   const { user = {} } = useSessionUser()
@@ -64,6 +56,7 @@ const UserDropdown = () => {
           </Link>
         </Dropdown.Item>
       ))}
+      {dropdownItemList.length && <Dropdown.Item variant="divider" />}
       <Dropdown.Item
         eventKey="Sign Out"
         className="gap-2"

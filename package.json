@@ -18,6 +18,8 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@better-upload/client": "^3.0.14",
+    "@better-upload/server": "^3.0.14",
     "@floating-ui/react": "^0.27.17",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",

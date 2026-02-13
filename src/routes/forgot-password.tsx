@@ -17,7 +17,6 @@ function RouteComponent() {
   const navigate = useNavigate()
 
   const handleContinue = () => {
-    console.log('clicked here!!', appConfig.authPaths.login)
     navigate({ to: appConfig.authPaths.login })
   }
 

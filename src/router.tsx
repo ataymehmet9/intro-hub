@@ -22,6 +22,7 @@ export const getRouter = () => {
       </TanstackQuery.Provider>
     ),
     defaultPreload: 'intent',
+    scrollRestoration: true,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })

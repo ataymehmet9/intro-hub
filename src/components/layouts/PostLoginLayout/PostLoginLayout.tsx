@@ -34,8 +34,6 @@ const layouts: Layouts = {
 const PostLoginLayout = ({ layoutType, children }: PostLoginLayoutProps) => {
   const AppLayout = layouts[layoutType] ?? layouts[Object.keys(layouts)[0]]
 
-  console.log({ layoutType })
-
   return <AppLayout>{children}</AppLayout>
 }
 

@@ -210,7 +210,7 @@ export function useContact(options: UseContactOptions = {}) {
       )
     },
     onSuccess: (result) => {
-      const count = result.deletedCount
+      const count = result.data?.deletedCount
       toast.push(
         <Notification type="success" title="Contacts deleted">
           {count} {count === 1 ? 'contact has' : 'contacts have'} been

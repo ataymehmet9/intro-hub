@@ -64,7 +64,7 @@ export const contactRouter = {
 
       const [contact] = existingContact
 
-      return contact
+      return { success: true, data: contact }
     }),
   list: protectedProcedure
     .input(listContactsSchema)
@@ -99,7 +99,7 @@ export const contactRouter = {
         .where(and(...conditions))
         .orderBy(desc(contacts.createdAt))
 
-      return results
+      return { success: true, data: results }
     }),
   create: protectedProcedure
     .input(createContactSchema)
@@ -118,7 +118,7 @@ export const contactRouter = {
         })
         .returning()
 
-      return newContact[0]
+      return { success: true, data: newContact[0] }
     }),
   update: protectedProcedure
     .input(updateContactInputSchema)
@@ -155,7 +155,7 @@ export const contactRouter = {
         .where(eq(contacts.id, id))
         .returning()
 
-      return updatedContact[0]
+      return { success: true, data: updatedContact[0] }
     }),
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -232,9 +232,11 @@ export const contactRouter = {
 
       return {
         success: true,
-        deletedCount: deletedContacts.length,
-        deletedIds: deletedContacts.map((contact) => contact.id),
-        invalidIds: ids.filter((id) => !validIds.includes(id)),
+        data: {
+          deletedCount: deletedContacts.length,
+          deletedIds: deletedContacts.map((contact) => contact.id),
+          invalidIds: ids.filter((id) => !validIds.includes(id)),
+        },
       }
     }),
   batchUpload: protectedProcedure
@@ -327,10 +329,12 @@ export const contactRouter = {
 
         return {
           success: true,
-          totalRows: rows.length,
-          insertedCount,
-          errorCount: errors.length,
-          errors: errors.length > 0 ? errors : undefined,
+          data: {
+            totalRows: rows.length,
+            insertedCount,
+            errorCount: errors.length,
+            errors: errors.length > 0 ? errors : undefined,
+          },
         }
       } catch (error) {
         if (error instanceof TRPCError) {

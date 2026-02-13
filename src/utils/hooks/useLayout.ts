@@ -1,38 +1,43 @@
 import { createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
 import {
-    PageContainerHeader,
-    PageContainerBody,
-    PageContainerFooter,
+  PageContainerHeader,
+  PageContainerBody,
+  PageContainerFooter,
 } from '@/components/template/PageContainer'
 import type { PageContainerProps } from '@/components/template/PageContainer'
 import { LayoutType } from '@/@types/theme'
-import type { ReactNode } from 'react'
+import { LAYOUT_COLLAPSIBLE_SIDE } from '@/constants/theme.constant'
 
 export type PageContainerReassembleProps = {
-    defaultClass: string
-    pageContainerGutterClass: string
-    pageContainerDefaultClass: string
-    PageContainerHeader: typeof PageContainerHeader
-    PageContainerBody: typeof PageContainerBody
-    PageContainerFooter: typeof PageContainerFooter
+  defaultClass: string
+  pageContainerGutterClass: string
+  pageContainerDefaultClass: string
+  PageContainerHeader: typeof PageContainerHeader
+  PageContainerBody: typeof PageContainerBody
+  PageContainerFooter: typeof PageContainerFooter
 } & PageContainerProps
 
 export interface LayoutContextProps {
-    type: LayoutType
-    adaptiveCardActive?: boolean
-    pageContainerReassemble?: (props: PageContainerReassembleProps) => ReactNode
+  type: LayoutType
+  adaptiveCardActive?: boolean
+  pageContainerReassemble?: (props: PageContainerReassembleProps) => ReactNode
 }
 
 export const LayoutContext = createContext<LayoutContextProps | undefined>(
-    undefined,
+  undefined,
 )
 
 const useLayout = (): LayoutContextProps => {
-    const context = useContext(LayoutContext)
-    if (!context) {
-        throw new Error('useLayout must be used within a LayoutProvider')
+  const context = useContext(LayoutContext)
+  if (!context) {
+    // Return default values for SSR or when context is not available
+    return {
+      type: LAYOUT_COLLAPSIBLE_SIDE,
+      adaptiveCardActive: false,
     }
-    return context
+  }
+  return context
 }
 
 export default useLayout

@@ -14,10 +14,12 @@ export const userRouter = {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
 
-      return await db
+      const response = await db
         .update(userDb)
         .set(input)
         .where(eq(userDb.id, user.id))
         .returning()
+
+      return { success: true, data: response[0] }
     }),
 } satisfies TRPCRouterRecord
