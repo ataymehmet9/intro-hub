@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep'
-import { useContact } from '../-hooks/useContact'
 import ContactListSearch from './ContactListSearch'
+import { useContact } from '../-hooks/useContact'
 
 const ContactListTableTools = () => {
   // Disable query in this component - only need store access

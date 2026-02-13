@@ -3,7 +3,7 @@ import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { Contact, InsertContact, UpdateContact } from '@/schemas'
 import { Notification, toast } from '@/components/ui'
-import { useContactStore } from '@/store/contactStore'
+import { useContactStore } from '../-store/contactStore'
 
 interface UseContactOptions {
   company?: string | null

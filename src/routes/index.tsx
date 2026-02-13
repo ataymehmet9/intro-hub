@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { getSession } from '@/lib/auth-client'
 import Button from '@/components/ui/Button'
 import PublicHeader from '@/components/shared/PublicHeader'
+import appConfig from '@/configs/app.config'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/')({
 
     if (token) {
       throw redirect({
-        to: '/dashboard',
+        to: appConfig.authenticatedEntryPath,
       })
     }
   },
@@ -18,36 +19,36 @@ export const Route = createFileRoute('/')({
 })
 
 const TextGenerateEffect = ({
-    words,
-    wordClassName,
-    wordsCallbackClass,
+  words,
+  wordClassName,
+  wordsCallbackClass,
 }: {
-    words: string
-    wordClassName?: string
-    wordsCallbackClass?: (payload: { word: string }) => string
+  words: string
+  wordClassName?: string
+  wordsCallbackClass?: (payload: { word: string }) => string
 }) => {
-    const wordsArray = words.split(' ')
+  const wordsArray = words.split(' ')
 
-    return (
-        <motion.div
-            initial={{ opacity: 0, translateY: 40 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ duration: 0.5 }}
-            className={wordClassName}
+  return (
+    <motion.div
+      initial={{ opacity: 0, translateY: 40 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ duration: 0.5 }}
+      className={wordClassName}
+    >
+      {wordsArray.map((word, idx) => (
+        <motion.span
+          key={word + idx}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: idx * 0.075 }}
+          className={wordsCallbackClass?.({ word }) || ''}
         >
-            {wordsArray.map((word, idx) => (
-                <motion.span
-                    key={word + idx}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: idx * 0.075 }}
-                    className={wordsCallbackClass?.({ word }) || ''}
-                >
-                    {word}{' '}
-                </motion.span>
-            ))}
-        </motion.div>
-    )
+          {word}{' '}
+        </motion.span>
+      ))}
+    </motion.div>
+  )
 }
 
 function HomePage() {
@@ -89,11 +90,10 @@ function HomePage() {
               transition={{ duration: 0.3, delay: 0.5 }}
               className="text-center mt-6 text-base md:text-xl text-gray-600 dark:text-gray-400 max-w-5xl mx-auto relative z-10 font-normal"
             >
-              IntroHub is your professional networking platform that
-              streamlines connections and introductions. Manage your
-              contacts, send introduction requests, and build meaningful
-              relationships with ease. Designed for professionals who
-              value authentic networking.
+              IntroHub is your professional networking platform that streamlines
+              connections and introductions. Manage your contacts, send
+              introduction requests, and build meaningful relationships with
+              ease. Designed for professionals who value authentic networking.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, translateY: 40 }}
@@ -101,11 +101,7 @@ function HomePage() {
               transition={{ duration: 0.3, delay: 0.6 }}
               className="flex items-center gap-4 justify-center mt-10 relative z-10"
             >
-              <Button
-                variant="solid"
-                onClick={handleGetStarted}
-                size="lg"
-              >
+              <Button variant="solid" onClick={handleGetStarted} size="lg">
                 Preview
               </Button>
               <Button onClick={handleLearnMore} size="lg">
@@ -281,8 +277,7 @@ function HomePage() {
             Why Choose IntroHub?
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Everything you need to manage your professional network
-            effectively
+            Everything you need to manage your professional network effectively
           </p>
         </motion.div>
 

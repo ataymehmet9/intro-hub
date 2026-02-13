@@ -5,10 +5,10 @@ import { Contact } from '@/schemas'
 import { stringToColor } from '@/utils/colours'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import DataTable from '@/components/shared/DataTable'
-import { useContact } from '../-hooks/useContact'
 import { useMemo, useState } from 'react'
 import { TableQueries } from '@/@types/common'
 import { DateFormat } from '@/components/shared/common'
+import { useContact } from '../-hooks/useContact'
 
 type ContactListTableProps = {
   onSelectEditContact: (contact: Contact) => void

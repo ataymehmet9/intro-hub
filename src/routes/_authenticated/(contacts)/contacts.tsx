@@ -14,7 +14,7 @@ import ContactListTable from './-components/ContactListTable'
 import { stringToColor } from '@/utils/colours'
 import ContactListSelected from './-components/ContactListSelected'
 
-export const Route = createFileRoute('/_authenticated/contacts')({
+export const Route = createFileRoute('/_authenticated/(contacts)/contacts')({
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       context.trpc.contacts.list.queryOptions({ company: null }),

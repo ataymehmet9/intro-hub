@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { TbChecks } from 'react-icons/tb'
-import { useContact } from '../-hooks/useContact'
 import { ConfirmDialog, StickyFooter } from '@/components/shared'
 import { Button } from '@/components/ui'
+import { useContact } from '../-hooks/useContact'
 
 const ContactListSelected = () => {
   const { selectedContact, setSelectAllContact, deleteBatchContact } =
