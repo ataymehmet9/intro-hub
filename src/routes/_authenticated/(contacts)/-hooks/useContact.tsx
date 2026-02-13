@@ -74,7 +74,7 @@ export function useContact(options: UseContactOptions = {}) {
     onError: (error: Error, _newContact, context) => {
       // Rollback on error
       if (context?.previousContacts) {
-        queryClient.setQueryData(queryKey, context.previousContacts)
+        queryClient.setQueryData<Contact[]>(queryKey, context.previousContacts)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -120,7 +120,7 @@ export function useContact(options: UseContactOptions = {}) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousContacts) {
-        queryClient.setQueryData(queryKey, context.previousContacts)
+        queryClient.setQueryData<Contact[]>(queryKey, context.previousContacts)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -160,7 +160,7 @@ export function useContact(options: UseContactOptions = {}) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousContacts) {
-        queryClient.setQueryData(queryKey, context.previousContacts)
+        queryClient.setQueryData<Contact[]>(queryKey, context.previousContacts)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -201,7 +201,7 @@ export function useContact(options: UseContactOptions = {}) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousContacts) {
-        queryClient.setQueryData(queryKey, context.previousContacts)
+        queryClient.setQueryData<Contact[]>(queryKey, context.previousContacts)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -224,7 +224,7 @@ export function useContact(options: UseContactOptions = {}) {
     },
   })
 
-  const contacts = data ?? []
+  const contacts = data?.data ?? []
   const contactsTotal = contacts.length
 
   return {
