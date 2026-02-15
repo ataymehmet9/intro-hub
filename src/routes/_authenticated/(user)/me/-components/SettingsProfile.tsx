@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { useForm, Controller } from 'react-hook-form'
 import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
@@ -15,10 +14,7 @@ import { useUser } from '../-hooks/useUser'
 
 const SettingsProfile = () => {
   const { user: data } = useSessionUser()
-  const navigate = useNavigate()
-  const { updateUser, isUpdating } = useUser({
-    onUpdateSuccess: () => handleUpdateSuccess(),
-  })
+  const { updateUser, isUpdating } = useUser()
   const [profileImg, setProfileImg] = useState<File | null>(null)
 
   const { upload, isPending: isUploading } = useFileUpload()
@@ -64,10 +60,6 @@ const SettingsProfile = () => {
 
   const doSubmit = async (values: ProfileSchema) => {
     await updateUser(values)
-  }
-
-  const handleUpdateSuccess = () => {
-    navigate({ to: '/me' })
   }
 
   return (
