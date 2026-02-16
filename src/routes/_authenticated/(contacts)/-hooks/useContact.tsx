@@ -53,21 +53,19 @@ export function useContact(options: UseContactOptions = {}) {
       const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
 
       // Optimistically update to the new value
-      if (previousContacts) {
-        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
-          if (!old) return old
-          return [
-            {
-              ...newContact,
-              id: Date.now(), // Temporary ID
-              userId: '', // Will be set by server
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            } as Contact,
-            ...old,
-          ]
-        })
-      }
+      queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+        if (!old || !Array.isArray(old)) return []
+        return [
+          {
+            ...newContact,
+            id: Date.now(), // Temporary ID
+            userId: '', // Will be set by server
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as Contact,
+          ...old,
+        ]
+      })
 
       return { previousContacts }
     },
@@ -105,16 +103,14 @@ export function useContact(options: UseContactOptions = {}) {
 
       const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
 
-      if (previousContacts) {
-        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
-          if (!old) return old
-          return old.map((contact) =>
-            contact.id === id
-              ? { ...contact, ...data, updatedAt: new Date() }
-              : contact,
-          )
-        })
-      }
+      queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+        if (!old || !Array.isArray(old)) return []
+        return old.map((contact) =>
+          contact.id === id
+            ? { ...contact, ...data, updatedAt: new Date() }
+            : contact,
+        )
+      })
 
       return { previousContacts }
     },
@@ -149,12 +145,10 @@ export function useContact(options: UseContactOptions = {}) {
 
       const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
 
-      if (previousContacts) {
-        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
-          if (!old) return old
-          return old.filter((contact) => contact.id !== id)
-        })
-      }
+      queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+        if (!old || !Array.isArray(old)) return []
+        return old.filter((contact) => contact.id !== id)
+      })
 
       return { previousContacts }
     },
@@ -190,12 +184,10 @@ export function useContact(options: UseContactOptions = {}) {
 
       const previousContacts = queryClient.getQueryData<Contact[]>(queryKey)
 
-      if (previousContacts) {
-        queryClient.setQueryData<Contact[]>(queryKey, (old) => {
-          if (!old) return old
-          return old.filter((contact) => !ids.includes(contact.id))
-        })
-      }
+      queryClient.setQueryData<Contact[]>(queryKey, (old) => {
+        if (!old || !Array.isArray(old)) return []
+        return old.filter((contact) => !ids.includes(contact.id))
+      })
 
       return { previousContacts }
     },
