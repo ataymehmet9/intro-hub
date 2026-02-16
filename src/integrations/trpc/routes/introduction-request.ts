@@ -7,6 +7,10 @@ import {
 } from '@/schemas'
 import { introductionRequests, contacts, user } from '@/db/schema'
 import { protectedProcedure } from '../init'
+import {
+  sendIntroductionRequestEmail,
+  sendIntroductionResponseEmail,
+} from '@/services/email.functions'
 
 const createIntroductionRequestSchema = insertIntroductionRequestSchema
   .omit({
@@ -99,16 +103,42 @@ export const introductionRequestRouter = {
         })
         .returning()
 
-      // TODO: Send email notification to the approver (contact owner)
-      // This would use the Resend integration
-      // await sendIntroductionRequestEmail({
-      //   to: approverEmail,
-      //   requesterName: currentUser.name,
-      //   requesterCompany: currentUser.company,
-      //   requesterPosition: currentUser.position,
-      //   contactName: contact.name,
-      //   message,
-      // })
+      // Get approver (contact owner) details for email
+      const approver = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, contact.userId))
+        .limit(1)
+
+      // Send email notification to the approver (contact owner)
+      // Email sending failures should not block the request creation
+      if (approver.length > 0) {
+        try {
+          const dashboardUrl = `${process.env.APP_URL || 'http://localhost:3000'}/requests`
+
+          await sendIntroductionRequestEmail({
+            data: {
+              to: approver[0].email,
+              approverName: approver[0].name,
+              requesterName: currentUser.name,
+              requesterEmail: currentUser.email,
+              requesterCompany: currentUser.company,
+              requesterPosition: currentUser.position,
+              contactName: contact.name,
+              contactEmail: contact.email,
+              message,
+              dashboardUrl,
+            },
+          })
+        } catch (error) {
+          // Log error but don't fail the request
+          console.error('Failed to send introduction request email:', {
+            error,
+            requestId: newRequest[0].id,
+            timestamp: new Date().toISOString(),
+          })
+        }
+      }
 
       return { success: true, data: newRequest[0] }
     }),
@@ -212,8 +242,50 @@ export const introductionRequestRouter = {
         .where(eq(introductionRequests.id, id))
         .returning()
 
-      // TODO: Send email notification to the requester
-      // This would use the Resend integration
+      // Get requester details for email
+      const requester = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, request.requesterId))
+        .limit(1)
+
+      // Get contact details for email
+      const targetContact = await db
+        .select()
+        .from(contacts)
+        .where(eq(contacts.id, request.targetContactId))
+        .limit(1)
+
+      // Send email notification to the requester
+      // Email sending failures should not block the status update
+      if (requester.length > 0 && targetContact.length > 0) {
+        try {
+          await sendIntroductionResponseEmail({
+            data: {
+              to: requester[0].email,
+              requesterName: requester[0].name,
+              approverName: currentUser.name,
+              contactName: targetContact[0].name,
+              status: data.status,
+              responseMessage: data.responseMessage,
+              contactEmail:
+                data.status === 'approved' ? targetContact[0].email : null,
+              contactCompany:
+                data.status === 'approved' ? targetContact[0].company : null,
+              contactPosition:
+                data.status === 'approved' ? targetContact[0].position : null,
+            },
+          })
+        } catch (error) {
+          // Log error but don't fail the status update
+          console.error('Failed to send introduction response email:', {
+            error,
+            requestId: id,
+            status: data.status,
+            timestamp: new Date().toISOString(),
+          })
+        }
+      }
 
       return { success: true, data: updatedRequest[0] }
     }),

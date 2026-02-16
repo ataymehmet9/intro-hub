@@ -1,7 +1,16 @@
 import { createServerFn } from '@tanstack/react-start'
 import { render, pretty, toPlainText } from '@react-email/render'
-import { ForgotPasswordEmail } from '@/components/template/email'
-import { forgotPasswordEmailSchema } from '@/schemas'
+import {
+  ForgotPasswordEmail,
+  IntroductionRequestEmail,
+  IntroductionRequestApprovedEmail,
+  IntroductionRequestDeclinedEmail,
+} from '@/components/template/email'
+import {
+  forgotPasswordEmailSchema,
+  introductionRequestEmailSchema,
+  introductionResponseEmailSchema,
+} from '@/schemas'
 import { getResendInstance } from '@/integrations/resend'
 
 export const sendForgotPasswordEmail = createServerFn({ method: 'POST' })
@@ -40,3 +49,200 @@ export const sendForgotPasswordEmail = createServerFn({ method: 'POST' })
       return { success: false, message: 'Unknown error sending email' }
     }
   })
+
+/**
+ * Send introduction request email to contact owner
+ */
+export const sendIntroductionRequestEmail = createServerFn({ method: 'POST' })
+  .inputValidator(introductionRequestEmailSchema)
+  .handler(async ({ data }) => {
+    const {
+      to,
+      approverName,
+      requesterName,
+      requesterEmail,
+      requesterCompany,
+      requesterPosition,
+      contactName,
+      contactEmail,
+      message,
+      dashboardUrl,
+      from,
+    } = data
+
+    const resend = getResendInstance()
+
+    try {
+      const emailHtml = await pretty(
+        await render(
+          IntroductionRequestEmail({
+            approverName,
+            requesterName,
+            requesterEmail,
+            requesterCompany,
+            requesterPosition,
+            contactName,
+            contactEmail,
+            message,
+            dashboardUrl,
+          }),
+        ),
+      )
+      const plainText = toPlainText(emailHtml)
+
+      const { data: emailData, error } = await resend.emails.send({
+        from: from ?? 'IntroHub <delivered@resend.dev>',
+        to: [to],
+        subject: `Introduction Request: ${contactName}`,
+        html: emailHtml,
+        text: plainText,
+      })
+
+      if (error) {
+        console.error('Error sending introduction request email:', {
+          error,
+          to,
+          contactName,
+          timestamp: new Date().toISOString(),
+        })
+
+        return { success: false, message: 'Failed to send email', error }
+      }
+
+      console.log('Introduction request email sent successfully:', {
+        emailId: emailData.id,
+        to,
+        contactName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: true,
+        message: 'Email sent successfully',
+        emailId: emailData.id,
+      }
+    } catch (error) {
+      console.error('Error sending introduction request email:', {
+        error,
+        to,
+        contactName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: false,
+        message: 'Unknown error sending email',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
+  })
+
+/**
+ * Send introduction response email to requester (approved or declined)
+ */
+export const sendIntroductionResponseEmail = createServerFn({ method: 'POST' })
+  .inputValidator(introductionResponseEmailSchema)
+  .handler(async ({ data }) => {
+    const {
+      to,
+      requesterName,
+      approverName,
+      contactName,
+      status,
+      responseMessage,
+      contactEmail,
+      contactCompany,
+      contactPosition,
+      from,
+    } = data
+
+    const resend = getResendInstance()
+
+    try {
+      // Render the appropriate template based on status
+      let emailHtml: string
+
+      if (status === 'approved') {
+        emailHtml = await pretty(
+          await render(
+            IntroductionRequestApprovedEmail({
+              requesterName,
+              approverName,
+              contactName,
+              contactEmail: contactEmail!,
+              contactCompany,
+              contactPosition,
+              responseMessage,
+            }),
+          ),
+        )
+      } else {
+        emailHtml = await pretty(
+          await render(
+            IntroductionRequestDeclinedEmail({
+              requesterName,
+              approverName,
+              contactName,
+              responseMessage,
+            }),
+          ),
+        )
+      }
+      const plainText = toPlainText(emailHtml)
+
+      const subject =
+        status === 'approved'
+          ? `Introduction Request Approved: ${contactName}`
+          : `Introduction Request Update: ${contactName}`
+
+      const { data: emailData, error } = await resend.emails.send({
+        from: from ?? 'IntroHub <delivered@resend.dev>',
+        to: [to],
+        subject,
+        html: emailHtml,
+        text: plainText,
+      })
+
+      if (error) {
+        console.error('Error sending introduction response email:', {
+          error,
+          to,
+          status,
+          contactName,
+          timestamp: new Date().toISOString(),
+        })
+
+        return { success: false, message: 'Failed to send email', error }
+      }
+
+      console.log('Introduction response email sent successfully:', {
+        emailId: emailData.id,
+        to,
+        status,
+        contactName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: true,
+        message: 'Email sent successfully',
+        emailId: emailData.id,
+      }
+    } catch (error) {
+      console.error('Error sending introduction response email:', {
+        error,
+        to,
+        status,
+        contactName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: false,
+        message: 'Unknown error sending email',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
+  })
+
+// Made with Bob

@@ -1,1 +1,4 @@
 export { ForgotPasswordEmail } from './ForgotPassword'
+export { IntroductionRequestEmail } from './IntroductionRequest'
+export { IntroductionRequestApprovedEmail } from './IntroductionRequestApproved'
+export { IntroductionRequestDeclinedEmail } from './IntroductionRequestDeclined'
