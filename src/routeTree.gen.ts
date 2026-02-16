@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
+import { Route as AuthenticatedsearchSearchRouteImport } from './routes/_authenticated/(search)/search'
 import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_authenticated/(contacts)/contacts'
 import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
 import { Route as AuthenticateduserMeSecurityRouteImport } from './routes/_authenticated/(user)/me/security'
@@ -96,6 +97,12 @@ const AuthenticateduserMeRoute = AuthenticateduserMeRouteImport.update({
   path: '/me',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedsearchSearchRoute =
+  AuthenticatedsearchSearchRouteImport.update({
+    id: '/(search)/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedcontactsContactsRoute =
   AuthenticatedcontactsContactsRouteImport.update({
     id: '/(contacts)/contacts',
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/search': typeof AuthenticatedsearchSearchRoute
   '/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -145,6 +153,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/search': typeof AuthenticatedsearchSearchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/me/security': typeof AuthenticateduserMeSecurityRoute
@@ -164,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
   '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/upload'
     | '/contacts'
+    | '/search'
     | '/me'
     | '/api/auth/$'
     | '/api/trpc/$'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/upload'
     | '/contacts'
+    | '/search'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/me/security'
@@ -220,6 +232,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/api/upload'
     | '/_authenticated/(contacts)/contacts'
+    | '/_authenticated/(search)/search'
     | '/_authenticated/(user)/me'
     | '/api/auth/$'
     | '/api/trpc/$'
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticateduserMeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/(search)/search': {
+      id: '/_authenticated/(search)/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AuthenticatedsearchSearchRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/(contacts)/contacts': {
       id: '/_authenticated/(contacts)/contacts'
       path: '/contacts'
@@ -382,12 +402,14 @@ const AuthenticateduserMeRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedcontactsContactsRoute: typeof AuthenticatedcontactsContactsRoute
+  AuthenticatedsearchSearchRoute: typeof AuthenticatedsearchSearchRoute
   AuthenticateduserMeRoute: typeof AuthenticateduserMeRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedcontactsContactsRoute: AuthenticatedcontactsContactsRoute,
+  AuthenticatedsearchSearchRoute: AuthenticatedsearchSearchRoute,
   AuthenticateduserMeRoute: AuthenticateduserMeRouteWithChildren,
 }
 

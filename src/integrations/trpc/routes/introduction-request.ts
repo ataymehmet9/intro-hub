@@ -5,7 +5,12 @@ import {
   insertIntroductionRequestSchema,
   updateRequestStatusSchema,
 } from '@/schemas'
-import { introductionRequests, contacts, user } from '@/db/schema'
+import {
+  introductionRequests,
+  contacts,
+  user,
+  notifications,
+} from '@/db/schema'
 import { protectedProcedure } from '../init'
 import {
   sendIntroductionRequestEmail,
@@ -133,6 +138,32 @@ export const introductionRequestRouter = {
         } catch (error) {
           // Log error but don't fail the request
           console.error('Failed to send introduction request email:', {
+            error,
+            requestId: newRequest[0].id,
+            timestamp: new Date().toISOString(),
+          })
+        }
+
+        // Create in-app notification for the approver
+        try {
+          await db.insert(notifications).values({
+            userId: approver[0].id,
+            type: 'introduction_request',
+            title: 'New Introduction Request',
+            message: `${currentUser.name} wants to be introduced to ${contact.name}`,
+            relatedRequestId: newRequest[0].id,
+            metadata: JSON.stringify({
+              requesterName: currentUser.name,
+              requesterEmail: currentUser.email,
+              contactName: contact.name,
+              contactEmail: contact.email,
+              requestId: newRequest[0].id,
+            }),
+            read: false,
+          })
+        } catch (error) {
+          // Log error but don't fail the request
+          console.error('Failed to create in-app notification:', {
             error,
             requestId: newRequest[0].id,
             timestamp: new Date().toISOString(),
@@ -279,6 +310,46 @@ export const introductionRequestRouter = {
         } catch (error) {
           // Log error but don't fail the status update
           console.error('Failed to send introduction response email:', {
+            error,
+            requestId: id,
+            status: data.status,
+            timestamp: new Date().toISOString(),
+          })
+        }
+
+        // Create in-app notification for the requester
+        try {
+          const notificationTitle =
+            data.status === 'approved'
+              ? 'Introduction Request Approved'
+              : 'Introduction Request Declined'
+
+          const notificationMessage =
+            data.status === 'approved'
+              ? `${currentUser.name} approved your request to be introduced to ${targetContact[0].name}`
+              : `${currentUser.name} declined your request to be introduced to ${targetContact[0].name}`
+
+          await db.insert(notifications).values({
+            userId: requester[0].id,
+            type:
+              data.status === 'approved'
+                ? 'introduction_approved'
+                : 'introduction_declined',
+            title: notificationTitle,
+            message: notificationMessage,
+            relatedRequestId: id,
+            metadata: JSON.stringify({
+              approverName: currentUser.name,
+              contactName: targetContact[0].name,
+              contactEmail:
+                data.status === 'approved' ? targetContact[0].email : undefined,
+              requestId: id,
+            }),
+            read: false,
+          })
+        } catch (error) {
+          // Log error but don't fail the status update
+          console.error('Failed to create in-app notification:', {
             error,
             requestId: id,
             status: data.status,

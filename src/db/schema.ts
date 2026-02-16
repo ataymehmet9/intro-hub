@@ -129,6 +129,36 @@ export const introductionRequests = pgTable('introduction_requests', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'introduction_request',
+  'introduction_approved',
+  'introduction_declined',
+])
+
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: serial('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    type: notificationTypeEnum('type').notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    message: text('message').notNull(),
+    read: boolean('read').default(false).notNull(),
+    relatedRequestId: integer('related_request_id').references(
+      () => introductionRequests.id,
+      { onDelete: 'cascade' },
+    ),
+    metadata: text('metadata'), // JSON string for additional data
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('notifications_userId_idx').on(table.userId),
+    index('notifications_read_idx').on(table.read),
+  ],
+)
+
 // ============================================================================
 // RELATIONS (Drizzle ORM relationships)
 // ============================================================================
@@ -139,6 +169,7 @@ export const userRelations = relations(user, ({ many }) => ({
   contacts: many(contacts),
   sentRequests: many(introductionRequests, { relationName: 'requester' }),
   receivedRequests: many(introductionRequests, { relationName: 'approver' }),
+  notifications: many(notifications),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -165,7 +196,7 @@ export const contactsRelations = relations(contacts, ({ one, many }) => ({
 
 export const introductionRequestsRelations = relations(
   introductionRequests,
-  ({ one }) => ({
+  ({ one, many }) => ({
     requester: one(user, {
       fields: [introductionRequests.requesterId],
       references: [user.id],
@@ -180,7 +211,23 @@ export const introductionRequestsRelations = relations(
       fields: [introductionRequests.targetContactId],
       references: [contacts.id],
     }),
+    notifications: many(notifications),
   }),
 )
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(user, {
+    fields: [notifications.userId],
+    references: [user.id],
+  }),
+  relatedRequest: one(introductionRequests, {
+    fields: [notifications.relatedRequestId],
+    references: [introductionRequests.id],
+  }),
+}))
+
 export type RequestStatus = 'pending' | 'approved' | 'declined'
+export type NotificationType =
+  | 'introduction_request'
+  | 'introduction_approved'
+  | 'introduction_declined'

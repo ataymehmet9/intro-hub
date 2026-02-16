@@ -4,6 +4,7 @@ import {
   userRouter,
   searchRouter,
   introductionRequestRouter,
+  notificationRouter,
 } from './routes'
 
 export const trpcRouter = createTRPCRouter({
@@ -11,5 +12,6 @@ export const trpcRouter = createTRPCRouter({
   users: userRouter,
   search: searchRouter,
   introductionRequests: introductionRequestRouter,
+  notifications: notificationRouter,
 })
 export type TRPCRouter = typeof trpcRouter

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useRef } from 'react'
 import classNames from 'classnames'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Dropdown from '@/components/ui/Dropdown'
@@ -6,169 +6,90 @@ import ScrollBar from '@/components/ui/ScrollBar'
 import Spinner from '@/components/ui/Spinner'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
-import NotificationAvatar from './NotificationAvatar'
 import NotificationToggle from './NotificationToggle'
 import { HiOutlineMailOpen } from 'react-icons/hi'
-// TODO: Implement notification service
-// import {
-//     apiGetNotificationList,
-//     apiGetNotificationCount,
-// } from '@/services/CommonService'
 import isLastChild from '@/utils/isLastChild'
 import useResponsive from '@/utils/hooks/useResponsive'
-// import { useNavigate } from '@tanstack/react-router'
-
+import { useNotifications } from '@/hooks/useNotifications'
+import { formatDistanceToNow } from 'date-fns'
 import type { DropdownRef } from '@/components/ui/Dropdown'
-
-type NotificationList = {
-  id: string
-  target: string
-  description: string
-  date: string
-  image: string
-  type: number
-  location: string
-  locationLabel: string
-  status: string
-  readed: boolean
-}
 
 const notificationHeight = 'h-[280px]'
 
 const _Notification = ({ className }: { className?: string }) => {
-  const [notificationList, setNotificationList] = useState<NotificationList[]>(
-    [],
-  )
-  const [unreadNotification, setUnreadNotification] = useState(false)
-  const [noResult, setNoResult] = useState(false)
-  const [loading, setLoading] = useState(false)
-
   const { larger } = useResponsive()
-
-  // const navigate = useNavigate()
-
-  const getNotificationCount = async () => {
-    // TODO: Implement notification service
-    // const resp = await apiGetNotificationCount()
-    // if (resp.count > 0) {
-    //   setNoResult(false)
-    //   setUnreadNotification(true)
-    // } else {
-    //   setNoResult(true)
-    // }
-    setNoResult(true)
-  }
-
-  useEffect(() => {
-    getNotificationCount()
-  }, [])
-
-  const onNotificationOpen = async () => {
-    if (notificationList.length === 0) {
-      setLoading(true)
-      // TODO: Implement notification service
-      // const resp = await apiGetNotificationList()
-      // setNotificationList(resp)
-      setLoading(false)
-    }
-  }
-
-  const onMarkAllAsRead = () => {
-    const list = notificationList.map((item: NotificationList) => {
-      if (!item.readed) {
-        item.readed = true
-      }
-      return item
-    })
-    setNotificationList(list)
-    setUnreadNotification(false)
-  }
-
-  const onMarkAsRead = (id: string) => {
-    const list = notificationList.map((item) => {
-      if (item.id === id) {
-        item.readed = true
-      }
-      return item
-    })
-    setNotificationList(list)
-    const hasUnread = notificationList.some((item) => !item.readed)
-
-    if (!hasUnread) {
-      setUnreadNotification(false)
-    }
-  }
-
   const notificationDropdownRef = useRef<DropdownRef>(null)
 
+  // Use our notification hook with 30-second polling
+  const {
+    notifications,
+    unreadCount,
+    hasUnread,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications(30000)
+
+  const onMarkAllAsRead = () => {
+    markAllAsRead()
+  }
+
+  const onMarkAsRead = (id: number) => {
+    markAsRead(id)
+  }
+
   const handleViewAllActivity = () => {
-    // TODO: Create activity log route
-    // navigate({ to: '/concepts/account/activity-log' })
+    // TODO: Navigate to notifications page when created
+    // navigate({ to: '/notifications' })
     if (notificationDropdownRef.current) {
       notificationDropdownRef.current.handleDropdownClose()
+    }
+  }
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'introduction_request':
+        return '🤝'
+      case 'introduction_approved':
+        return '✅'
+      case 'introduction_declined':
+        return '❌'
+      default:
+        return '📬'
     }
   }
 
   return (
     <Dropdown
       ref={notificationDropdownRef}
-      renderTitle={
-        <NotificationToggle dot={unreadNotification} className={className} />
-      }
+      renderTitle={<NotificationToggle dot={hasUnread} className={className} />}
       menuClass="min-w-[280px] md:min-w-[340px]"
       placement={larger.md ? 'bottom-end' : 'bottom'}
-      onOpen={onNotificationOpen}
     >
       <Dropdown.Item variant="header">
         <div className="dark:border-gray-700 px-2 flex items-center justify-between mb-1">
-          <h6>Notifications</h6>
-          <Button
-            variant="plain"
-            shape="circle"
-            size="sm"
-            icon={<HiOutlineMailOpen className="text-xl" />}
-            title="Mark all as read"
-            onClick={onMarkAllAsRead}
-          />
+          <h6>
+            Notifications
+            {unreadCount > 0 && (
+              <span className="ml-2 text-xs text-gray-500">
+                ({unreadCount} unread)
+              </span>
+            )}
+          </h6>
+          {unreadCount > 0 && (
+            <Button
+              variant="plain"
+              shape="circle"
+              size="sm"
+              icon={<HiOutlineMailOpen className="text-xl" />}
+              title="Mark all as read"
+              onClick={onMarkAllAsRead}
+            />
+          )}
         </div>
       </Dropdown.Item>
       <ScrollBar className={classNames('overflow-y-auto', notificationHeight)}>
-        {notificationList.length > 0 &&
-          notificationList.map((item, index) => (
-            <div key={item.id}>
-              <div
-                className={`relative rounded-xl flex px-4 py-3 cursor-pointer hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-gray-700`}
-                onClick={() => onMarkAsRead(item.id)}
-              >
-                <div>
-                  <NotificationAvatar {...item} />
-                </div>
-                <div className="mx-3">
-                  <div>
-                    {item.target && (
-                      <span className="font-semibold heading-text">
-                        {item.target}{' '}
-                      </span>
-                    )}
-                    <span>{item.description}</span>
-                  </div>
-                  <span className="text-xs">{item.date}</span>
-                </div>
-                <Badge
-                  className="absolute top-4 ltr:right-4 rtl:left-4 mt-1.5"
-                  innerClass={`${
-                    item.readed ? 'bg-gray-300 dark:bg-gray-600' : 'bg-primary'
-                  } `}
-                />
-              </div>
-              {!isLastChild(notificationList, index) ? (
-                <div className="border-b border-gray-200 dark:border-gray-700 my-2" />
-              ) : (
-                ''
-              )}
-            </div>
-          ))}
-        {loading && (
+        {isLoading && notifications.length === 0 && (
           <div
             className={classNames(
               'flex items-center justify-center',
@@ -178,7 +99,7 @@ const _Notification = ({ className }: { className?: string }) => {
             <Spinner size={40} />
           </div>
         )}
-        {noResult && notificationList.length === 0 && (
+        {!isLoading && notifications.length === 0 && (
           <div
             className={classNames(
               'flex items-center justify-center',
@@ -192,10 +113,52 @@ const _Notification = ({ className }: { className?: string }) => {
                 alt="no-notification"
               />
               <h6 className="font-semibold">No notifications!</h6>
-              <p className="mt-1">Please Try again later</p>
+              <p className="mt-1">You're all caught up</p>
             </div>
           </div>
         )}
+        {notifications.length > 0 &&
+          notifications.map((notification, index) => (
+            <div key={notification.id}>
+              <div
+                className={classNames(
+                  'relative rounded-xl flex px-4 py-3 cursor-pointer hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-gray-700',
+                  {
+                    'bg-blue-50 dark:bg-blue-900/20': !notification.read,
+                  },
+                )}
+                onClick={() => onMarkAsRead(notification.id)}
+              >
+                <div className="text-2xl mr-3">
+                  {getNotificationIcon(notification.type)}
+                </div>
+                <div className="flex-1">
+                  <div className="font-semibold heading-text mb-1">
+                    {notification.title}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {notification.message}
+                  </div>
+                  <span className="text-xs text-gray-500 mt-1 block">
+                    {formatDistanceToNow(new Date(notification.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+                <Badge
+                  className="absolute top-4 ltr:right-4 rtl:left-4 mt-1.5"
+                  innerClass={`${
+                    notification.read
+                      ? 'bg-gray-300 dark:bg-gray-600'
+                      : 'bg-primary'
+                  } `}
+                />
+              </div>
+              {!isLastChild(notifications, index) && (
+                <div className="border-b border-gray-200 dark:border-gray-700 my-2" />
+              )}
+            </div>
+          ))}
       </ScrollBar>
       <Dropdown.Item variant="header">
         <div className="pt-4">
@@ -211,3 +174,5 @@ const _Notification = ({ className }: { className?: string }) => {
 const Notification = withHeaderItem(_Notification)
 
 export default Notification
+
+// Made with Bob

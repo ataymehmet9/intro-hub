@@ -101,3 +101,27 @@ export {
   type SearchResult,
   type GlobalSearchResponse,
 } from './search.schema'
+
+// Notification schemas
+export {
+  notificationSchema,
+  insertNotificationSchema,
+  updateNotificationSchema,
+  markAsReadSchema,
+  markAllAsReadSchema,
+  getNotificationsSchema,
+  notificationMetadataSchema,
+  createNotificationInputSchema,
+  notificationWithMetadataSchema,
+  notificationTypeEnum,
+  type Notification,
+  type InsertNotification,
+  type UpdateNotification,
+  type MarkAsRead,
+  type MarkAllAsRead,
+  type GetNotifications,
+  type NotificationMetadata,
+  type CreateNotificationInput,
+  type NotificationWithMetadata,
+  type NotificationType,
+} from './notification.schema'
