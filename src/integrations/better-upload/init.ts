@@ -7,9 +7,9 @@ export const router: Router = {
   client: aws({
     accessKeyId: process.env.BETTER_UPLOAD_ACCESS_KEY as string,
     secretAccessKey: process.env.BETTER_UPLOAD_SECRET_KEY as string,
-    region: process.env.BETTER_UPLOAD_BUCKET_REGION as string,
+    region: process.env.VITE_BETTER_UPLOAD_BUCKET_REGION as string,
   }),
-  bucketName: process.env.BETTER_UPLOAD_BUCKET_NAME as string,
+  bucketName: process.env.VITE_BETTER_UPLOAD_BUCKET_NAME as string,
   routes: {
     [BETTER_UPLOAD_PROFILE_PIC_NAME]: route({
       fileTypes: ['image/*'],

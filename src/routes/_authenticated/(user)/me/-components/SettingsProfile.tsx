@@ -9,6 +9,7 @@ import {
   UpdateUser as ProfileSchema,
 } from '@/schemas/user.schema'
 import { Avatar, Button, Form, FormItem, Input, Upload } from '@/components/ui'
+import { generateFileCloudUrl } from '@/utils/fileUtils'
 import { useFileUpload } from '../-hooks/useFileUpload'
 import { useUser } from '../-hooks/useUser'
 
@@ -76,7 +77,7 @@ const SettingsProfile = () => {
                   size={90}
                   className="border-4 border-white bg-gray-100 text-gray-300 shadow-lg"
                   icon={<HiOutlineUser />}
-                  src={field.value as string}
+                  src={generateFileCloudUrl(field.value)}
                 />
                 <div className="flex items-center gap-2">
                   <Upload

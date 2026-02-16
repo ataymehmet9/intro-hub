@@ -43,3 +43,12 @@ export const validateCSVFile = (
 
   return { valid: true }
 }
+
+export const generateFileCloudUrl = (fileName: string | undefined | null) => {
+  if (!fileName) return ''
+  if (fileName.startsWith('blob:')) return fileName
+
+  const bucketName = import.meta.env.VITE_BETTER_UPLOAD_BUCKET_NAME as string
+  const region = import.meta.env.VITE_BETTER_UPLOAD_BUCKET_REGION as string
+  return `https://${bucketName}.s3.${region}.amazonaws.com/${fileName}`
+}

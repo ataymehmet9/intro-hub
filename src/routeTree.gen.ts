@@ -25,6 +25,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
 import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_authenticated/(contacts)/contacts'
 import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
+import { Route as AuthenticateduserMeSecurityRouteImport } from './routes/_authenticated/(user)/me/security'
 
 const WhatIsIntrohubRoute = WhatIsIntrohubRouteImport.update({
   id: '/what-is-introhub',
@@ -107,6 +108,12 @@ const AuthenticateduserMeIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticateduserMeRoute,
   } as any)
+const AuthenticateduserMeSecurityRoute =
+  AuthenticateduserMeSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticateduserMeRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/me/security': typeof AuthenticateduserMeSecurityRoute
   '/me/': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRoutesByTo {
@@ -139,6 +147,7 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/me/security': typeof AuthenticateduserMeSecurityRoute
   '/me': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRoutesById {
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/_authenticated/(user)/me/security': typeof AuthenticateduserMeSecurityRoute
   '/_authenticated/(user)/me/': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRouteTypes {
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/me/security'
     | '/me/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/me/security'
     | '/me'
   id:
     | '__root__'
@@ -211,6 +223,7 @@ export interface FileRouteTypes {
     | '/_authenticated/(user)/me'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/_authenticated/(user)/me/security'
     | '/_authenticated/(user)/me/'
   fileRoutesById: FileRoutesById
 }
@@ -343,14 +356,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticateduserMeIndexRouteImport
       parentRoute: typeof AuthenticateduserMeRoute
     }
+    '/_authenticated/(user)/me/security': {
+      id: '/_authenticated/(user)/me/security'
+      path: '/security'
+      fullPath: '/me/security'
+      preLoaderRoute: typeof AuthenticateduserMeSecurityRouteImport
+      parentRoute: typeof AuthenticateduserMeRoute
+    }
   }
 }
 
 interface AuthenticateduserMeRouteChildren {
+  AuthenticateduserMeSecurityRoute: typeof AuthenticateduserMeSecurityRoute
   AuthenticateduserMeIndexRoute: typeof AuthenticateduserMeIndexRoute
 }
 
 const AuthenticateduserMeRouteChildren: AuthenticateduserMeRouteChildren = {
+  AuthenticateduserMeSecurityRoute: AuthenticateduserMeSecurityRoute,
   AuthenticateduserMeIndexRoute: AuthenticateduserMeIndexRoute,
 }
 

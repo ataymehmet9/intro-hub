@@ -7,6 +7,7 @@ import { PiUserDuotone, PiSignOutDuotone } from 'react-icons/pi'
 import { signOut } from '@/lib/auth-client'
 import { User } from '@/@types/auth'
 import { dropdownItemList } from '@/configs/navigation.config/user'
+import { generateFileCloudUrl } from '@/utils/fileUtils'
 
 const UserDropdown = () => {
   const { user = {} } = useSessionUser()
@@ -20,7 +21,9 @@ const UserDropdown = () => {
   }
 
   const avatarProps = {
-    ...(avatar ? { src: avatar } : { icon: <PiUserDuotone /> }),
+    ...(avatar
+      ? { src: generateFileCloudUrl(avatar) }
+      : { icon: <PiUserDuotone /> }),
   }
 
   return (

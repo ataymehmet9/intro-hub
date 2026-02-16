@@ -10,7 +10,7 @@ import ContactForm, {
   ContactFormHandle,
 } from '@/components/shared/common/ContactForm'
 import { InsertContact } from '@/schemas'
-import { validateCSVFile } from '@/utils/fileParser'
+import { validateCSVFile } from '@/utils/fileUtils'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 
 interface ImportResult {

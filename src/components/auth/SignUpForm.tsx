@@ -6,7 +6,7 @@ import { signUp } from '@/lib/auth-client'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { CommonProps } from '@/@types/common'
-import { userSignupSchema, UserSignup } from '@/schemas/user.schema'
+import { userSignupSchema, UserSignup } from '@/schemas'
 
 interface SignUpFormProps extends CommonProps {
   disableSubmit?: boolean

@@ -8,7 +8,7 @@ import {
   updateContactSchema,
 } from '@/schemas'
 import { contacts } from '@/db/schema'
-import { parseCSV } from '@/utils/fileParser'
+import { parseCSV } from '@/utils/fileUtils'
 import { protectedProcedure } from '../init'
 
 const listContactsSchema = contactSchema
