@@ -8,6 +8,7 @@ import {
 } from '@/schemas'
 import { notifications } from '@/db/schema'
 import { protectedProcedure } from '../init'
+import { notificationEmitter } from '@/lib/notification-emitter'
 
 export const notificationRouter = {
   /**
@@ -119,6 +120,12 @@ export const notificationRouter = {
         .where(eq(notifications.id, id))
         .returning()
 
+      // Emit SSE event for real-time update
+      notificationEmitter.emit('notification:read', {
+        userId: currentUser.id,
+        notificationId: id,
+      })
+
       return updated[0]
     }),
 
@@ -141,6 +148,11 @@ export const notificationRouter = {
           eq(notifications.read, false),
         ),
       )
+
+    // Emit SSE event for real-time update
+    notificationEmitter.emit('notification:all-read', {
+      userId: currentUser.id,
+    })
 
     return { success: true }
   }),
@@ -168,6 +180,18 @@ export const notificationRouter = {
           read: false,
         })
         .returning()
+
+      // Parse metadata for the SSE event
+      const parsedNotification = {
+        ...newNotification[0],
+        parsedMetadata: metadata || undefined,
+      }
+
+      // Emit SSE event for real-time notification delivery
+      notificationEmitter.emit('notification:created', {
+        userId,
+        notification: parsedNotification,
+      })
 
       return newNotification[0]
     }),
@@ -209,6 +233,12 @@ export const notificationRouter = {
 
       // Delete the notification
       await db.delete(notifications).where(eq(notifications.id, id))
+
+      // Emit SSE event for real-time update
+      notificationEmitter.emit('notification:deleted', {
+        userId: currentUser.id,
+        notificationId: id,
+      })
 
       return { success: true }
     }),

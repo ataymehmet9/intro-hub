@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
+import { Route as ApiNotificationsStreamRouteImport } from './routes/api/notifications/stream'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
 import { Route as AuthenticatedsearchSearchRouteImport } from './routes/_authenticated/(search)/search'
@@ -87,6 +88,11 @@ const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   path: '/api/trpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNotificationsStreamRoute = ApiNotificationsStreamRouteImport.update({
+  id: '/api/notifications/stream',
+  path: '/api/notifications/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedsearchSearchRoute
   '/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/notifications/stream': typeof ApiNotificationsStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/me/security': typeof AuthenticateduserMeSecurityRoute
   '/me/': typeof AuthenticateduserMeIndexRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/notifications/stream': typeof ApiNotificationsStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/me/security': typeof AuthenticateduserMeSecurityRoute
   '/me': typeof AuthenticateduserMeIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
   '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/notifications/stream': typeof ApiNotificationsStreamRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/_authenticated/(user)/me/security': typeof AuthenticateduserMeSecurityRoute
   '/_authenticated/(user)/me/': typeof AuthenticateduserMeIndexRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/me'
     | '/api/auth/$'
+    | '/api/notifications/stream'
     | '/api/trpc/$'
     | '/me/security'
     | '/me/'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/search'
     | '/api/auth/$'
+    | '/api/notifications/stream'
     | '/api/trpc/$'
     | '/me/security'
     | '/me'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/_authenticated/(search)/search'
     | '/_authenticated/(user)/me'
     | '/api/auth/$'
+    | '/api/notifications/stream'
     | '/api/trpc/$'
     | '/_authenticated/(user)/me/security'
     | '/_authenticated/(user)/me/'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   WhatIsIntrohubRoute: typeof WhatIsIntrohubRoute
   ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/api/trpc/$'
       fullPath: '/api/trpc/$'
       preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notifications/stream': {
+      id: '/api/notifications/stream'
+      path: '/api/notifications/stream'
+      fullPath: '/api/notifications/stream'
+      preLoaderRoute: typeof ApiNotificationsStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -429,6 +449,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhatIsIntrohubRoute: WhatIsIntrohubRoute,
   ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport

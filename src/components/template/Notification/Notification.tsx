@@ -21,7 +21,7 @@ const _Notification = ({ className }: { className?: string }) => {
   const { larger } = useResponsive()
   const notificationDropdownRef = useRef<DropdownRef>(null)
 
-  // Use our notification hook with 30-second polling
+  // Use our notification hook with real-time SSE updates
   const {
     notifications,
     unreadCount,
@@ -29,7 +29,7 @@ const _Notification = ({ className }: { className?: string }) => {
     isLoading,
     markAsRead,
     markAllAsRead,
-  } = useNotifications(30000)
+  } = useNotifications()
 
   const onMarkAllAsRead = () => {
     markAllAsRead()
@@ -169,6 +169,7 @@ const _Notification = ({ className }: { className?: string }) => {
             onClick={handleViewAllActivity}
             asElement={Link}
             to="/me/notifications"
+            className="text-center block"
           >
             View All Activity
           </Button>

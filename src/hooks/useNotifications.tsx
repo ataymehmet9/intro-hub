@@ -4,12 +4,12 @@ import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { useNotificationStore } from '@/store/notificationStore'
 import { Notification, toast } from '@/components/ui'
+import { useNotificationSSE } from './useNotificationSSE'
 
 /**
- * Hook to manage notifications with real-time polling
- * @param pollingInterval - Interval in milliseconds to poll for new notifications (default: 30000ms = 30s)
+ * Hook to manage notifications with real-time SSE updates
  */
-export function useNotifications(pollingInterval = 30000) {
+export function useNotifications() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const {
@@ -28,21 +28,22 @@ export function useNotifications(pollingInterval = 30000) {
 
   const unreadCountQueryKey = trpc.notifications.getUnreadCount.queryKey()
 
-  // Fetch notifications list
+  // Establish SSE connection for real-time updates
+  const { connectionStatus, isConnected } = useNotificationSSE()
+
+  // Fetch notifications list (no polling, updated via SSE)
   const { data: notifications, isFetching: isLoading } = useQuery({
     ...trpc.notifications.list.queryOptions({
       limit: 50,
       offset: 0,
       unreadOnly: false,
     }),
-    refetchInterval: pollingInterval,
     refetchOnWindowFocus: true,
   })
 
-  // Fetch unread count
+  // Fetch unread count (no polling, updated via SSE)
   const { data: unreadData } = useQuery({
     ...trpc.notifications.getUnreadCount.queryOptions(),
-    refetchInterval: pollingInterval,
     refetchOnWindowFocus: true,
   })
 
@@ -87,8 +88,7 @@ export function useNotifications(pollingInterval = 30000) {
 
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
-    mutationFn: (id: number) =>
-      trpcClient.notifications.delete.mutate({ id }),
+    mutationFn: (id: number) => trpcClient.notifications.delete.mutate({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
       queryClient.invalidateQueries({ queryKey: unreadCountQueryKey })
@@ -144,6 +144,8 @@ export function useNotifications(pollingInterval = 30000) {
     unreadCount: unreadData?.count || 0,
     hasUnread: unreadData?.hasUnread || false,
     isLoading,
+    connectionStatus,
+    isConnected,
     markAsRead: (id: number) => markAsReadMutation.mutate(id),
     markAllAsRead: () => markAllAsReadMutation.mutate(),
     deleteNotification: (id: number) => deleteNotificationMutation.mutate(id),
