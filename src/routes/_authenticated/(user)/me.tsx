@@ -11,8 +11,6 @@ export const Route = createFileRoute('/_authenticated/(user)/me')({
 function RouteComponent() {
   const { smaller, larger } = useResponsive()
 
-  console.log({ smaller, larger })
-
   return (
     <AdaptiveCard className="h-full">
       <div className="flex flex-auto h-full">
