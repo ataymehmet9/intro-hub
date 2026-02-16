@@ -1,0 +1,169 @@
+import { useMemo } from 'react'
+import { TbSend, TbClock } from 'react-icons/tb'
+import { Avatar, Tooltip, Button, Badge } from '@/components/ui'
+import { SearchResult } from '@/schemas'
+import { stringToColor } from '@/utils/colours'
+import type { ColumnDef } from '@/components/shared/DataTable'
+import DataTable from '@/components/shared/DataTable'
+import { DateFormat } from '@/components/shared/common'
+
+type SearchResultsTableProps = {
+  results: SearchResult[]
+  isLoading: boolean
+  onRequestIntroduction: (result: SearchResult) => void
+}
+
+const NameColumn = ({ row }: { row: SearchResult }) => {
+  const avatarColor = stringToColor(row.name)
+
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar
+        size={40}
+        shape="circle"
+        style={{ backgroundColor: avatarColor }}
+        className="text-white font-semibold"
+      >
+        {row.name?.charAt(0) || 'U'}
+      </Avatar>
+      <div>
+        <div className="font-medium text-gray-900 dark:text-gray-100">
+          {row.name}
+        </div>
+        {row.position && (
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {row.position}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const OwnerColumn = ({ row }: { row: SearchResult }) => {
+  return (
+    <div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">
+        {row.ownerName}
+      </div>
+      {row.ownerCompany && (
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {row.ownerCompany}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ActionColumn = ({
+  row,
+  onRequestIntroduction,
+}: {
+  row: SearchResult
+  onRequestIntroduction: (result: SearchResult) => void
+}) => {
+  if (row.hasPendingRequest) {
+    return (
+      <Tooltip title="You have a pending request for this contact">
+        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+          <TbClock className="mr-1" />
+          Pending
+        </Badge>
+      </Tooltip>
+    )
+  }
+
+  return (
+    <Button
+      size="sm"
+      variant="solid"
+      icon={<TbSend />}
+      onClick={() => onRequestIntroduction(row)}
+    >
+      Request Introduction
+    </Button>
+  )
+}
+
+const SearchResultsTable = ({
+  results,
+  isLoading,
+  onRequestIntroduction,
+}: SearchResultsTableProps) => {
+  const columns: ColumnDef<SearchResult>[] = useMemo(
+    () => [
+      {
+        header: 'Name',
+        accessorKey: 'name',
+        cell: (props: { row: { original: SearchResult } }) => {
+          const row = props.row.original
+          return <NameColumn row={row} />
+        },
+      },
+      {
+        header: 'Email',
+        accessorKey: 'email',
+        cell: (props: { row: { original: SearchResult } }) => (
+          <span className="text-gray-900 dark:text-gray-100">
+            {props.row.original.email}
+          </span>
+        ),
+      },
+      {
+        header: 'Company',
+        accessorKey: 'company',
+        cell: (props: { row: { original: SearchResult } }) => (
+          <span className="text-gray-900 dark:text-gray-100">
+            {props.row.original.company || '-'}
+          </span>
+        ),
+      },
+      {
+        header: 'Owner',
+        accessorKey: 'ownerName',
+        cell: (props: { row: { original: SearchResult } }) => {
+          const row = props.row.original
+          return <OwnerColumn row={row} />
+        },
+      },
+      {
+        header: 'Added',
+        accessorKey: 'createdAt',
+        cell: (props: { row: { original: SearchResult } }) => (
+          <DateFormat date={props.row.original.createdAt} format="short" />
+        ),
+      },
+      {
+        header: '',
+        id: 'action',
+        cell: (props: { row: { original: SearchResult } }) => (
+          <ActionColumn
+            row={props.row.original}
+            onRequestIntroduction={onRequestIntroduction}
+          />
+        ),
+      },
+    ],
+    [onRequestIntroduction],
+  )
+
+  return (
+    <DataTable
+      columns={columns}
+      data={results}
+      noData={!isLoading && results.length === 0}
+      skeletonAvatarColumns={[0]}
+      skeletonAvatarProps={{ width: 40, height: 40 }}
+      loading={isLoading}
+      pagingData={{
+        total: results.length,
+        pageIndex: 1,
+        pageSize: results.length,
+      }}
+    />
+  )
+}
+
+export default SearchResultsTable
+
+// Made with Bob

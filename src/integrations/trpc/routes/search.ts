@@ -1,0 +1,99 @@
+import { TRPCRouterRecord, TRPCError } from '@trpc/server'
+import { eq, and, like, or, ne, desc } from 'drizzle-orm'
+import { globalSearchInputSchema } from '@/schemas'
+import { contacts, user, introductionRequests } from '@/db/schema'
+import { protectedProcedure } from '../init'
+
+export const searchRouter = {
+  globalSearch: protectedProcedure
+    .input(globalSearchInputSchema)
+    .query(async ({ input, ctx }) => {
+      const { user: currentUser, db } = ctx
+
+      if (!currentUser) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { query, fields } = input
+
+      // Build search conditions based on selected fields
+      const searchConditions = []
+
+      if (fields.includes('name')) {
+        searchConditions.push(like(contacts.name, `%${query}%`))
+      }
+      if (fields.includes('company')) {
+        searchConditions.push(like(contacts.company, `%${query}%`))
+      }
+      if (fields.includes('position')) {
+        searchConditions.push(like(contacts.position, `%${query}%`))
+      }
+
+      // If no search conditions, return empty results
+      if (searchConditions.length === 0) {
+        return {
+          success: true,
+          data: [],
+          total: 0,
+        }
+      }
+
+      // Query contacts with owner information and pending request status
+      // Exclude current user's own contacts
+      const results = await db
+        .select({
+          // Contact fields
+          id: contacts.id,
+          name: contacts.name,
+          email: contacts.email,
+          company: contacts.company,
+          position: contacts.position,
+          phone: contacts.phone,
+          linkedinUrl: contacts.linkedinUrl,
+          createdAt: contacts.createdAt,
+
+          // Owner fields
+          ownerId: user.id,
+          ownerName: user.name,
+          ownerEmail: user.email,
+          ownerCompany: user.company,
+          ownerPosition: user.position,
+
+          // Pending request fields
+          pendingRequestId: introductionRequests.id,
+        })
+        .from(contacts)
+        .innerJoin(user, eq(contacts.userId, user.id))
+        .leftJoin(
+          introductionRequests,
+          and(
+            eq(introductionRequests.targetContactId, contacts.id),
+            eq(introductionRequests.requesterId, currentUser.id),
+            eq(introductionRequests.status, 'pending'),
+          ),
+        )
+        .where(
+          and(
+            // Exclude current user's own contacts
+            ne(contacts.userId, currentUser.id),
+            // Apply search conditions
+            or(...searchConditions)!,
+          ),
+        )
+        .orderBy(desc(contacts.createdAt))
+
+      // Transform results to include hasPendingRequest boolean
+      const transformedResults = results.map((result) => ({
+        ...result,
+        hasPendingRequest: result.pendingRequestId !== null,
+      }))
+
+      return {
+        success: true,
+        data: transformedResults,
+        total: transformedResults.length,
+      }
+    }),
+} satisfies TRPCRouterRecord
+
+// Made with Bob

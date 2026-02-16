@@ -85,3 +85,15 @@ export {
   forgotPasswordEmailSchema,
   type ForgotPasswordEmail,
 } from './email.schema'
+
+// Search schemas
+export {
+  searchFieldEnum,
+  globalSearchInputSchema,
+  searchResultSchema,
+  globalSearchResponseSchema,
+  type SearchField,
+  type GlobalSearchInput,
+  type SearchResult,
+  type GlobalSearchResponse,
+} from './search.schema'
