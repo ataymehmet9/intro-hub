@@ -1,18 +1,19 @@
 import { useRef } from 'react'
+import { Link } from '@tanstack/react-router'
 import classNames from 'classnames'
+import { formatDistanceToNow } from 'date-fns'
+import { HiOutlineMailOpen } from 'react-icons/hi'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Dropdown from '@/components/ui/Dropdown'
 import ScrollBar from '@/components/ui/ScrollBar'
 import Spinner from '@/components/ui/Spinner'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
-import NotificationToggle from './NotificationToggle'
-import { HiOutlineMailOpen } from 'react-icons/hi'
 import isLastChild from '@/utils/isLastChild'
 import useResponsive from '@/utils/hooks/useResponsive'
 import { useNotifications } from '@/hooks/useNotifications'
-import { formatDistanceToNow } from 'date-fns'
 import type { DropdownRef } from '@/components/ui/Dropdown'
+import NotificationToggle from './NotificationToggle'
 
 const notificationHeight = 'h-[280px]'
 
@@ -162,7 +163,13 @@ const _Notification = ({ className }: { className?: string }) => {
       </ScrollBar>
       <Dropdown.Item variant="header">
         <div className="pt-4">
-          <Button block variant="solid" onClick={handleViewAllActivity}>
+          <Button
+            block
+            variant="solid"
+            onClick={handleViewAllActivity}
+            asElement={Link}
+            to="/me/notifications"
+          >
             View All Activity
           </Button>
         </div>
