@@ -1,7 +1,6 @@
-import { useLocation, useNavigate } from '@tanstack/react-router'
+import { useLocation, Link } from '@tanstack/react-router'
 import { Menu, MenuItem, ScrollBar } from '@/components/ui'
 import { userSettingsMenu as menuList } from '@/configs/navigation.config/user'
-import { UserMainSettingsNavigation } from '@/@types/navigation'
 
 type SettingsMenuProps = {
   onChange?: () => void
@@ -9,11 +8,9 @@ type SettingsMenuProps = {
 
 const SettingsMenu = ({ onChange }: SettingsMenuProps) => {
   const { pathname: currentPath } = useLocation()
-  const navigate = useNavigate()
 
-  const handleSelect = (value: UserMainSettingsNavigation['path']) => {
+  const handleSelect = () => {
     onChange?.()
-    navigate({ to: value })
   }
 
   return (
@@ -30,7 +27,9 @@ const SettingsMenu = ({ onChange }: SettingsMenuProps) => {
                   : ''
               }`}
               isActive={currentPath.endsWith(menu.value)}
-              onSelect={() => handleSelect(menu.path)}
+              asElement={Link}
+              onSelect={() => handleSelect()}
+              to={menu.path}
             >
               <span className="text-2xl ltr:mr-2 rtl:ml-2">{menu.icon}</span>
               <span>{menu.label}</span>
