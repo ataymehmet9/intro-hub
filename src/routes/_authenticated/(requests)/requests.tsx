@@ -75,7 +75,7 @@ function RouteComponent() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
               <div>
-                <h3>Introduction Requests</h3>
+                <h1>Introduction Requests</h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {isReceivedTab
                     ? 'Manage introduction requests from your network'
@@ -87,8 +87,8 @@ function RouteComponent() {
             {/* Tabs Navigation */}
             <Tabs value={tab} onChange={handleTabChange}>
               <Tabs.TabList>
-                <Tabs.TabNav value="received">Requests to Me</Tabs.TabNav>
-                <Tabs.TabNav value="sent">Requests I Made</Tabs.TabNav>
+                <Tabs.TabNav value="received">Requests Sent</Tabs.TabNav>
+                <Tabs.TabNav value="sent">Requests Made</Tabs.TabNav>
               </Tabs.TabList>
             </Tabs>
 

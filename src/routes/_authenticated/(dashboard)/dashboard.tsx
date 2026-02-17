@@ -2,20 +2,20 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import Masonry from '@/components/shared/Masonry'
 import { Spinner, Notification, toast } from '@/components/ui'
-import { DashboardHeader } from './(dashboard)/-components/DashboardHeader'
-import { StatCard } from './(dashboard)/-components/StatCard'
-import { TrendChart } from './(dashboard)/-components/TrendChart'
-import { StatusDonutChart } from './(dashboard)/-components/StatusDonutChart'
-import { TopContactsTable } from './(dashboard)/-components/TopContactsTable'
-import { useDashboardStats } from './(dashboard)/-hooks/useDashboardStats'
-import { useDashboardTrends } from './(dashboard)/-hooks/useDashboardTrends'
-import { useTopContacts } from './(dashboard)/-hooks/useTopContacts'
+import { DashboardHeader } from './-components/DashboardHeader'
+import { StatCard } from './-components/StatCard'
+import { TrendChart } from './-components/TrendChart'
+import { StatusDonutChart } from './-components/StatusDonutChart'
+import { TopContactsTable } from './-components/TopContactsTable'
+import { useDashboardStats } from './-hooks/useDashboardStats'
+import { useDashboardTrends } from './-hooks/useDashboardTrends'
+import { useTopContacts } from './-hooks/useTopContacts'
 import {
   exportDashboardToCSV,
   exportTopContactsToCSV,
   downloadCSV,
   generateExportFilename,
-} from './(dashboard)/-utils/exportData'
+} from './-utils/exportData'
 import {
   HiUsers,
   HiPaperAirplane,
@@ -24,8 +24,9 @@ import {
   HiXCircle,
   HiClock,
 } from 'react-icons/hi'
+import { Container } from '@/components/shared'
 
-export const Route = createFileRoute('/_authenticated/dashboard')({
+export const Route = createFileRoute('/_authenticated/(dashboard)/dashboard')({
   component: RouteComponent,
 })
 
@@ -103,7 +104,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-6">
+    <Container>
       <DashboardHeader onExport={handleExportData} />
 
       {/* Stat Cards - Responsive Masonry Layout */}
@@ -200,7 +201,7 @@ function RouteComponent() {
           />
         </Suspense>
       </div>
-    </div>
+    </Container>
   )
 }
 

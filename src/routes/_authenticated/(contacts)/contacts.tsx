@@ -77,7 +77,7 @@ function RouteComponent() {
         <AdaptiveCard>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <h3>Contacts</h3>
+              <h1>Contacts</h1>
               <ContactListActionTools
                 onAddClick={() => setShowAddDialog(true)}
               />

@@ -23,13 +23,13 @@ import { Route as PublicGetDemoRouteImport } from './routes/_public/get-demo'
 import { Route as PublicForgotPasswordRouteImport } from './routes/_public/forgot-password'
 import { Route as HelpTermsAndConditionsRouteImport } from './routes/_help/terms-and-conditions'
 import { Route as HelpPrivacyPolicyRouteImport } from './routes/_help/privacy-policy'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiNotificationsStreamRouteImport } from './routes/api/notifications/stream'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
 import { Route as AuthenticatedsearchSearchRouteImport } from './routes/_authenticated/(search)/search'
 import { Route as AuthenticatedrequestsRequestsRouteImport } from './routes/_authenticated/(requests)/requests'
+import { Route as AuthenticateddashboardDashboardRouteImport } from './routes/_authenticated/(dashboard)/dashboard'
 import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_authenticated/(contacts)/contacts'
 import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
 import { Route as AuthenticateduserMeSecurityRouteImport } from './routes/_authenticated/(user)/me/security'
@@ -101,11 +101,6 @@ const HelpPrivacyPolicyRoute = HelpPrivacyPolicyRouteImport.update({
   path: '/privacy-policy',
   getParentRoute: () => HelpRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -138,6 +133,12 @@ const AuthenticatedrequestsRequestsRoute =
     path: '/requests',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticateddashboardDashboardRoute =
+  AuthenticateddashboardDashboardRouteImport.update({
+    id: '/(dashboard)/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedcontactsContactsRoute =
   AuthenticatedcontactsContactsRouteImport.update({
     id: '/(contacts)/contacts',
@@ -159,7 +160,6 @@ const AuthenticateduserMeSecurityRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/forgot-password': typeof PublicForgotPasswordRoute
@@ -171,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/what-is-introhub': typeof PublicWhatIsIntrohubRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/dashboard': typeof AuthenticateddashboardDashboardRoute
   '/requests': typeof AuthenticatedrequestsRequestsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
   '/me': typeof AuthenticateduserMeRouteWithChildren
@@ -182,7 +183,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/forgot-password': typeof PublicForgotPasswordRoute
@@ -194,6 +194,7 @@ export interface FileRoutesByTo {
   '/what-is-introhub': typeof PublicWhatIsIntrohubRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/dashboard': typeof AuthenticateddashboardDashboardRoute
   '/requests': typeof AuthenticatedrequestsRequestsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -207,7 +208,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_help': typeof HelpRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_help/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/_help/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/_public/forgot-password': typeof PublicForgotPasswordRoute
@@ -220,6 +220,7 @@ export interface FileRoutesById {
   '/api/upload': typeof ApiUploadRoute
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/_authenticated/(dashboard)/dashboard': typeof AuthenticateddashboardDashboardRoute
   '/_authenticated/(requests)/requests': typeof AuthenticatedrequestsRequestsRoute
   '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
   '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
@@ -233,7 +234,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
     | '/privacy-policy'
     | '/terms-and-conditions'
     | '/forgot-password'
@@ -245,6 +245,7 @@ export interface FileRouteTypes {
     | '/what-is-introhub'
     | '/api/upload'
     | '/contacts'
+    | '/dashboard'
     | '/requests'
     | '/search'
     | '/me'
@@ -256,7 +257,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/privacy-policy'
     | '/terms-and-conditions'
     | '/forgot-password'
@@ -268,6 +268,7 @@ export interface FileRouteTypes {
     | '/what-is-introhub'
     | '/api/upload'
     | '/contacts'
+    | '/dashboard'
     | '/requests'
     | '/search'
     | '/api/auth/$'
@@ -280,7 +281,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_help'
     | '/_public'
-    | '/_authenticated/dashboard'
     | '/_help/privacy-policy'
     | '/_help/terms-and-conditions'
     | '/_public/forgot-password'
@@ -293,6 +293,7 @@ export interface FileRouteTypes {
     | '/api/upload'
     | '/_public/'
     | '/_authenticated/(contacts)/contacts'
+    | '/_authenticated/(dashboard)/dashboard'
     | '/_authenticated/(requests)/requests'
     | '/_authenticated/(search)/search'
     | '/_authenticated/(user)/me'
@@ -413,13 +414,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpPrivacyPolicyRouteImport
       parentRoute: typeof HelpRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -462,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedrequestsRequestsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/(dashboard)/dashboard': {
+      id: '/_authenticated/(dashboard)/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticateddashboardDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/(contacts)/contacts': {
       id: '/_authenticated/(contacts)/contacts'
       path: '/contacts'
@@ -500,16 +501,16 @@ const AuthenticateduserMeRouteWithChildren =
   AuthenticateduserMeRoute._addFileChildren(AuthenticateduserMeRouteChildren)
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedcontactsContactsRoute: typeof AuthenticatedcontactsContactsRoute
+  AuthenticateddashboardDashboardRoute: typeof AuthenticateddashboardDashboardRoute
   AuthenticatedrequestsRequestsRoute: typeof AuthenticatedrequestsRequestsRoute
   AuthenticatedsearchSearchRoute: typeof AuthenticatedsearchSearchRoute
   AuthenticateduserMeRoute: typeof AuthenticateduserMeRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedcontactsContactsRoute: AuthenticatedcontactsContactsRoute,
+  AuthenticateddashboardDashboardRoute: AuthenticateddashboardDashboardRoute,
   AuthenticatedrequestsRequestsRoute: AuthenticatedrequestsRequestsRoute,
   AuthenticatedsearchSearchRoute: AuthenticatedsearchSearchRoute,
   AuthenticateduserMeRoute: AuthenticateduserMeRouteWithChildren,

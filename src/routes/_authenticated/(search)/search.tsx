@@ -9,6 +9,7 @@ import IntroductionRequestModal from './-components/IntroductionRequestModal'
 import { useSearch } from './-hooks/useSearch'
 import { useIntroductionRequest } from './-hooks/useIntroductionRequest'
 import type { SearchResult } from '@/schemas'
+import { Container } from '@/components/shared'
 
 const searchSchema = z.object({
   q: z.string().optional().catch(''),
@@ -62,9 +63,9 @@ function SearchPage() {
   const hasResults = results.length > 0
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <Container>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Search Contacts</h1>
+        <h1>Search Contacts</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Search for contacts across the platform and request introductions
         </p>
@@ -131,7 +132,7 @@ function SearchPage() {
           onSubmit={handleSubmitRequest}
         />
       )}
-    </div>
+    </Container>
   )
 }
 
