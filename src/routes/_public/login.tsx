@@ -12,11 +12,11 @@ import SignInForm from '@/components/auth/SignInForm'
 import OauthSignIn from '@/components/auth/OauthSignin'
 import appConfig from '@/configs/app.config'
 
-export const Route = createFileRoute('/login')({
-  component: LoginPage,
+export const Route = createFileRoute('/_public/login')({
+  component: RouteComponent,
 })
 
-function LoginPage() {
+function RouteComponent() {
   const navigate = useNavigate()
   const [message, setMessage] = useTimeOutMessage()
   const location = useLocation()
@@ -24,7 +24,7 @@ function LoginPage() {
   const mode = useThemeStore((state) => state.mode)
 
   const onSignInSuccess = () => {
-    const query = new URLSearchParams(location.search)
+    const query = new URLSearchParams(location.search as string)
     const redirectUrl = query.get('redirect')
 
     navigate({ to: redirectUrl ?? '/dashboard' })

@@ -1,14 +1,14 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import PublicHeader from '@/components/shared/PublicHeader'
 import Button from '@/components/ui/Button'
-import { useState } from 'react'
 
-export const Route = createFileRoute('/get-demo')({
-  component: GetDemoPage,
+export const Route = createFileRoute('/_public/get-demo')({
+  component: RouteComponent,
 })
 
-function GetDemoPage() {
+function RouteComponent() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,7 +23,9 @@ function GetDemoPage() {
     alert('Thank you! We will contact you soon to schedule your demo.')
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -131,7 +133,12 @@ function GetDemoPage() {
                 />
               </div>
 
-              <Button type="submit" variant="solid" className="w-full" size="lg">
+              <Button
+                type="submit"
+                variant="solid"
+                className="w-full"
+                size="lg"
+              >
                 Request Demo
               </Button>
             </form>
@@ -182,7 +189,9 @@ function GetDemoPage() {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                       {step.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">{step.description}</p>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -193,5 +202,3 @@ function GetDemoPage() {
     </div>
   )
 }
-
-// Made with Bob

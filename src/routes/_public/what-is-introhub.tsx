@@ -2,11 +2,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import PublicHeader from '@/components/shared/PublicHeader'
 
-export const Route = createFileRoute('/what-is-introhub')({
-  component: WhatIsIntroHubPage,
+export const Route = createFileRoute('/_public/what-is-introhub')({
+  component: RouteComponent,
 })
 
-function WhatIsIntroHubPage() {
+function RouteComponent() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <PublicHeader />
@@ -21,7 +21,8 @@ function WhatIsIntroHubPage() {
             What is IntroHub?
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Your professional networking platform designed to streamline connections and introductions
+            Your professional networking platform designed to streamline
+            connections and introductions
           </p>
         </motion.div>
 
@@ -35,13 +36,16 @@ function WhatIsIntroHubPage() {
               Professional Networking Made Simple
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-              IntroHub is a comprehensive platform that helps professionals manage their network,
-              send introduction requests, and build meaningful business relationships. Whether you're
-              looking to expand your network or help others connect, IntroHub makes it effortless.
+              IntroHub is a comprehensive platform that helps professionals
+              manage their network, send introduction requests, and build
+              meaningful business relationships. Whether you're looking to
+              expand your network or help others connect, IntroHub makes it
+              effortless.
             </p>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Our intuitive interface and powerful features ensure that every introduction is handled
-              professionally and efficiently, saving you time while maximizing the value of your network.
+              Our intuitive interface and powerful features ensure that every
+              introduction is handled professionally and efficiently, saving you
+              time while maximizing the value of your network.
             </p>
           </motion.div>
 
@@ -64,7 +68,9 @@ function WhatIsIntroHubPage() {
               ].map((feature, index) => (
                 <li key={index} className="flex items-start gap-3">
                   <span className="text-green-500 text-xl">✓</span>
-                  <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {feature}
+                  </span>
                 </li>
               ))}
             </ul>

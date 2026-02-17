@@ -6,10 +6,8 @@ import { Alert, Button } from '@/components/ui'
 import { ActionLink } from '@/components/shared'
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
 
-export const Route = createFileRoute('/reset-password')({
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { token: string; error: string } => {
+export const Route = createFileRoute('/_public/reset-password')({
+  validateSearch: (search: Record<string, unknown>) => {
     return {
       token: (search.token as string) || '',
       error: (search.error as string) || '',

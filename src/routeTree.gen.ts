@@ -9,17 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WhatIsIntrohubRouteImport } from './routes/what-is-introhub'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as GetDemoRouteImport } from './routes/get-demo'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as HelpRouteImport } from './routes/_help'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
+import { Route as PublicWhatIsIntrohubRouteImport } from './routes/_public/what-is-introhub'
+import { Route as PublicSignupRouteImport } from './routes/_public/signup'
+import { Route as PublicResetPasswordRouteImport } from './routes/_public/reset-password'
+import { Route as PublicPricingRouteImport } from './routes/_public/pricing'
+import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicGetDemoRouteImport } from './routes/_public/get-demo'
+import { Route as PublicForgotPasswordRouteImport } from './routes/_public/forgot-password'
 import { Route as HelpTermsAndConditionsRouteImport } from './routes/_help/terms-and-conditions'
 import { Route as HelpPrivacyPolicyRouteImport } from './routes/_help/privacy-policy'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -33,39 +34,8 @@ import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_aut
 import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
 import { Route as AuthenticateduserMeSecurityRouteImport } from './routes/_authenticated/(user)/me/security'
 
-const WhatIsIntrohubRoute = WhatIsIntrohubRouteImport.update({
-  id: '/what-is-introhub',
-  path: '/what-is-introhub',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GetDemoRoute = GetDemoRouteImport.update({
-  id: '/get-demo',
-  path: '/get-demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -76,15 +46,50 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
 const ApiUploadRoute = ApiUploadRouteImport.update({
   id: '/api/upload',
   path: '/api/upload',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PublicWhatIsIntrohubRoute = PublicWhatIsIntrohubRouteImport.update({
+  id: '/what-is-introhub',
+  path: '/what-is-introhub',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSignupRoute = PublicSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicResetPasswordRoute = PublicResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPricingRoute = PublicPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicLoginRoute = PublicLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicGetDemoRoute = PublicGetDemoRouteImport.update({
+  id: '/get-demo',
+  path: '/get-demo',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicForgotPasswordRoute = PublicForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => PublicRoute,
 } as any)
 const HelpTermsAndConditionsRoute = HelpTermsAndConditionsRouteImport.update({
   id: '/terms-and-conditions',
@@ -153,17 +158,17 @@ const AuthenticateduserMeSecurityRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/forgot-password': typeof ForgotPasswordRoute
-  '/get-demo': typeof GetDemoRoute
-  '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
-  '/what-is-introhub': typeof WhatIsIntrohubRoute
+  '/': typeof PublicIndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
+  '/forgot-password': typeof PublicForgotPasswordRoute
+  '/get-demo': typeof PublicGetDemoRoute
+  '/login': typeof PublicLoginRoute
+  '/pricing': typeof PublicPricingRoute
+  '/reset-password': typeof PublicResetPasswordRoute
+  '/signup': typeof PublicSignupRoute
+  '/what-is-introhub': typeof PublicWhatIsIntrohubRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/requests': typeof AuthenticatedrequestsRequestsRoute
@@ -176,17 +181,17 @@ export interface FileRoutesByFullPath {
   '/me/': typeof AuthenticateduserMeIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/forgot-password': typeof ForgotPasswordRoute
-  '/get-demo': typeof GetDemoRoute
-  '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
-  '/what-is-introhub': typeof WhatIsIntrohubRoute
+  '/': typeof PublicIndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
+  '/forgot-password': typeof PublicForgotPasswordRoute
+  '/get-demo': typeof PublicGetDemoRoute
+  '/login': typeof PublicLoginRoute
+  '/pricing': typeof PublicPricingRoute
+  '/reset-password': typeof PublicResetPasswordRoute
+  '/signup': typeof PublicSignupRoute
+  '/what-is-introhub': typeof PublicWhatIsIntrohubRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/requests': typeof AuthenticatedrequestsRequestsRoute
@@ -199,20 +204,21 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_help': typeof HelpRouteWithChildren
-  '/forgot-password': typeof ForgotPasswordRoute
-  '/get-demo': typeof GetDemoRoute
-  '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
-  '/what-is-introhub': typeof WhatIsIntrohubRoute
+  '/_public': typeof PublicRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_help/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/_help/terms-and-conditions': typeof HelpTermsAndConditionsRoute
+  '/_public/forgot-password': typeof PublicForgotPasswordRoute
+  '/_public/get-demo': typeof PublicGetDemoRoute
+  '/_public/login': typeof PublicLoginRoute
+  '/_public/pricing': typeof PublicPricingRoute
+  '/_public/reset-password': typeof PublicResetPasswordRoute
+  '/_public/signup': typeof PublicSignupRoute
+  '/_public/what-is-introhub': typeof PublicWhatIsIntrohubRoute
   '/api/upload': typeof ApiUploadRoute
+  '/_public/': typeof PublicIndexRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
   '/_authenticated/(requests)/requests': typeof AuthenticatedrequestsRequestsRoute
   '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
@@ -227,6 +233,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
+    | '/privacy-policy'
+    | '/terms-and-conditions'
     | '/forgot-password'
     | '/get-demo'
     | '/login'
@@ -234,9 +243,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
-    | '/dashboard'
-    | '/privacy-policy'
-    | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
     | '/requests'
@@ -250,6 +256,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
+    | '/privacy-policy'
+    | '/terms-and-conditions'
     | '/forgot-password'
     | '/get-demo'
     | '/login'
@@ -257,9 +266,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/what-is-introhub'
-    | '/dashboard'
-    | '/privacy-policy'
-    | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
     | '/requests'
@@ -271,20 +277,21 @@ export interface FileRouteTypes {
     | '/me'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
     | '/_help'
-    | '/forgot-password'
-    | '/get-demo'
-    | '/login'
-    | '/pricing'
-    | '/reset-password'
-    | '/signup'
-    | '/what-is-introhub'
+    | '/_public'
     | '/_authenticated/dashboard'
     | '/_help/privacy-policy'
     | '/_help/terms-and-conditions'
+    | '/_public/forgot-password'
+    | '/_public/get-demo'
+    | '/_public/login'
+    | '/_public/pricing'
+    | '/_public/reset-password'
+    | '/_public/signup'
+    | '/_public/what-is-introhub'
     | '/api/upload'
+    | '/_public/'
     | '/_authenticated/(contacts)/contacts'
     | '/_authenticated/(requests)/requests'
     | '/_authenticated/(search)/search'
@@ -297,16 +304,9 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   HelpRoute: typeof HelpRouteWithChildren
-  ForgotPasswordRoute: typeof ForgotPasswordRoute
-  GetDemoRoute: typeof GetDemoRoute
-  LoginRoute: typeof LoginRoute
-  PricingRoute: typeof PricingRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
-  SignupRoute: typeof SignupRoute
-  WhatIsIntrohubRoute: typeof WhatIsIntrohubRoute
+  PublicRoute: typeof PublicRouteWithChildren
   ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiNotificationsStreamRoute: typeof ApiNotificationsStreamRoute
@@ -315,53 +315,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/what-is-introhub': {
-      id: '/what-is-introhub'
-      path: '/what-is-introhub'
-      fullPath: '/what-is-introhub'
-      preLoaderRoute: typeof WhatIsIntrohubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/get-demo': {
-      id: '/get-demo'
-      path: '/get-demo'
-      fullPath: '/get-demo'
-      preLoaderRoute: typeof GetDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_help': {
@@ -378,12 +336,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_public/': {
+      id: '/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/api/upload': {
       id: '/api/upload'
@@ -391,6 +349,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/upload'
       preLoaderRoute: typeof ApiUploadRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_public/what-is-introhub': {
+      id: '/_public/what-is-introhub'
+      path: '/what-is-introhub'
+      fullPath: '/what-is-introhub'
+      preLoaderRoute: typeof PublicWhatIsIntrohubRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/signup': {
+      id: '/_public/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof PublicSignupRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/reset-password': {
+      id: '/_public/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof PublicResetPasswordRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/pricing': {
+      id: '/_public/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PublicPricingRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/get-demo': {
+      id: '/_public/get-demo'
+      path: '/get-demo'
+      fullPath: '/get-demo'
+      preLoaderRoute: typeof PublicGetDemoRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/forgot-password': {
+      id: '/_public/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof PublicForgotPasswordRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/_help/terms-and-conditions': {
       id: '/_help/terms-and-conditions'
@@ -524,17 +531,35 @@ const HelpRouteChildren: HelpRouteChildren = {
 
 const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
 
+interface PublicRouteChildren {
+  PublicForgotPasswordRoute: typeof PublicForgotPasswordRoute
+  PublicGetDemoRoute: typeof PublicGetDemoRoute
+  PublicLoginRoute: typeof PublicLoginRoute
+  PublicPricingRoute: typeof PublicPricingRoute
+  PublicResetPasswordRoute: typeof PublicResetPasswordRoute
+  PublicSignupRoute: typeof PublicSignupRoute
+  PublicWhatIsIntrohubRoute: typeof PublicWhatIsIntrohubRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicForgotPasswordRoute: PublicForgotPasswordRoute,
+  PublicGetDemoRoute: PublicGetDemoRoute,
+  PublicLoginRoute: PublicLoginRoute,
+  PublicPricingRoute: PublicPricingRoute,
+  PublicResetPasswordRoute: PublicResetPasswordRoute,
+  PublicSignupRoute: PublicSignupRoute,
+  PublicWhatIsIntrohubRoute: PublicWhatIsIntrohubRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   HelpRoute: HelpRouteWithChildren,
-  ForgotPasswordRoute: ForgotPasswordRoute,
-  GetDemoRoute: GetDemoRoute,
-  LoginRoute: LoginRoute,
-  PricingRoute: PricingRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
-  SignupRoute: SignupRoute,
-  WhatIsIntrohubRoute: WhatIsIntrohubRoute,
+  PublicRoute: PublicRouteWithChildren,
   ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiNotificationsStreamRoute: ApiNotificationsStreamRoute,

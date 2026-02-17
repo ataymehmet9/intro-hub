@@ -7,11 +7,11 @@ import ActionLink from '@/components/shared/ActionLink'
 import SignUpForm from '@/components/auth/SignUpForm'
 import appConfig from '@/configs/app.config'
 
-export const Route = createFileRoute('/signup')({
-  component: SignupPage,
+export const Route = createFileRoute('/_public/signup')({
+  component: RouteComponent,
 })
 
-function SignupPage() {
+function RouteComponent() {
   const navigate = useNavigate()
   const [message, setMessage] = useTimeOutMessage()
 

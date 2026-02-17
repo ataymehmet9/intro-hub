@@ -3,11 +3,11 @@ import { motion } from 'framer-motion'
 import PublicHeader from '@/components/shared/PublicHeader'
 import Button from '@/components/ui/Button'
 
-export const Route = createFileRoute('/pricing')({
-  component: PricingPage,
+export const Route = createFileRoute('/_public/pricing')({
+  component: RouteComponent,
 })
 
-function PricingPage() {
+function RouteComponent() {
   const navigate = useNavigate()
 
   const plans = [
@@ -73,7 +73,8 @@ function PricingPage() {
             Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Choose the plan that's right for you. All plans include a 14-day free trial.
+            Choose the plan that's right for you. All plans include a 14-day
+            free trial.
           </p>
         </motion.div>
 
@@ -101,14 +102,18 @@ function PricingPage() {
               <div className="mb-6">
                 <h3
                   className={`text-2xl font-bold mb-2 ${
-                    plan.highlighted ? 'text-white' : 'text-gray-900 dark:text-white'
+                    plan.highlighted
+                      ? 'text-white'
+                      : 'text-gray-900 dark:text-white'
                   }`}
                 >
                   {plan.name}
                 </h3>
                 <p
                   className={`text-sm ${
-                    plan.highlighted ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'
+                    plan.highlighted
+                      ? 'text-blue-100'
+                      : 'text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {plan.description}
@@ -118,14 +123,18 @@ function PricingPage() {
               <div className="mb-6">
                 <span
                   className={`text-5xl font-bold ${
-                    plan.highlighted ? 'text-white' : 'text-gray-900 dark:text-white'
+                    plan.highlighted
+                      ? 'text-white'
+                      : 'text-gray-900 dark:text-white'
                   }`}
                 >
                   {plan.price}
                 </span>
                 <span
                   className={`text-sm ml-2 ${
-                    plan.highlighted ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'
+                    plan.highlighted
+                      ? 'text-blue-100'
+                      : 'text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {plan.period}
@@ -144,7 +153,9 @@ function PricingPage() {
                     </span>
                     <span
                       className={`text-sm ${
-                        plan.highlighted ? 'text-blue-50' : 'text-gray-700 dark:text-gray-300'
+                        plan.highlighted
+                          ? 'text-blue-50'
+                          : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {feature}
@@ -171,5 +182,3 @@ function PricingPage() {
     </div>
   )
 }
-
-// Made with Bob

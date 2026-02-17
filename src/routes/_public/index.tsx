@@ -1,21 +1,10 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { getSession } from '@/lib/auth-client'
 import Button from '@/components/ui/Button'
 import PublicHeader from '@/components/shared/PublicHeader'
-import appConfig from '@/configs/app.config'
 
-export const Route = createFileRoute('/')({
-  beforeLoad: async () => {
-    const { data: token } = await getSession()
-
-    if (token) {
-      throw redirect({
-        to: appConfig.authenticatedEntryPath,
-      })
-    }
-  },
-  component: HomePage,
+export const Route = createFileRoute('/_public/')({
+  component: RouteComponent,
 })
 
 const TextGenerateEffect = ({
@@ -51,7 +40,7 @@ const TextGenerateEffect = ({
   )
 }
 
-function HomePage() {
+function RouteComponent() {
   const navigate = useNavigate()
 
   const handleGetStarted = () => {
