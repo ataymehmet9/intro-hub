@@ -16,9 +16,11 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GetDemoRouteImport } from './routes/get-demo'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HelpRouteImport } from './routes/_help'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
+import { Route as HelpTermsAndConditionsRouteImport } from './routes/_help/terms-and-conditions'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiNotificationsStreamRouteImport } from './routes/api/notifications/stream'
@@ -64,6 +66,10 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/_help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -77,6 +83,11 @@ const ApiUploadRoute = ApiUploadRouteImport.update({
   id: '/api/upload',
   path: '/api/upload',
   getParentRoute: () => rootRouteImport,
+} as any)
+const HelpTermsAndConditionsRoute = HelpTermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => HelpRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -138,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
@@ -158,6 +170,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
@@ -171,6 +184,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_help': typeof HelpRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/get-demo': typeof GetDemoRoute
   '/login': typeof LoginRoute
@@ -179,6 +193,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_help/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
   '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
@@ -201,6 +216,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
+    | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
     | '/search'
@@ -221,6 +237,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
+    | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
     | '/search'
@@ -233,6 +250,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_help'
     | '/forgot-password'
     | '/get-demo'
     | '/login'
@@ -241,6 +259,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/_authenticated/dashboard'
+    | '/_help/terms-and-conditions'
     | '/api/upload'
     | '/_authenticated/(contacts)/contacts'
     | '/_authenticated/(search)/search'
@@ -255,6 +274,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  HelpRoute: typeof HelpRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GetDemoRoute: typeof GetDemoRoute
   LoginRoute: typeof LoginRoute
@@ -319,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_help': {
+      id: '/_help'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -339,6 +366,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/upload'
       preLoaderRoute: typeof ApiUploadRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_help/terms-and-conditions': {
+      id: '/_help/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof HelpTermsAndConditionsRouteImport
+      parentRoute: typeof HelpRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -437,9 +471,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface HelpRouteChildren {
+  HelpTermsAndConditionsRoute: typeof HelpTermsAndConditionsRoute
+}
+
+const HelpRouteChildren: HelpRouteChildren = {
+  HelpTermsAndConditionsRoute: HelpTermsAndConditionsRoute,
+}
+
+const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  HelpRoute: HelpRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GetDemoRoute: GetDemoRoute,
   LoginRoute: LoginRoute,
