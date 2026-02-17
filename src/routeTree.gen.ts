@@ -21,6 +21,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as HelpTermsAndConditionsRouteImport } from './routes/_help/terms-and-conditions'
+import { Route as HelpPrivacyPolicyRouteImport } from './routes/_help/privacy-policy'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiNotificationsStreamRouteImport } from './routes/api/notifications/stream'
@@ -89,6 +90,11 @@ const HelpTermsAndConditionsRoute = HelpTermsAndConditionsRouteImport.update({
   path: '/terms-and-conditions',
   getParentRoute: () => HelpRoute,
 } as any)
+const HelpPrivacyPolicyRoute = HelpPrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => HelpRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/what-is-introhub': typeof WhatIsIntrohubRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_help/privacy-policy': typeof HelpPrivacyPolicyRoute
   '/_help/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
+    | '/privacy-policy'
     | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/dashboard'
+    | '/privacy-policy'
     | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/what-is-introhub'
     | '/_authenticated/dashboard'
+    | '/_help/privacy-policy'
     | '/_help/terms-and-conditions'
     | '/api/upload'
     | '/_authenticated/(contacts)/contacts'
@@ -374,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpTermsAndConditionsRouteImport
       parentRoute: typeof HelpRoute
     }
+    '/_help/privacy-policy': {
+      id: '/_help/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof HelpPrivacyPolicyRouteImport
+      parentRoute: typeof HelpRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -472,10 +491,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface HelpRouteChildren {
+  HelpPrivacyPolicyRoute: typeof HelpPrivacyPolicyRoute
   HelpTermsAndConditionsRoute: typeof HelpTermsAndConditionsRoute
 }
 
 const HelpRouteChildren: HelpRouteChildren = {
+  HelpPrivacyPolicyRoute: HelpPrivacyPolicyRoute,
   HelpTermsAndConditionsRoute: HelpTermsAndConditionsRoute,
 }
 

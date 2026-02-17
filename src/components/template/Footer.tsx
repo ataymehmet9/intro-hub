@@ -24,9 +24,9 @@ const FooterContent = () => {
           Term & Conditions
         </Link>
         <span className="mx-2 text-muted"> | </span>
-        <a className="text-gray" href="/#" onClick={(e) => e.preventDefault()}>
-          Privacy & Policy
-        </a>
+        <Link className="text-gray" to="/privacy-policy">
+          Privacy Policy
+        </Link>
       </div>
     </div>
   )
