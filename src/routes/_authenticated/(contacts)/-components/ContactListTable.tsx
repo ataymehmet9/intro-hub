@@ -24,7 +24,7 @@ const NameColumn = ({ row }: { row: Contact }) => {
         size={40}
         shape="circle"
         style={{ backgroundColor: avatarColor }}
-        className="text-white font-semibold flex-shrink-0"
+        className="text-white font-semibold flex-shrink-0 p-4"
       >
         {row.name?.charAt(0) || 'U'}
       </Avatar>

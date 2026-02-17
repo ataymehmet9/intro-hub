@@ -122,7 +122,7 @@ ${user.name || '[Your Name]'}`
               size={60}
               shape="circle"
               style={{ backgroundColor: stringToColor(contact.name) }}
-              className="text-white font-semibold text-xl flex-shrink-0"
+              className="text-white font-semibold text-xl flex-shrink-0 p-4"
             >
               {contact.name?.charAt(0) || 'U'}
             </Avatar>
