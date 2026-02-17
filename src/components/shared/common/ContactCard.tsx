@@ -91,7 +91,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
               size={50}
               shape="circle"
               style={{ backgroundColor: avatarColor }}
-              className="text-white font-semibold"
+              className="text-white font-semibold flex-shrink-0"
             >
               {contact.name.charAt(0)}
             </Avatar>

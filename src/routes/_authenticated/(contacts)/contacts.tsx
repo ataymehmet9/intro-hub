@@ -129,7 +129,7 @@ function RouteComponent() {
                 style={{
                   backgroundColor: stringToColor(viewingContact.name),
                 }}
-                className="text-white font-semibold text-2xl"
+                className="text-white font-semibold text-2xl flex-shrink-0"
               >
                 {viewingContact.name?.charAt(0) || 'U'}
               </Avatar>

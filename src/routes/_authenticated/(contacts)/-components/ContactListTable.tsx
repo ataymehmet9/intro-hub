@@ -19,16 +19,18 @@ const NameColumn = ({ row }: { row: Contact }) => {
   const avatarColor = stringToColor(row.name)
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-3">
       <Avatar
         size={40}
         shape="circle"
         style={{ backgroundColor: avatarColor }}
-        className="text-white font-semibold"
+        className="text-white font-semibold flex-shrink-0"
       >
         {row.name?.charAt(0) || 'U'}
       </Avatar>
-      {row.name}
+      <div className="font-medium text-gray-900 dark:text-gray-100">
+        {row.name}
+      </div>
     </div>
   )
 }
