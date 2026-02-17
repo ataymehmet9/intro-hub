@@ -22,14 +22,24 @@ export function useIntroductionRequest(
   const createRequestMutation = useMutation({
     mutationFn: (data: CreateIntroductionRequestInput) =>
       trpcClient.introductionRequests.create.mutate(data),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.push(
         <Notification type="success" title="Request sent">
           Your introduction request has been sent successfully
         </Notification>,
       )
-      // Invalidate search queries to update hasPendingRequest status
-      queryClient.invalidateQueries({ queryKey: ['search'] })
+      // Invalidate all search queries to update hasPendingRequest status
+      // This will refetch any active search queries with the updated data
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          // Match any query that starts with the tRPC search procedure path
+          return (
+            Array.isArray(query.queryKey) &&
+            query.queryKey[0]?.[0] === 'search' &&
+            query.queryKey[0]?.[1] === 'globalSearch'
+          )
+        },
+      })
       onSuccess?.()
     },
     onError: (error: Error) => {
