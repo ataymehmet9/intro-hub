@@ -61,5 +61,3 @@ export const notificationEmitter = new NotificationEventEmitter()
 
 // Set max listeners to handle multiple SSE connections
 notificationEmitter.setMaxListeners(100)
-
-// Made with Bob

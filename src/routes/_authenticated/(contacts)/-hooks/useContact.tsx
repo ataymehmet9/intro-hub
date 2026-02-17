@@ -236,5 +236,3 @@ export function useContact(options: UseContactOptions = {}) {
     queryClient,
   }
 }
-
-// Made with Bob

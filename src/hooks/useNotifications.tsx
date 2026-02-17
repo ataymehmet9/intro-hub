@@ -163,5 +163,3 @@ export function useNotifications() {
 export function useNotificationState() {
   return useNotificationStore()
 }
-
-// Made with Bob

@@ -31,5 +31,3 @@ export function DashboardHeader({ onExport }: DashboardHeaderProps) {
     </div>
   )
 }
-
-// Made with Bob

@@ -137,5 +137,3 @@ export function TopContactsTable({
     </Card>
   )
 }
-
-// Made with Bob

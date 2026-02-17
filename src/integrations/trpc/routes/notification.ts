@@ -265,5 +265,3 @@ export const notificationRouter = {
     return { success: true }
   }),
 } satisfies TRPCRouterRecord
-
-// Made with Bob

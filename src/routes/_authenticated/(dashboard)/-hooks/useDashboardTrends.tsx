@@ -21,5 +21,3 @@ export function useDashboardTrends() {
     placeholderData: (previousData: any) => previousData,
   })
 }
-
-// Made with Bob

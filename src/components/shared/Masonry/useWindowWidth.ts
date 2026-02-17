@@ -36,5 +36,3 @@ const useWindowWidth = (isResponsive: boolean = true): number => {
 }
 
 export default useWindowWidth
-
-// Made with Bob

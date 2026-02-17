@@ -476,5 +476,3 @@ bob.jones@example.com,Bob Jones,StartupXYZ,Developer,Referred by John,,https://l
     </Dialog>
   )
 }
-
-// Made with Bob

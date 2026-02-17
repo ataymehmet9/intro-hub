@@ -139,5 +139,3 @@ export function generateExportFilename(prefix: string): string {
   const timestamp = new Date().toISOString().split('T')[0]
   return `${prefix}_${timestamp}.csv`
 }
-
-// Made with Bob

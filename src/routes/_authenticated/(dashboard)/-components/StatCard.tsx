@@ -109,5 +109,3 @@ export function StatCard({
     </Card>
   )
 }
-
-// Made with Bob

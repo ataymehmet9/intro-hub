@@ -95,5 +95,3 @@ export const useDashboardStore = create<DashboardState & DashboardAction>(
       })),
   }),
 )
-
-// Made with Bob

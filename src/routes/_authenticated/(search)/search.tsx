@@ -135,5 +135,3 @@ function SearchPage() {
     </Container>
   )
 }
-
-// Made with Bob

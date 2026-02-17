@@ -299,5 +299,3 @@ const RequestsTable = ({
 }
 
 export default RequestsTable
-
-// Made with Bob

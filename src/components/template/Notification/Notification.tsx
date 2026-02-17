@@ -182,5 +182,3 @@ const _Notification = ({ className }: { className?: string }) => {
 const Notification = withHeaderItem(_Notification)
 
 export default Notification
-
-// Made with Bob

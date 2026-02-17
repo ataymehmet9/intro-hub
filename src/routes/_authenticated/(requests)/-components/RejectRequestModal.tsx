@@ -192,5 +192,3 @@ ${user.name}`
 }
 
 export default RejectRequestModal
-
-// Made with Bob

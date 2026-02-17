@@ -195,5 +195,3 @@ class SSEConnectionManager {
  * Singleton instance of the SSE connection manager
  */
 export const sseManager = new SSEConnectionManager()
-
-// Made with Bob

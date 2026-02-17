@@ -41,5 +41,3 @@ export const useRequestStore = create<RequestStore>((set) => ({
       selectedRequests: requests,
     })),
 }))
-
-// Made with Bob

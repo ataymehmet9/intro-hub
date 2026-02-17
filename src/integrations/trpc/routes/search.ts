@@ -96,5 +96,3 @@ export const searchRouter = {
       }
     }),
 } satisfies TRPCRouterRecord
-
-// Made with Bob

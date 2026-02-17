@@ -29,5 +29,3 @@ export function useHelpContentContext() {
   }
   return context
 }
-
-// Made with Bob

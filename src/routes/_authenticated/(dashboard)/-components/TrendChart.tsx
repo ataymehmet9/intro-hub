@@ -130,5 +130,3 @@ export function TrendChart({
     </Card>
   )
 }
-
-// Made with Bob

@@ -77,5 +77,3 @@ export function DateRangeSelector() {
     </div>
   )
 }
-
-// Made with Bob

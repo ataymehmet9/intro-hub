@@ -27,5 +27,3 @@ export function useDashboardStats() {
     placeholderData: (previousData: any) => previousData,
   })
 }
-
-// Made with Bob

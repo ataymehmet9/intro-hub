@@ -204,5 +204,3 @@ function RouteComponent() {
     </Container>
   )
 }
-
-// Made with Bob

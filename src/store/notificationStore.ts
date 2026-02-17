@@ -83,5 +83,3 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
   reset: () => set(initialState),
 }))
-
-// Made with Bob

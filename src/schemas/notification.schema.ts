@@ -107,5 +107,3 @@ export type NotificationWithMetadata = z.infer<
   typeof notificationWithMetadataSchema
 >
 export type NotificationType = z.infer<typeof notificationTypeEnum>
-
-// Made with Bob

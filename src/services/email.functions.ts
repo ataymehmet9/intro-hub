@@ -344,5 +344,3 @@ export const sendIntroductionEmail = createServerFn({ method: 'POST' })
       }
     }
   })
-
-// Made with Bob

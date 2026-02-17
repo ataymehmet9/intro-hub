@@ -79,5 +79,3 @@ export default function PublicHeader() {
     </nav>
   )
 }
-
-// Made with Bob

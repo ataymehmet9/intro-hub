@@ -125,5 +125,3 @@ export const exportDataSchema = z.object({
   includeCharts: z.boolean().optional(),
 })
 export type ExportData = z.infer<typeof exportDataSchema>
-
-// Made with Bob

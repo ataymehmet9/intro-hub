@@ -217,5 +217,3 @@ export const Route = createFileRoute('/api/notifications/stream')({
     },
   },
 })
-
-// Made with Bob

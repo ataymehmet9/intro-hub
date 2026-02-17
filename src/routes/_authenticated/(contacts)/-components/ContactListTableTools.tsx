@@ -27,5 +27,3 @@ const ContactListTableTools = () => {
 }
 
 export default ContactListTableTools
-
-// Made with Bob

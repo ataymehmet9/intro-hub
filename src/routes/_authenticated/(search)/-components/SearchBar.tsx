@@ -78,5 +78,3 @@ const SearchBar = ({
 }
 
 export default SearchBar
-
-// Made with Bob

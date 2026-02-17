@@ -57,5 +57,3 @@ export function useIntroductionRequest(
     isCreating: createRequestMutation.isPending,
   }
 }
-
-// Made with Bob

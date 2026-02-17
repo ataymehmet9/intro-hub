@@ -19,5 +19,3 @@ export function getResendInstance(): Resend {
 export function resetResendInstance(): void {
   resendInstance = null
 }
-
-// Made with Bob

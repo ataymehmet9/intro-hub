@@ -328,5 +328,3 @@ export function useNotificationSSE() {
     disconnect,
   }
 }
-
-// Made with Bob

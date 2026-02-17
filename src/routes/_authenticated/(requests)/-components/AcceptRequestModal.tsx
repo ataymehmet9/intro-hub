@@ -234,5 +234,3 @@ Feel free to take it from here and connect directly.`
 }
 
 export default AcceptRequestModal
-
-// Made with Bob

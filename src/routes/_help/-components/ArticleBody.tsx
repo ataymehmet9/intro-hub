@@ -22,5 +22,3 @@ const ArticleBody = ({ content }: ArticleBodyProps) => {
 }
 
 export default ArticleBody
-
-// Made with Bob

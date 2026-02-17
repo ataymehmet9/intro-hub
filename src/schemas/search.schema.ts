@@ -66,5 +66,3 @@ export type SearchField = z.infer<typeof searchFieldEnum>
 export type GlobalSearchInput = z.infer<typeof globalSearchInputSchema>
 export type SearchResult = z.infer<typeof searchResultSchema>
 export type GlobalSearchResponse = z.infer<typeof globalSearchResponseSchema>
-
-// Made with Bob

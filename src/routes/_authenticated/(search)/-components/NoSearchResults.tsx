@@ -39,5 +39,3 @@ const NoSearchResults = ({ query }: NoSearchResultsProps) => {
 }
 
 export default NoSearchResults
-
-// Made with Bob

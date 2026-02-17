@@ -22,5 +22,3 @@ export function useTopContacts(limit: number = 10) {
     placeholderData: (previousData: any) => previousData,
   })
 }
-
-// Made with Bob

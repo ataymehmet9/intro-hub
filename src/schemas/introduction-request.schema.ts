@@ -96,5 +96,3 @@ export type ApproveRequest = z.infer<typeof approveRequestSchema>
 export type DeclineRequest = z.infer<typeof declineRequestSchema>
 export type UpdateRequestStatus = z.infer<typeof updateRequestStatusSchema>
 export type RequestStatus = z.infer<typeof requestStatusEnum>
-
-// Made with Bob

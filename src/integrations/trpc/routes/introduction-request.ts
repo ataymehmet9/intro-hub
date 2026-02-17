@@ -463,5 +463,3 @@ export const introductionRequestRouter = {
       return { success: true, data: deletedRequest[0] }
     }),
 } satisfies TRPCRouterRecord
-
-// Made with Bob

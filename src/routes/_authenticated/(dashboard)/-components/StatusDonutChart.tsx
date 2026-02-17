@@ -141,5 +141,3 @@ export function StatusDonutChart({
     </Card>
   )
 }
-
-// Made with Bob

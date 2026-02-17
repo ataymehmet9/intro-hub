@@ -551,5 +551,3 @@ export const dashboardRouter = {
       }
     }),
 } satisfies TRPCRouterRecord
-
-// Made with Bob

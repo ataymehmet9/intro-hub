@@ -239,5 +239,3 @@ ${user.name || '[Your Name]'}`
 }
 
 export default IntroductionRequestModal
-
-// Made with Bob

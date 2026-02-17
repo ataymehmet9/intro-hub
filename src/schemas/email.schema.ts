@@ -81,5 +81,3 @@ export const introductionEmailSchema = z.object({
 })
 
 export type IntroductionEmail = z.infer<typeof introductionEmailSchema>
-
-// Made with Bob

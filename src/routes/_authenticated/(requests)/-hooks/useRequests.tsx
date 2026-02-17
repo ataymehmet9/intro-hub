@@ -246,5 +246,3 @@ export function useRequests(options: UseRequestsOptions = {}) {
     queryClient,
   }
 }
-
-// Made with Bob

@@ -76,5 +76,3 @@ function RouteComponent() {
 
   return <ArticleBody content={content} />
 }
-
-// Made with Bob

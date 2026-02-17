@@ -162,5 +162,3 @@ const SearchResultsTable = ({
 }
 
 export default SearchResultsTable
-
-// Made with Bob

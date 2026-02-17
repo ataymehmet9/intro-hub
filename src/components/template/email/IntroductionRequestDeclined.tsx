@@ -206,5 +206,3 @@ const footerText = {
   lineHeight: '16px',
   margin: '0',
 }
-
-// Made with Bob

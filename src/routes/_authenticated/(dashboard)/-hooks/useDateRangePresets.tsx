@@ -56,5 +56,3 @@ export function useDateRangePresets() {
     setPreset: setDateRangeWithPreset,
   }
 }
-
-// Made with Bob

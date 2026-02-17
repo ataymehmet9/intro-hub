@@ -45,5 +45,3 @@ export function useSearch(options: UseSearchOptions) {
     queryKey,
   }
 }
-
-// Made with Bob
