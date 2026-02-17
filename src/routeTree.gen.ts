@@ -28,6 +28,7 @@ import { Route as ApiNotificationsStreamRouteImport } from './routes/api/notific
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticateduserMeRouteImport } from './routes/_authenticated/(user)/me'
 import { Route as AuthenticatedsearchSearchRouteImport } from './routes/_authenticated/(search)/search'
+import { Route as AuthenticatedrequestsRequestsRouteImport } from './routes/_authenticated/(requests)/requests'
 import { Route as AuthenticatedcontactsContactsRouteImport } from './routes/_authenticated/(contacts)/contacts'
 import { Route as AuthenticateduserMeIndexRouteImport } from './routes/_authenticated/(user)/me/index'
 import { Route as AuthenticateduserMeSecurityRouteImport } from './routes/_authenticated/(user)/me/security'
@@ -126,6 +127,12 @@ const AuthenticatedsearchSearchRoute =
     path: '/search',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedrequestsRequestsRoute =
+  AuthenticatedrequestsRequestsRouteImport.update({
+    id: '/(requests)/requests',
+    path: '/requests',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedcontactsContactsRoute =
   AuthenticatedcontactsContactsRouteImport.update({
     id: '/(contacts)/contacts',
@@ -159,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/requests': typeof AuthenticatedrequestsRequestsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
   '/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -181,6 +189,7 @@ export interface FileRoutesByTo {
   '/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/requests': typeof AuthenticatedrequestsRequestsRoute
   '/search': typeof AuthenticatedsearchSearchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/notifications/stream': typeof ApiNotificationsStreamRoute
@@ -205,6 +214,7 @@ export interface FileRoutesById {
   '/_help/terms-and-conditions': typeof HelpTermsAndConditionsRoute
   '/api/upload': typeof ApiUploadRoute
   '/_authenticated/(contacts)/contacts': typeof AuthenticatedcontactsContactsRoute
+  '/_authenticated/(requests)/requests': typeof AuthenticatedrequestsRequestsRoute
   '/_authenticated/(search)/search': typeof AuthenticatedsearchSearchRoute
   '/_authenticated/(user)/me': typeof AuthenticateduserMeRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
+    | '/requests'
     | '/search'
     | '/me'
     | '/api/auth/$'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/api/upload'
     | '/contacts'
+    | '/requests'
     | '/search'
     | '/api/auth/$'
     | '/api/notifications/stream'
@@ -274,6 +286,7 @@ export interface FileRouteTypes {
     | '/_help/terms-and-conditions'
     | '/api/upload'
     | '/_authenticated/(contacts)/contacts'
+    | '/_authenticated/(requests)/requests'
     | '/_authenticated/(search)/search'
     | '/_authenticated/(user)/me'
     | '/api/auth/$'
@@ -435,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedsearchSearchRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/(requests)/requests': {
+      id: '/_authenticated/(requests)/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof AuthenticatedrequestsRequestsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/(contacts)/contacts': {
       id: '/_authenticated/(contacts)/contacts'
       path: '/contacts'
@@ -475,6 +495,7 @@ const AuthenticateduserMeRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedcontactsContactsRoute: typeof AuthenticatedcontactsContactsRoute
+  AuthenticatedrequestsRequestsRoute: typeof AuthenticatedrequestsRequestsRoute
   AuthenticatedsearchSearchRoute: typeof AuthenticatedsearchSearchRoute
   AuthenticateduserMeRoute: typeof AuthenticateduserMeRouteWithChildren
 }
@@ -482,6 +503,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedcontactsContactsRoute: AuthenticatedcontactsContactsRoute,
+  AuthenticatedrequestsRequestsRoute: AuthenticatedrequestsRequestsRoute,
   AuthenticatedsearchSearchRoute: AuthenticatedsearchSearchRoute,
   AuthenticateduserMeRoute: AuthenticateduserMeRouteWithChildren,
 }

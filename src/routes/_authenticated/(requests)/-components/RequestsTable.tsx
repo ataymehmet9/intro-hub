@@ -65,7 +65,7 @@ const StatusColumn = ({ status }: { status: string }) => {
   const config =
     statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
 
-  return <Badge className={config.color}>{config.label}</Badge>
+  return <Badge className={config.color} content={config.label} />
 }
 
 const ActionColumn = ({

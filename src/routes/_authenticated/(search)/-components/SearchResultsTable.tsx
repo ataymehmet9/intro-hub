@@ -65,10 +65,7 @@ const ActionColumn = ({
   if (row.hasPendingRequest) {
     return (
       <Tooltip title="You have a pending request for this contact">
-        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-          <TbClock className="mr-1" />
-          Pending
-        </Badge>
+        <Badge className="bg-yellow-100 text-yellow-800" content="Pending" />
       </Tooltip>
     )
   }
