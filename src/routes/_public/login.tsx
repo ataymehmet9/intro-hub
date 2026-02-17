@@ -33,7 +33,13 @@ function RouteComponent() {
   return (
     <>
       <div className="mb-8">
-        <Logo type="streamline" mode={mode} imgClass="mx-auto" logoWidth={60} />
+        <Logo
+          link="/"
+          type="streamline"
+          mode={mode}
+          imgClass="mx-auto"
+          logoWidth={60}
+        />
       </div>
       <div className="mb-10">
         <h2 className="mb-2">Welcome back!</h2>
