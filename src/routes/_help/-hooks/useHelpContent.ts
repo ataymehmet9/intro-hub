@@ -1,12 +1,5 @@
-import { useState } from 'react'
-
-import type { ArticleContent } from '../-types/Content'
+import { useHelpContentContext } from '../-context/HelpContentContext'
 
 export function useHelpContent() {
-  const [content, setContent] = useState<ArticleContent | null>(null)
-
-  return {
-    content,
-    setContent,
-  }
+  return useHelpContentContext()
 }

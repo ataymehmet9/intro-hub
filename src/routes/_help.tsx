@@ -1,5 +1,6 @@
 import { Container } from '@/components/shared'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { HelpContentProvider } from './_help/-context/HelpContentContext'
 import { useHelpContent } from './_help/-hooks/useHelpContent'
 import TableOfContents from '@/routes/_help/-components/TableOfContents'
 
@@ -8,6 +9,14 @@ export const Route = createFileRoute('/_help')({
 })
 
 function RouteComponent() {
+  return (
+    <HelpContentProvider>
+      <HelpLayout />
+    </HelpContentProvider>
+  )
+}
+
+function HelpLayout() {
   const { content } = useHelpContent()
 
   return (

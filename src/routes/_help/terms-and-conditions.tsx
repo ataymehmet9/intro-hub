@@ -42,7 +42,7 @@ function RouteComponent() {
 
   useEffect(() => {
     setContent(termsConditionsContent)
-  }, [])
+  }, [setContent])
 
   return <ArticleBody content={content} />
 }
