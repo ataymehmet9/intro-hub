@@ -127,3 +127,31 @@ export {
   type NotificationWithMetadata,
   type NotificationType,
 } from './notification.schema'
+
+// Dashboard schemas
+export {
+  granularityEnum,
+  dashboardQuerySchema,
+  responseTimeSchema,
+  periodStatsSchema,
+  statsComparisonSchema,
+  trendDataPointSchema,
+  trendDataSchema,
+  statusBreakdownSchema,
+  topContactSchema,
+  topContactsSchema,
+  dashboardStatsSchema,
+  exportDataSchema,
+  type Granularity,
+  type DashboardQuery,
+  type ResponseTime,
+  type PeriodStats,
+  type StatsComparison,
+  type TrendDataPoint,
+  type TrendData,
+  type StatusBreakdown,
+  type TopContact,
+  type TopContacts,
+  type DashboardStats,
+  type ExportData,
+} from './dashboard.schema'
