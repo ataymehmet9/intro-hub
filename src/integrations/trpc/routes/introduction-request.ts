@@ -15,6 +15,7 @@ import { protectedProcedure } from '../init'
 import {
   sendIntroductionRequestEmail,
   sendIntroductionResponseEmail,
+  sendIntroductionEmail,
 } from '@/services/email.functions'
 import { notificationEmitter } from '@/lib/notification-emitter'
 
@@ -228,10 +229,13 @@ export const introductionRequestRouter = {
         eq(introductionRequests.targetContactId, contacts.id),
       )
       .where(
-        or(
-          eq(introductionRequests.requesterId, currentUser.id),
-          eq(introductionRequests.approverId, currentUser.id),
-        )!,
+        and(
+          or(
+            eq(introductionRequests.requesterId, currentUser.id),
+            eq(introductionRequests.approverId, currentUser.id),
+          )!,
+          eq(introductionRequests.deleted, false),
+        ),
       )
       .orderBy(introductionRequests.createdAt)
 
@@ -304,29 +308,47 @@ export const introductionRequestRouter = {
         .where(eq(contacts.id, request.targetContactId))
         .limit(1)
 
-      // Send email notification to the requester
+      // Send email notification based on status
       // Email sending failures should not block the status update
       if (requester.length > 0 && targetContact.length > 0) {
         try {
-          await sendIntroductionResponseEmail({
-            data: {
-              to: requester[0].email,
-              requesterName: requester[0].name,
-              approverName: currentUser.name,
-              contactName: targetContact[0].name,
-              status: data.status,
-              responseMessage: data.responseMessage,
-              contactEmail:
-                data.status === 'approved' ? targetContact[0].email : null,
-              contactCompany:
-                data.status === 'approved' ? targetContact[0].company : null,
-              contactPosition:
-                data.status === 'approved' ? targetContact[0].position : null,
-            },
-          })
+          if (data.status === 'approved') {
+            // Send introduction email to both contact (TO) and requester (CC)
+            await sendIntroductionEmail({
+              data: {
+                to: targetContact[0].email, // Contact's email
+                cc: requester[0].email, // Requester's email
+                approverName: currentUser.name,
+                requesterName: requester[0].name,
+                requesterEmail: requester[0].email,
+                requesterCompany: requester[0].company,
+                requesterPosition: requester[0].position,
+                contactName: targetContact[0].name,
+                contactEmail: targetContact[0].email,
+                contactCompany: targetContact[0].company,
+                contactPosition: targetContact[0].position,
+                customMessage: data.responseMessage,
+              },
+            })
+          } else {
+            // Send rejection email only to requester
+            await sendIntroductionResponseEmail({
+              data: {
+                to: requester[0].email,
+                requesterName: requester[0].name,
+                approverName: currentUser.name,
+                contactName: targetContact[0].name,
+                status: data.status,
+                responseMessage: data.responseMessage,
+                contactEmail: null,
+                contactCompany: null,
+                contactPosition: null,
+              },
+            })
+          }
         } catch (error) {
           // Log error but don't fail the status update
-          console.error('Failed to send introduction response email:', {
+          console.error('Failed to send email:', {
             error,
             requestId: id,
             status: data.status,
@@ -392,6 +414,50 @@ export const introductionRequestRouter = {
       }
 
       return { success: true, data: updatedRequest[0] }
+    }),
+
+  softDelete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user: currentUser, db } = ctx
+
+      if (!currentUser) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { id } = input
+
+      // Verify the request exists and user is the approver
+      const existingRequest = await db
+        .select()
+        .from(introductionRequests)
+        .where(
+          and(
+            eq(introductionRequests.id, id),
+            eq(introductionRequests.approverId, currentUser.id),
+          ),
+        )
+        .limit(1)
+
+      if (!existingRequest.length) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'Request not found or you do not have permission to delete it',
+        })
+      }
+
+      // Soft delete the request by setting deleted = true
+      const deletedRequest = await db
+        .update(introductionRequests)
+        .set({
+          deleted: true,
+          updatedAt: new Date(),
+        })
+        .where(eq(introductionRequests.id, id))
+        .returning()
+
+      return { success: true, data: deletedRequest[0] }
     }),
 } satisfies TRPCRouterRecord
 

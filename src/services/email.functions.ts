@@ -5,11 +5,13 @@ import {
   IntroductionRequestEmail,
   IntroductionRequestApprovedEmail,
   IntroductionRequestDeclinedEmail,
+  IntroductionEmail,
 } from '@/components/template/email'
 import {
   forgotPasswordEmailSchema,
   introductionRequestEmailSchema,
   introductionResponseEmailSchema,
+  introductionEmailSchema,
 } from '@/schemas'
 import { getResendInstance } from '@/integrations/resend'
 
@@ -234,6 +236,104 @@ export const sendIntroductionResponseEmail = createServerFn({ method: 'POST' })
         to,
         status,
         contactName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: false,
+        message: 'Unknown error sending email',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
+  })
+
+/**
+ * Send introduction email to both contact (TO) and requester (CC)
+ * Used when an introduction request is approved
+ */
+export const sendIntroductionEmail = createServerFn({ method: 'POST' })
+  .inputValidator(introductionEmailSchema)
+  .handler(async ({ data }) => {
+    const {
+      to,
+      cc,
+      approverName,
+      requesterName,
+      requesterEmail,
+      requesterCompany,
+      requesterPosition,
+      contactName,
+      contactEmail,
+      contactCompany,
+      contactPosition,
+      customMessage,
+      from,
+    } = data
+
+    const resend = getResendInstance()
+
+    try {
+      const emailHtml = await pretty(
+        await render(
+          IntroductionEmail({
+            approverName,
+            requesterName,
+            requesterEmail,
+            requesterCompany,
+            requesterPosition,
+            contactName,
+            contactEmail,
+            contactCompany,
+            contactPosition,
+            customMessage,
+          }),
+        ),
+      )
+      const plainText = toPlainText(emailHtml)
+
+      const { data: emailData, error } = await resend.emails.send({
+        from: from ?? 'IntroHub <delivered@resend.dev>',
+        to: [to], // Contact's email
+        cc: [cc], // Requester's email
+        subject: `Introduction: ${requesterName} <> ${contactName}`,
+        html: emailHtml,
+        text: plainText,
+      })
+
+      if (error) {
+        console.error('Error sending introduction email:', {
+          error,
+          to,
+          cc,
+          contactName,
+          requesterName,
+          timestamp: new Date().toISOString(),
+        })
+
+        return { success: false, message: 'Failed to send email', error }
+      }
+
+      console.log('Introduction email sent successfully:', {
+        emailId: emailData.id,
+        to,
+        cc,
+        contactName,
+        requesterName,
+        timestamp: new Date().toISOString(),
+      })
+
+      return {
+        success: true,
+        message: 'Email sent successfully',
+        emailId: emailData.id,
+      }
+    } catch (error) {
+      console.error('Error sending introduction email:', {
+        error,
+        to,
+        cc,
+        contactName,
+        requesterName,
         timestamp: new Date().toISOString(),
       })
 

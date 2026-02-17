@@ -85,9 +85,11 @@ export {
   forgotPasswordEmailSchema,
   introductionRequestEmailSchema,
   introductionResponseEmailSchema,
+  introductionEmailSchema,
   type ForgotPasswordEmail,
   type IntroductionRequestEmail,
   type IntroductionResponseEmail,
+  type IntroductionEmail,
 } from './email.schema'
 
 // Search schemas

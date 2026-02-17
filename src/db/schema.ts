@@ -125,6 +125,7 @@ export const introductionRequests = pgTable('introduction_requests', {
   message: text('message').notNull(),
   status: requestStatusEnum('status').default('pending').notNull(),
   responseMessage: text('response_message'),
+  deleted: boolean('deleted').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

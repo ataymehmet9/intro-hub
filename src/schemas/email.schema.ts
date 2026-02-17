@@ -56,4 +56,30 @@ export type IntroductionResponseEmail = z.infer<
   typeof introductionResponseEmailSchema
 >
 
+/**
+ * Introduction Email Schema
+ * Email sent to both contact (TO) and requester (CC) when request is approved
+ */
+export const introductionEmailSchema = z.object({
+  to: z.string().email({ message: 'Valid contact email required' }),
+  cc: z.string().email({ message: 'Valid requester email required' }),
+  approverName: z.string().min(1, { message: 'Approver name is required' }),
+  requesterName: z.string().min(1, { message: 'Requester name is required' }),
+  requesterEmail: z
+    .string()
+    .email({ message: 'Valid requester email required' }),
+  requesterCompany: z.string().nullable().optional(),
+  requesterPosition: z.string().nullable().optional(),
+  contactName: z.string().min(1, { message: 'Contact name is required' }),
+  contactEmail: z.string().email({ message: 'Valid contact email required' }),
+  contactCompany: z.string().nullable().optional(),
+  contactPosition: z.string().nullable().optional(),
+  customMessage: z
+    .string()
+    .min(1, { message: 'Custom introduction message is required' }),
+  from: z.string().email().optional(),
+})
+
+export type IntroductionEmail = z.infer<typeof introductionEmailSchema>
+
 // Made with Bob
