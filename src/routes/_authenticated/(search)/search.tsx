@@ -1,21 +1,26 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { z } from 'zod'
 import { Card } from '@/components/ui'
 import SearchBar from './-components/SearchBar'
 import SearchResultsTable from './-components/SearchResultsTable'
 import NoSearchResults from './-components/NoSearchResults'
 import IntroductionRequestModal from './-components/IntroductionRequestModal'
-import { useSearchStore } from './-store/searchStore'
 import { useSearch } from './-hooks/useSearch'
 import { useIntroductionRequest } from './-hooks/useIntroductionRequest'
 import type { SearchResult } from '@/schemas'
 
+const searchSchema = z.object({
+  q: z.string().optional().catch(''),
+})
+
 export const Route = createFileRoute('/_authenticated/(search)/search')({
+  validateSearch: searchSchema,
   component: SearchPage,
 })
 
 function SearchPage() {
-  const { searchQuery } = useSearchStore()
+  const { q: searchQuery = '' } = Route.useSearch()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedContact, setSelectedContact] = useState<SearchResult | null>(
     null,
@@ -33,11 +38,6 @@ function SearchPage() {
       handleCloseModal()
     },
   })
-
-  const handleSearch = (query: string) => {
-    // The search hook will automatically trigger when searchQuery changes in the store
-    // SearchBar component already updates the store
-  }
 
   const handleRequestIntroduction = (contact: SearchResult) => {
     setSelectedContact(contact)
@@ -72,7 +72,7 @@ function SearchPage() {
 
       <Card className="mb-6">
         <div className="p-6">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar />
         </div>
       </Card>
 

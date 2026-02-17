@@ -176,17 +176,6 @@ ${user.name || '[Your Name]'}`
               className="mb-4"
               invalid={!!errors.message}
               errorMessage={errors.message?.message}
-              extra={
-                <span
-                  className={`text-xs ${
-                    remainingChars < 100
-                      ? 'text-red-500'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }`}
-                >
-                  {remainingChars} characters remaining
-                </span>
-              }
             >
               <Controller
                 name="message"
@@ -201,6 +190,15 @@ ${user.name || '[Your Name]'}`
                   />
                 )}
               />
+              <span
+                className={`text-xs text-right block ${
+                  remainingChars < 100
+                    ? 'text-red-500'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+              >
+                {remainingChars} characters remaining
+              </span>
             </FormItem>
 
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">

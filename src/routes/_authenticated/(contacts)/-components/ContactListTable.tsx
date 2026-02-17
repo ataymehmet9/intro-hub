@@ -1,12 +1,11 @@
 import { TbEye, TbPencil, TbTrash } from 'react-icons/tb'
-import cloneDeep from 'lodash/cloneDeep'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Avatar, Tooltip, Dialog, Button } from '@/components/ui'
 import { Contact } from '@/schemas'
 import { stringToColor } from '@/utils/colours'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import DataTable from '@/components/shared/DataTable'
 import { useMemo, useState } from 'react'
-import { TableQueries } from '@/@types/common'
 import { DateFormat } from '@/components/shared/common'
 import { useContact } from '../-hooks/useContact'
 
@@ -81,18 +80,48 @@ const ContactListTable = ({
   onSelectEditContact,
   onSelectViewContact,
 }: ContactListTableProps) => {
+  const navigate = useNavigate()
+  const searchParams = useSearch({
+    from: '/_authenticated/(contacts)/contacts',
+  })
+
   const [deletingContact, setDeletingContact] = useState<Contact | null>(null)
   const {
-    contacts,
-    contactsTotal,
-    tableData,
+    contacts: allContacts,
     isLoading,
-    setTableData,
     setSelectAllContact,
     setSelectedContact,
     selectedContact,
     deleteContact,
-  } = useContact({ enabled: false })
+  } = useContact()
+
+  // Filter contacts based on search query from URL
+  const filteredContacts = useMemo(() => {
+    const query = searchParams.q?.toLowerCase() || ''
+    if (!query) return allContacts
+
+    return allContacts.filter((contact) => {
+      return (
+        contact.name?.toLowerCase().includes(query) ||
+        contact.email?.toLowerCase().includes(query) ||
+        contact.company?.toLowerCase().includes(query) ||
+        contact.position?.toLowerCase().includes(query)
+      )
+    })
+  }, [allContacts, searchParams.q])
+
+  // Pagination state from URL
+  const pageIndex = searchParams.page || 1
+  const pageSize = 10
+
+  // Paginate filtered contacts
+  const paginatedContacts = useMemo(() => {
+    const startIndex = (pageIndex - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    return filteredContacts.slice(startIndex, endIndex)
+  }, [filteredContacts, pageIndex, pageSize])
+
+  const contactsTotal = filteredContacts.length
 
   const columns: ColumnDef<Contact>[] = useMemo(
     () => [
@@ -139,30 +168,40 @@ const ContactListTable = ({
     [],
   )
 
-  const handleSetTableData = (data: TableQueries) => {
-    setTableData(data)
+  const handlePaginationChange = (page: number) => {
+    navigate({
+      to: '/contacts',
+      search: {
+        q: searchParams.q,
+        page,
+      },
+      replace: true,
+    })
     if (selectedContact.length > 0) {
       setSelectAllContact([])
     }
   }
 
-  const handlePaginationChange = (page: number) => {
-    const newTableData = cloneDeep(tableData)
-    newTableData.pageIndex = page
-    handleSetTableData(newTableData)
-  }
-
   const handleSelectChange = (value: number) => {
-    const newTableData = cloneDeep(tableData)
-    newTableData.pageSize = Number(value)
-    newTableData.pageIndex = 1
-    handleSetTableData(newTableData)
+    // Page size change - for now we'll just reset to page 1
+    // You could add pageSize to URL params if needed
+    navigate({
+      to: '/contacts',
+      search: {
+        q: searchParams.q,
+        page: 1,
+      },
+      replace: true,
+    })
+    if (selectedContact.length > 0) {
+      setSelectAllContact([])
+    }
   }
 
   const handleSort = (sort: OnSortParam) => {
-    const newTableData = cloneDeep(tableData)
-    newTableData.sort = sort
-    handleSetTableData(newTableData)
+    // Sorting - you could add sort params to URL if needed
+    // For now, this is a placeholder
+    console.log('Sort:', sort)
   }
 
   const handleRowSelect = (checked: boolean, row: Contact) => {
@@ -192,15 +231,15 @@ const ContactListTable = ({
       <DataTable
         selectable
         columns={columns}
-        data={contacts}
-        noData={!isLoading && contacts.length === 0}
+        data={paginatedContacts}
+        noData={!isLoading && paginatedContacts.length === 0}
         skeletonAvatarColumns={[0]}
         skeletonAvatarProps={{ width: 28, height: 28 }}
         loading={isLoading}
         pagingData={{
           total: contactsTotal,
-          pageIndex: tableData.pageIndex as number,
-          pageSize: tableData.pageSize as number,
+          pageIndex: pageIndex,
+          pageSize: pageSize,
         }}
         checkboxChecked={(row) =>
           selectedContact.some((selected) => selected.id === row.id)

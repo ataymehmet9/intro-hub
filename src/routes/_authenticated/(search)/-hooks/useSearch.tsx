@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { SearchField } from '@/schemas'
-import { useSearchStore } from '../-store/searchStore'
 
 interface UseSearchOptions {
   query: string
@@ -17,9 +16,6 @@ export function useSearch(options: UseSearchOptions) {
   } = options
 
   const trpc = useTRPC()
-  const { results, setResults, tableData, setTableData } = useSearchStore(
-    (state) => state,
-  )
 
   const queryKey = trpc.search.globalSearch.queryKey({ query, fields })
 
@@ -44,11 +40,6 @@ export function useSearch(options: UseSearchOptions) {
     total,
     isLoading,
     error,
-
-    // Store state
-    tableData,
-    setTableData,
-    setResults,
 
     // Query utilities
     queryKey,

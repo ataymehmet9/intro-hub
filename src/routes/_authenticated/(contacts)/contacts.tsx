@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
 import { HiPencil } from 'react-icons/hi2'
 import { Avatar, Button, Dialog, Notification, toast } from '@/components/ui'
 import { DateFormat } from '@/components/shared/common'
@@ -14,7 +15,13 @@ import ContactListTable from './-components/ContactListTable'
 import { stringToColor } from '@/utils/colours'
 import ContactListSelected from './-components/ContactListSelected'
 
+const contactsSearchSchema = z.object({
+  q: z.string().optional(),
+  page: z.number().optional().default(1),
+})
+
 export const Route = createFileRoute('/_authenticated/(contacts)/contacts')({
+  validateSearch: contactsSearchSchema,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       context.trpc.contacts.list.queryOptions({ company: null }),

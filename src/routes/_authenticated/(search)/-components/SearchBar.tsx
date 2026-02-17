@@ -1,39 +1,51 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { TbSearch, TbX } from 'react-icons/tb'
 import { Input, Button } from '@/components/ui'
-import { useSearchStore } from '../-store/searchStore'
 
 interface SearchBarProps {
-  onSearch: (query: string) => void
   placeholder?: string
   debounceMs?: number
 }
 
 const SearchBar = ({
-  onSearch,
   placeholder = 'Search by name, company, or position...',
   debounceMs = 300,
 }: SearchBarProps) => {
-  const { searchQuery, setSearchQuery } = useSearchStore((state) => state)
-  const [localQuery, setLocalQuery] = useState(searchQuery)
+  const navigate = useNavigate()
+  const searchParams = useSearch({ from: '/_authenticated/(search)/search' })
+  const urlQuery = (searchParams.q as string) || ''
 
-  // Debounced search effect
+  const [localQuery, setLocalQuery] = useState(urlQuery)
+
+  // Sync local state with URL params when they change externally
+  useEffect(() => {
+    setLocalQuery(urlQuery)
+  }, [urlQuery])
+
+  // Debounced URL update effect
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (localQuery !== searchQuery) {
-        setSearchQuery(localQuery)
-        onSearch(localQuery)
+      if (localQuery !== urlQuery) {
+        navigate({
+          to: '/search',
+          search: localQuery ? { q: localQuery } : {},
+          replace: true,
+        })
       }
     }, debounceMs)
 
     return () => clearTimeout(timer)
-  }, [localQuery, searchQuery, setSearchQuery, onSearch, debounceMs])
+  }, [localQuery, urlQuery, navigate, debounceMs])
 
   const handleClear = useCallback(() => {
     setLocalQuery('')
-    setSearchQuery('')
-    onSearch('')
-  }, [setSearchQuery, onSearch])
+    navigate({
+      to: '/search',
+      search: {},
+      replace: true,
+    })
+  }, [navigate])
 
   return (
     <div className="relative w-full">

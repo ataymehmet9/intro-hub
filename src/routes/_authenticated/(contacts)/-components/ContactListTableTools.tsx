@@ -1,29 +1,31 @@
-import cloneDeep from 'lodash/cloneDeep'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import ContactListSearch from './ContactListSearch'
-import { useContact } from '../-hooks/useContact'
 
 const ContactListTableTools = () => {
-  // Disable query in this component - only need store access
-  const { tableData, setTableData } = useContact({ enabled: false })
+  const navigate = useNavigate()
+  const searchParams = useSearch({
+    from: '/_authenticated/(contacts)/contacts',
+  })
 
   const handleInputChange = (val: string) => {
-    const newTableData = cloneDeep(tableData)
-    newTableData.query = val
-    newTableData.pageIndex = 1
-    if (typeof val === 'string' && val.length > 1) {
-      setTableData(newTableData)
-    }
-
-    if (typeof val === 'string' && val.length === 0) {
-      setTableData(newTableData)
-    }
+    // Update URL query params on every keystroke
+    navigate({
+      to: '/contacts',
+      search: val ? { q: val, page: 1 } : { page: 1 },
+      replace: true, // Use replace to avoid cluttering browser history
+    })
   }
 
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-      <ContactListSearch onInputChange={handleInputChange} />
+      <ContactListSearch
+        onInputChange={handleInputChange}
+        defaultValue={searchParams.q}
+      />
     </div>
   )
 }
 
 export default ContactListTableTools
+
+// Made with Bob
