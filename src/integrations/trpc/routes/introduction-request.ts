@@ -215,6 +215,9 @@ export const introductionRequestRouter = {
         requesterEmail: user.email,
         requesterCompany: user.company,
 
+        // Approver info
+        approverId: introductionRequests.approverId,
+
         // Target contact info
         targetContactId: contacts.id,
         targetContactName: contacts.name,

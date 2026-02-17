@@ -1,13 +1,21 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { z } from 'zod'
 import { AdaptiveCard, Container } from '@/components/shared'
+import { Tabs } from '@/components/ui'
+import { useSession } from '@/lib/auth-client'
 import { useRequests } from './-hooks/useRequests'
 import RequestsTable from './-components/RequestsTable'
 import AcceptRequestModal from './-components/AcceptRequestModal'
 import RejectRequestModal from './-components/RejectRequestModal'
 import type { IntroductionRequestWithDetails } from './-store/requestStore'
 
+const requestsSearchSchema = z.object({
+  tab: z.enum(['received', 'sent']).optional().default('received'),
+})
+
 export const Route = createFileRoute('/_authenticated/(requests)/requests')({
+  validateSearch: requestsSearchSchema,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       context.trpc.introductionRequests.listByUser.queryOptions(),
@@ -17,15 +25,22 @@ export const Route = createFileRoute('/_authenticated/(requests)/requests')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { tab } = Route.useSearch()
+  const { data: session } = useSession()
+  const currentUserId = session?.user?.id
+
   const [acceptingRequest, setAcceptingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
   const [rejectingRequest, setRejectingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
 
-  // Use the custom hook for requests management
+  // Use the custom hook for requests management with filtering
   const { acceptRequest, rejectRequest } = useRequests({
     onAcceptSuccess: () => setAcceptingRequest(null),
     onRejectSuccess: () => setRejectingRequest(null),
+    filterType: tab,
+    currentUserId,
   })
 
   const handleAcceptRequest = async (customMessage: string) => {
@@ -46,6 +61,15 @@ function RouteComponent() {
     }
   }
 
+  const handleTabChange = (value: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, tab: value as 'received' | 'sent' }),
+    })
+  }
+
+  const isReceivedTab = tab === 'received'
+  const showActions = isReceivedTab
+
   return (
     <>
       <Container>
@@ -55,13 +79,25 @@ function RouteComponent() {
               <div>
                 <h3>Introduction Requests</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Manage introduction requests from your network
+                  {isReceivedTab
+                    ? 'Manage introduction requests from your network'
+                    : 'View introduction requests you have made'}
                 </p>
               </div>
             </div>
+
+            {/* Tabs Navigation */}
+            <Tabs value={tab} onChange={handleTabChange}>
+              <Tabs.TabList>
+                <Tabs.TabNav value="received">Requests to Me</Tabs.TabNav>
+                <Tabs.TabNav value="sent">Requests I Made</Tabs.TabNav>
+              </Tabs.TabList>
+            </Tabs>
+
             <RequestsTable
               onSelectAcceptRequest={setAcceptingRequest}
               onSelectRejectRequest={setRejectingRequest}
+              showActions={showActions}
             />
           </div>
         </AdaptiveCard>

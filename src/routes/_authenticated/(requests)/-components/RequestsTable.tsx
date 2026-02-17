@@ -11,6 +11,7 @@ import type { IntroductionRequestWithDetails } from '../-store/requestStore'
 type RequestsTableProps = {
   onSelectAcceptRequest: (request: IntroductionRequestWithDetails) => void
   onSelectRejectRequest: (request: IntroductionRequestWithDetails) => void
+  showActions?: boolean
 }
 
 const RequesterColumn = ({ row }: { row: IntroductionRequestWithDetails }) => {
@@ -133,6 +134,7 @@ const ActionColumn = ({
 const RequestsTable = ({
   onSelectAcceptRequest,
   onSelectRejectRequest,
+  showActions = true,
 }: RequestsTableProps) => {
   const [deletingRequest, setDeletingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
@@ -147,58 +149,67 @@ const RequestsTable = ({
   } = useRequests()
 
   const columns: ColumnDef<IntroductionRequestWithDetails>[] = useMemo(
-    () => [
-      {
-        header: 'Requester',
-        accessorKey: 'requesterName',
-        cell: (props: {
-          row: { original: IntroductionRequestWithDetails }
-        }) => {
-          const row = props.row.original
-          return <RequesterColumn row={row} />
+    () => {
+      const baseColumns: ColumnDef<IntroductionRequestWithDetails>[] = [
+        {
+          header: 'Requester',
+          accessorKey: 'requesterName',
+          cell: (props: {
+            row: { original: IntroductionRequestWithDetails }
+          }) => {
+            const row = props.row.original
+            return <RequesterColumn row={row} />
+          },
         },
-      },
-      {
-        header: 'Contact',
-        accessorKey: 'targetContactName',
-        cell: (props: {
-          row: { original: IntroductionRequestWithDetails }
-        }) => {
-          const row = props.row.original
-          return <ContactColumn row={row} />
+        {
+          header: 'Contact',
+          accessorKey: 'targetContactName',
+          cell: (props: {
+            row: { original: IntroductionRequestWithDetails }
+          }) => {
+            const row = props.row.original
+            return <ContactColumn row={row} />
+          },
         },
-      },
-      {
-        header: 'Status',
-        accessorKey: 'status',
-        cell: (props: {
-          row: { original: IntroductionRequestWithDetails }
-        }) => <StatusColumn status={props.row.original.status} />,
-      },
-      {
-        header: 'Requested',
-        accessorKey: 'createdAt',
-        cell: (props: {
-          row: { original: IntroductionRequestWithDetails }
-        }) => <DateFormat date={props.row.original.createdAt} format="short" />,
-      },
-      {
-        header: '',
-        id: 'action',
-        cell: (props: {
-          row: { original: IntroductionRequestWithDetails }
-        }) => (
-          <ActionColumn
-            row={props.row.original}
-            onAccept={() => onSelectAcceptRequest(props.row.original)}
-            onReject={() => onSelectRejectRequest(props.row.original)}
-            onDelete={() => setDeletingRequest(props.row.original)}
-          />
-        ),
-      },
-    ],
+        {
+          header: 'Status',
+          accessorKey: 'status',
+          cell: (props: {
+            row: { original: IntroductionRequestWithDetails }
+          }) => <StatusColumn status={props.row.original.status} />,
+        },
+        {
+          header: 'Requested',
+          accessorKey: 'createdAt',
+          cell: (props: {
+            row: { original: IntroductionRequestWithDetails }
+          }) => (
+            <DateFormat date={props.row.original.createdAt} format="short" />
+          ),
+        },
+      ]
+
+      if (showActions) {
+        baseColumns.push({
+          header: '',
+          id: 'action',
+          cell: (props: {
+            row: { original: IntroductionRequestWithDetails }
+          }) => (
+            <ActionColumn
+              row={props.row.original}
+              onAccept={() => onSelectAcceptRequest(props.row.original)}
+              onReject={() => onSelectRejectRequest(props.row.original)}
+              onDelete={() => setDeletingRequest(props.row.original)}
+            />
+          ),
+        })
+      }
+
+      return baseColumns
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [showActions],
   )
 
   const handleSort = (sort: OnSortParam) => {

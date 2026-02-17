@@ -10,6 +10,8 @@ interface UseRequestsOptions {
   onAcceptSuccess?: () => void
   onRejectSuccess?: () => void
   onDeleteSuccess?: () => void
+  filterType?: 'sent' | 'received' | 'all'
+  currentUserId?: string
 }
 
 export function useRequests(options: UseRequestsOptions = {}) {
@@ -18,6 +20,8 @@ export function useRequests(options: UseRequestsOptions = {}) {
     onAcceptSuccess,
     onRejectSuccess,
     onDeleteSuccess,
+    filterType = 'all',
+    currentUserId,
   } = options
 
   const { selectedRequests, setSelectedRequest, setSelectAllRequests } =
@@ -210,7 +214,22 @@ export function useRequests(options: UseRequestsOptions = {}) {
     },
   })
 
-  const requests = data?.data ?? []
+  const allRequests = data?.data ?? []
+
+  // Filter requests based on filterType
+  const requests = allRequests.filter((request) => {
+    if (filterType === 'all') return true
+    if (!currentUserId) return true
+
+    if (filterType === 'sent') {
+      return request.requesterId === currentUserId
+    } else if (filterType === 'received') {
+      return request.approverId === currentUserId
+    }
+
+    return true
+  })
+
   const requestsTotal = requests.length
 
   return {
