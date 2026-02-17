@@ -1,25 +1,40 @@
 import { useCallback, useEffect, useState } from 'react'
 
+// Default width for SSR (server-side rendering)
+const DEFAULT_WIDTH = 1024
+
 const useWindowWidth = (isResponsive: boolean = true): number => {
-    const [windowWidth, setWindowSize] = useState(window.innerWidth)
+  // Check if window is available (client-side only)
+  const [windowWidth, setWindowSize] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : DEFAULT_WIDTH,
+  )
 
-    const handleResize = useCallback(() => {
-        setWindowSize(window.innerWidth)
-    }, [])
+  const handleResize = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      setWindowSize(window.innerWidth)
+    }
+  }, [])
 
-    useEffect(() => {
-        if (isResponsive) {
-            window.addEventListener('resize', handleResize)
-        } else {
-            window.removeEventListener('resize', handleResize)
-        }
+  useEffect(() => {
+    // Set the actual window width on mount (client-side)
+    if (typeof window !== 'undefined') {
+      setWindowSize(window.innerWidth)
+    }
 
-        return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [isResponsive, handleResize])
+    if (isResponsive && typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize)
+    }
 
-    return windowWidth
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize)
+      }
+    }
+  }, [isResponsive, handleResize])
+
+  return windowWidth
 }
 
 export default useWindowWidth
+
+// Made with Bob
