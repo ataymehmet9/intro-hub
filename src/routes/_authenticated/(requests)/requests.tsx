@@ -35,12 +35,10 @@ function RouteComponent() {
   const [rejectingRequest, setRejectingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
 
-  // Use the custom hook for requests management with filtering
+  // Use the custom hook for requests management (without filtering, that's done in RequestsTable)
   const { acceptRequest, rejectRequest } = useRequests({
     onAcceptSuccess: () => setAcceptingRequest(null),
     onRejectSuccess: () => setRejectingRequest(null),
-    filterType: tab,
-    currentUserId,
   })
 
   const handleAcceptRequest = async (customMessage: string) => {
@@ -98,6 +96,8 @@ function RouteComponent() {
               onSelectAcceptRequest={setAcceptingRequest}
               onSelectRejectRequest={setRejectingRequest}
               showActions={showActions}
+              filterType={tab}
+              currentUserId={currentUserId}
             />
           </div>
         </AdaptiveCard>

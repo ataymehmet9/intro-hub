@@ -12,6 +12,8 @@ type RequestsTableProps = {
   onSelectAcceptRequest: (request: IntroductionRequestWithDetails) => void
   onSelectRejectRequest: (request: IntroductionRequestWithDetails) => void
   showActions?: boolean
+  filterType?: 'sent' | 'received' | 'all'
+  currentUserId?: string
 }
 
 const RequesterColumn = ({ row }: { row: IntroductionRequestWithDetails }) => {
@@ -135,6 +137,8 @@ const RequestsTable = ({
   onSelectAcceptRequest,
   onSelectRejectRequest,
   showActions = true,
+  filterType = 'all',
+  currentUserId,
 }: RequestsTableProps) => {
   const [deletingRequest, setDeletingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
@@ -146,7 +150,10 @@ const RequestsTable = ({
     setSelectedRequest,
     selectedRequests,
     deleteRequest,
-  } = useRequests()
+  } = useRequests({
+    filterType,
+    currentUserId,
+  })
 
   const columns: ColumnDef<IntroductionRequestWithDetails>[] = useMemo(
     () => {
