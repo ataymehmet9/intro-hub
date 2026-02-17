@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import Masonry from '@/components/shared/Masonry'
-import { Spinner } from '@/components/ui'
+import { Spinner, Notification, toast } from '@/components/ui'
 import { DashboardHeader } from './(dashboard)/-components/DashboardHeader'
 import { StatCard } from './(dashboard)/-components/StatCard'
 import { TrendChart } from './(dashboard)/-components/TrendChart'
@@ -10,6 +10,12 @@ import { TopContactsTable } from './(dashboard)/-components/TopContactsTable'
 import { useDashboardStats } from './(dashboard)/-hooks/useDashboardStats'
 import { useDashboardTrends } from './(dashboard)/-hooks/useDashboardTrends'
 import { useTopContacts } from './(dashboard)/-hooks/useTopContacts'
+import {
+  exportDashboardToCSV,
+  exportTopContactsToCSV,
+  downloadCSV,
+  generateExportFilename,
+} from './(dashboard)/-utils/exportData'
 import {
   HiUsers,
   HiPaperAirplane,
@@ -33,22 +39,76 @@ function RouteComponent() {
   const statusBreakdown = statsData?.data?.statusBreakdown
 
   const handleExportData = () => {
-    // TODO: Implement export functionality
-    console.log('Export data')
+    try {
+      const csvContent = exportDashboardToCSV(
+        statsData?.data,
+        trendsData?.data,
+        topContactsData?.data,
+      )
+
+      if (!csvContent) {
+        toast.push(
+          <Notification type="warning" title="No data to export">
+            Please wait for data to load before exporting
+          </Notification>,
+        )
+        return
+      }
+
+      const filename = generateExportFilename('introhub_dashboard')
+      downloadCSV(csvContent, filename)
+
+      toast.push(
+        <Notification type="success" title="Export successful">
+          Dashboard data has been exported to {filename}
+        </Notification>,
+      )
+    } catch (error) {
+      toast.push(
+        <Notification type="danger" title="Export failed">
+          {error instanceof Error ? error.message : 'Failed to export data'}
+        </Notification>,
+      )
+    }
   }
 
   const handleExportTopContacts = () => {
-    // TODO: Implement export top contacts
-    console.log('Export top contacts')
+    try {
+      const csvContent = exportTopContactsToCSV(topContactsData?.data)
+
+      if (!csvContent || csvContent === 'No data to export') {
+        toast.push(
+          <Notification type="warning" title="No data to export">
+            No contacts available for the selected period
+          </Notification>,
+        )
+        return
+      }
+
+      const filename = generateExportFilename('introhub_top_contacts')
+      downloadCSV(csvContent, filename)
+
+      toast.push(
+        <Notification type="success" title="Export successful">
+          Top contacts have been exported to {filename}
+        </Notification>,
+      )
+    } catch (error) {
+      toast.push(
+        <Notification type="danger" title="Export failed">
+          {error instanceof Error ? error.message : 'Failed to export contacts'}
+        </Notification>,
+      )
+    }
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-4 sm:py-6">
       <DashboardHeader onExport={handleExportData} />
 
-      {/* Stat Cards - Masonry Layout */}
-      <div className="mb-6">
-        <Masonry columns={{ 640: 1, 768: 2, 1024: 3 }} gap={24}>
+      {/* Stat Cards - Responsive Masonry Layout */}
+      <div className="mb-4 sm:mb-6">
+        <Masonry columns={{ 640: 1, 768: 2, 1024: 3 }} gap={16}>
           <StatCard
             title="Total Contacts"
             value={stats?.current.totalContacts ?? 0}
@@ -102,7 +162,7 @@ function RouteComponent() {
       </div>
 
       {/* Trend Chart - Full Width */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Suspense
           fallback={
             <div className="flex h-96 items-center justify-center">
@@ -114,8 +174,8 @@ function RouteComponent() {
         </Suspense>
       </div>
 
-      {/* Bottom Grid - Status Chart and Top Contacts */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Bottom Grid - Status Chart and Top Contacts - Responsive */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         <Suspense
           fallback={
             <div className="flex h-96 items-center justify-center">
