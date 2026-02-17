@@ -52,8 +52,8 @@ src/
 - **Data Fetching**: Use `useQuery` for fetching data [14].
 - **Database**: Pair with Drizzle ORM for database operations [20].
 - **Mutations**: Use `useMutation` for mutations [14].
-- **Forms**: Use `useForm` for form handling [15].
-- **Validation**: Use `zod` for validation [16].
+- **Forms**: Use react-hook-form for all forms, and `useForm` for form handling [15].
+- **Validation**: Always use `zod` for validation [16], especially in forms
 - **State Management**: Use `zustand` for state management [17].
 - **Error Handling**: Use `react-error-boundary` for error handling [18].
 - **Testing**: Use `vitest` for testing [19].

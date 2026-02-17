@@ -1,5 +1,5 @@
 import { TRPCRouterRecord, TRPCError } from '@trpc/server'
-import { eq, and, like, or, ne, desc } from 'drizzle-orm'
+import { eq, and, ilike, or, ne, desc } from 'drizzle-orm'
 import { globalSearchInputSchema } from '@/schemas'
 import { contacts, user, introductionRequests } from '@/db/schema'
 import { protectedProcedure } from '../init'
@@ -17,16 +17,17 @@ export const searchRouter = {
       const { query, fields } = input
 
       // Build search conditions based on selected fields
+      // Use ilike for case-insensitive search
       const searchConditions = []
 
       if (fields.includes('name')) {
-        searchConditions.push(like(contacts.name, `%${query}%`))
+        searchConditions.push(ilike(contacts.name, `%${query}%`))
       }
       if (fields.includes('company')) {
-        searchConditions.push(like(contacts.company, `%${query}%`))
+        searchConditions.push(ilike(contacts.company, `%${query}%`))
       }
       if (fields.includes('position')) {
-        searchConditions.push(like(contacts.position, `%${query}%`))
+        searchConditions.push(ilike(contacts.position, `%${query}%`))
       }
 
       // If no search conditions, return empty results
@@ -76,8 +77,8 @@ export const searchRouter = {
           and(
             // Exclude current user's own contacts
             ne(contacts.userId, currentUser.id),
-            // Apply search conditions
-            or(...searchConditions)!,
+            // Apply search conditions (at least one must match)
+            searchConditions.length > 0 ? or(...searchConditions) : undefined,
           ),
         )
         .orderBy(desc(contacts.createdAt))

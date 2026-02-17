@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { TbSend, TbUser, TbBuilding, TbBriefcase, TbMail } from 'react-icons/tb'
 import {
   Dialog,
   Button,
   Avatar,
-  Badge,
   FormItem,
   FormContainer,
 } from '@/components/ui'
@@ -19,51 +21,39 @@ interface IntroductionRequestModalProps {
   onSubmit: (message: string) => Promise<void>
 }
 
+// Zod schema for form validation
+const introductionRequestFormSchema = z.object({
+  message: z
+    .string()
+    .min(10, { message: 'Message must be at least 10 characters' })
+    .max(1000, { message: 'Message must be less than 1000 characters' })
+    .trim(),
+})
+
+type IntroductionRequestFormData = z.infer<typeof introductionRequestFormSchema>
+
 const IntroductionRequestModal = ({
   isOpen,
   onClose,
   contact,
   onSubmit,
 }: IntroductionRequestModalProps) => {
-  const [message, setMessage] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { user } = useSessionUser()
 
   const maxChars = 1000
-  const remainingChars = maxChars - message.length
-
-  const handleSubmit = async () => {
-    if (!message.trim() || message.length < 10) {
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      await onSubmit(message)
-      setMessage('')
-      onClose()
-    } catch (error) {
-      // Error is handled in the hook
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleClose = () => {
-    setMessage('')
-    onClose()
-  }
-
-  if (!contact) return null
 
   // Generate default message template
-  const userWithDetails = user as typeof user & {
-    company?: string | null
-    position?: string | null
-  }
-  const defaultMessage = `Hi ${contact.ownerName},
+  const defaultMessage = useMemo(() => {
+    if (!contact || !user) return ''
 
-I'm ${user?.name || '[Your Name]'}${userWithDetails?.company ? ` from ${userWithDetails.company}` : ''}${userWithDetails?.position ? `, working as ${userWithDetails.position}` : ''}.
+    const userWithDetails = user as typeof user & {
+      company?: string | null
+      position?: string | null
+    }
+
+    return `Hi ${contact.ownerName},
+
+I'm ${user.name || '[Your Name]'}${userWithDetails?.company ? ` from ${userWithDetails.company}` : ''}${userWithDetails?.position ? `, working as ${userWithDetails.position}` : ''}.
 
 I would like to request an introduction to ${contact.name}${contact.company ? ` at ${contact.company}` : ''}.
 
@@ -72,7 +62,51 @@ I would like to request an introduction to ${contact.name}${contact.company ? ` 
 Thank you for considering my request!
 
 Best regards,
-${user?.name || '[Your Name]'}`
+${user.name || '[Your Name]'}`
+  }, [contact, user])
+
+  // Initialize react-hook-form
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<IntroductionRequestFormData>({
+    resolver: zodResolver(introductionRequestFormSchema),
+    defaultValues: {
+      message: '',
+    },
+    mode: 'onChange',
+  })
+
+  // Watch message field for character count
+  const messageValue = watch('message')
+  const remainingChars = maxChars - (messageValue?.length || 0)
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      reset()
+    }
+  }, [isOpen, reset])
+
+  const onFormSubmit = async (data: IntroductionRequestFormData) => {
+    try {
+      await onSubmit(data.message)
+      reset()
+      onClose()
+    } catch (error) {
+      // Error is handled in the hook
+    }
+  }
+
+  const handleClose = () => {
+    reset()
+    onClose()
+  }
+
+  if (!contact) return null
 
   return (
     <Dialog isOpen={isOpen} onClose={handleClose} width={700}>
@@ -134,65 +168,71 @@ ${user?.name || '[Your Name]'}`
           </div>
         </div>
 
-        {/* Email Template Section */}
-        <FormContainer>
-          <FormItem
-            label="Your Message"
-            className="mb-4"
-            extra={
-              <span
-                className={`text-xs ${
-                  remainingChars < 100
-                    ? 'text-red-500'
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}
-              >
-                {remainingChars} characters remaining
-              </span>
-            }
-          >
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, maxChars))}
-              placeholder={defaultMessage}
-              rows={12}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 resize-none"
-            />
-            {message.length > 0 && message.length < 10 && (
-              <p className="text-xs text-red-500 mt-1">
-                Message must be at least 10 characters
+        {/* Form */}
+        <form onSubmit={handleSubmit(onFormSubmit)}>
+          <FormContainer>
+            <FormItem
+              label="Your Message"
+              className="mb-4"
+              invalid={!!errors.message}
+              errorMessage={errors.message?.message}
+              extra={
+                <span
+                  className={`text-xs ${
+                    remainingChars < 100
+                      ? 'text-red-500'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {remainingChars} characters remaining
+                </span>
+              }
+            >
+              <Controller
+                name="message"
+                control={control}
+                render={({ field }) => (
+                  <textarea
+                    {...field}
+                    value={field.value || defaultMessage}
+                    rows={12}
+                    maxLength={maxChars}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 resize-none"
+                  />
+                )}
+              />
+            </FormItem>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+              <p className="text-xs text-blue-900 dark:text-blue-100">
+                <strong>Note:</strong> This message will be sent to{' '}
+                {contact.ownerName}, who can then decide whether to introduce
+                you to {contact.name}.
               </p>
-            )}
-          </FormItem>
+            </div>
+          </FormContainer>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
-            <p className="text-xs text-blue-900 dark:text-blue-100">
-              <strong>Note:</strong> This message will be sent to{' '}
-              {contact.ownerName}, who can then decide whether to introduce you
-              to {contact.name}.
-            </p>
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="default"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="solid"
+              icon={<TbSend />}
+              type="submit"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            >
+              Send Request
+            </Button>
           </div>
-        </FormContainer>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button
-            variant="default"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="solid"
-            icon={<TbSend />}
-            onClick={handleSubmit}
-            disabled={isSubmitting || !message.trim() || message.length < 10}
-            loading={isSubmitting}
-          >
-            Send Request
-          </Button>
-        </div>
+        </form>
       </div>
     </Dialog>
   )
