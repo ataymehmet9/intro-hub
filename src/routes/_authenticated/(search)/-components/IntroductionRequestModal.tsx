@@ -84,20 +84,23 @@ ${user.name || '[Your Name]'}`
   const messageValue = watch('message')
   const remainingChars = maxChars - (messageValue?.length || 0)
 
-  // Reset form when modal opens/closes
+  // Reset form with default message when modal opens, clear when it closes
   useEffect(() => {
-    if (!isOpen) {
-      reset()
+    if (isOpen && defaultMessage) {
+      reset({ message: defaultMessage })
+    } else if (!isOpen) {
+      reset({ message: '' })
     }
-  }, [isOpen, reset])
+  }, [isOpen, defaultMessage, reset])
 
   const onFormSubmit = async (data: IntroductionRequestFormData) => {
     try {
       await onSubmit(data.message)
-      reset()
-      onClose()
     } catch (error) {
       // Error is handled in the hook
+    } finally {
+      reset()
+      onClose()
     }
   }
 
@@ -183,7 +186,6 @@ ${user.name || '[Your Name]'}`
                 render={({ field }) => (
                   <textarea
                     {...field}
-                    value={field.value || defaultMessage}
                     rows={12}
                     maxLength={maxChars}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 resize-none"
