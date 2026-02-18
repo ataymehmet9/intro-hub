@@ -12,6 +12,9 @@ export type IntroductionRequestWithDetails = {
   requesterEmail: string
   requesterCompany: string | null
   approverId: string
+  approverName: string
+  approverEmail: string
+  approverCompany: string | null
   targetContactId: number
   targetContactName: string
   targetContactEmail: string

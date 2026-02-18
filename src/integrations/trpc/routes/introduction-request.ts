@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { TRPCRouterRecord, TRPCError } from '@trpc/server'
 import { eq, and, or } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 import {
   insertIntroductionRequestSchema,
   updateRequestStatusSchema,
@@ -199,6 +200,10 @@ export const introductionRequestRouter = {
       throw new TRPCError({ code: 'UNAUTHORIZED' })
     }
 
+    // Create aliases for requester and approver user tables
+    const requesterUser = alias(user, 'requester_user')
+    const approverUser = alias(user, 'approver_user')
+
     // Get all requests where user is either requester or approver
     const requests = await db
       .select({
@@ -211,12 +216,15 @@ export const introductionRequestRouter = {
 
         // Requester info
         requesterId: introductionRequests.requesterId,
-        requesterName: user.name,
-        requesterEmail: user.email,
-        requesterCompany: user.company,
+        requesterName: requesterUser.name,
+        requesterEmail: requesterUser.email,
+        requesterCompany: requesterUser.company,
 
         // Approver info
         approverId: introductionRequests.approverId,
+        approverName: approverUser.name,
+        approverEmail: approverUser.email,
+        approverCompany: approverUser.company,
 
         // Target contact info
         targetContactId: contacts.id,
@@ -226,7 +234,14 @@ export const introductionRequestRouter = {
         targetContactPosition: contacts.position,
       })
       .from(introductionRequests)
-      .innerJoin(user, eq(introductionRequests.requesterId, user.id))
+      .innerJoin(
+        requesterUser,
+        eq(introductionRequests.requesterId, requesterUser.id),
+      )
+      .innerJoin(
+        approverUser,
+        eq(introductionRequests.approverId, approverUser.id),
+      )
       .innerJoin(
         contacts,
         eq(introductionRequests.targetContactId, contacts.id),

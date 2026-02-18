@@ -16,8 +16,20 @@ type RequestsTableProps = {
   currentUserId?: string
 }
 
-const RequesterColumn = ({ row }: { row: IntroductionRequestWithDetails }) => {
-  const avatarColor = stringToColor(row.requesterName)
+const RequesterColumn = ({
+  row,
+  filterType,
+}: {
+  row: IntroductionRequestWithDetails
+  filterType?: 'sent' | 'received' | 'all'
+}) => {
+  // For "Requests Made" (sent), show the approver (recipient)
+  // For "Requests Sent" (received), show the requester
+  const displayName =
+    filterType === 'sent' ? row.approverName : row.requesterName
+  const displayCompany =
+    filterType === 'sent' ? row.approverCompany : row.requesterCompany
+  const avatarColor = stringToColor(displayName)
 
   return (
     <div className="flex items-center gap-3">
@@ -27,15 +39,15 @@ const RequesterColumn = ({ row }: { row: IntroductionRequestWithDetails }) => {
         style={{ backgroundColor: avatarColor }}
         className="text-white font-semibold flex-shrink-0 p-4"
       >
-        {row.requesterName?.charAt(0) || 'U'}
+        {displayName?.charAt(0) || 'U'}
       </Avatar>
       <div>
         <div className="font-medium text-gray-900 dark:text-gray-100">
-          {row.requesterName}
+          {displayName}
         </div>
-        {row.requesterCompany && (
+        {displayCompany && (
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            {row.requesterCompany}
+            {displayCompany}
           </div>
         )}
       </div>
@@ -159,13 +171,13 @@ const RequestsTable = ({
     () => {
       const baseColumns: ColumnDef<IntroductionRequestWithDetails>[] = [
         {
-          header: 'Requester',
+          header: filterType === 'sent' ? 'Recipient' : 'Requester',
           accessorKey: 'requesterName',
           cell: (props: {
             row: { original: IntroductionRequestWithDetails }
           }) => {
             const row = props.row.original
-            return <RequesterColumn row={row} />
+            return <RequesterColumn row={row} filterType={filterType} />
           },
         },
         {
@@ -216,7 +228,7 @@ const RequestsTable = ({
       return baseColumns
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showActions],
+    [showActions, filterType],
   )
 
   const handleSort = (sort: OnSortParam) => {
