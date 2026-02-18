@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
-import { Card } from '@/components/ui'
 import { HiTrendingUp, HiTrendingDown } from 'react-icons/hi'
-import classNames from 'classnames'
+import { Card } from '@/components/ui'
+import classNames from '@/utils/classNames'
 
 export interface StatCardProps {
   title: string
@@ -10,7 +10,8 @@ export interface StatCardProps {
   icon?: ReactNode
   description?: string
   loading?: boolean
-  colorScheme?: 'primary' | 'success' | 'warning' | 'danger' | 'info'
+  className?: string
+  variant?: 'light' | 'dark'
 }
 
 export function StatCard({
@@ -20,23 +21,13 @@ export function StatCard({
   icon,
   description,
   loading = false,
-  colorScheme = 'primary',
+  className,
+  variant = 'dark',
 }: StatCardProps) {
   const isPositive = change !== null && change !== undefined && change > 0
   const isNegative = change !== null && change !== undefined && change < 0
   const hasChange = change !== null && change !== undefined
-
-  const iconColorClass = {
-    primary:
-      'bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400',
-    success:
-      'bg-success-100 text-success-600 dark:bg-success-500/20 dark:text-success-400',
-    warning:
-      'bg-warning-100 text-warning-600 dark:bg-warning-500/20 dark:text-warning-400',
-    danger:
-      'bg-danger-100 text-danger-600 dark:bg-danger-500/20 dark:text-danger-400',
-    info: 'bg-info-100 text-info-600 dark:bg-info-500/20 dark:text-info-400',
-  }[colorScheme]
+  const isLightVariant = variant === 'light'
 
   if (loading) {
     return (
@@ -54,54 +45,77 @@ export function StatCard({
   }
 
   return (
-    <Card className="p-6 transition-shadow hover:shadow-lg">
+    <Card
+      className={classNames('p-6 transition-shadow hover:shadow-lg', className)}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">
+          <p
+            className={classNames(
+              'mb-1 text-sm font-medium',
+              isLightVariant
+                ? 'text-gray-700 dark:text-gray-800'
+                : 'text-gray-600 dark:text-gray-400',
+            )}
+          >
             {title}
           </p>
-          <h3 className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h3
+            className={classNames(
+              'mb-2 text-3xl font-bold',
+              isLightVariant
+                ? 'text-gray-900 dark:text-gray-950'
+                : 'text-gray-900 dark:text-gray-100',
+            )}
+          >
             {value}
           </h3>
           {hasChange && (
             <div className="flex items-center gap-1">
-              {isPositive && (
-                <HiTrendingUp className="text-lg text-success-600 dark:text-success-400" />
-              )}
-              {isNegative && (
-                <HiTrendingDown className="text-lg text-danger-600 dark:text-danger-400" />
-              )}
+              {isPositive && <HiTrendingUp className="text-lg text-success" />}
+              {isNegative && <HiTrendingDown className="text-lg text-error" />}
               <span
                 className={classNames(
                   'text-sm font-medium',
-                  isPositive && 'text-success-600 dark:text-success-400',
-                  isNegative && 'text-danger-600 dark:text-danger-400',
+                  isPositive && 'text-success',
+                  isNegative && 'text-error',
                   !isPositive &&
                     !isNegative &&
-                    'text-gray-600 dark:text-gray-400',
+                    (isLightVariant
+                      ? 'text-gray-700 dark:text-gray-800'
+                      : 'text-gray-600 dark:text-gray-400'),
                 )}
               >
                 {isPositive && '+'}
                 {change.toFixed(1)}%
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span
+                className={classNames(
+                  'text-sm',
+                  isLightVariant
+                    ? 'text-gray-600 dark:text-gray-700'
+                    : 'text-gray-500 dark:text-gray-400',
+                )}
+              >
                 vs last period
               </span>
             </div>
           )}
           {description && !hasChange && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p
+              className={classNames(
+                'text-sm',
+                isLightVariant
+                  ? 'text-gray-600 dark:text-gray-700'
+                  : 'text-gray-500 dark:text-gray-400',
+              )}
+            >
               {description}
             </p>
           )}
         </div>
         {icon && (
-          <div
-            className={classNames(
-              'flex h-12 w-12 items-center justify-center rounded-lg text-2xl',
-              iconColorClass,
-            )}
-          >
+          <div className="flex items-center justify-center min-h-12 min-w-12 max-h-12 max-w-12 bg-gray-900 text-white rounded-full text-2xl">
             {icon}
           </div>
         )}

@@ -115,31 +115,33 @@ function RouteComponent() {
             value={stats?.current.totalContacts ?? 0}
             change={stats?.changes.totalContacts}
             icon={<HiUsers />}
-            colorScheme="primary"
             loading={statsLoading}
+            className="bg-sky-100 dark:bg-sky/75"
+            variant="light"
           />
           <StatCard
             title="Requests Made"
             value={stats?.current.requestsMade ?? 0}
             change={stats?.changes.requestsMade}
             icon={<HiPaperAirplane />}
-            colorScheme="info"
             loading={statsLoading}
+            className="bg-emerald-100 dark:bg-emerald/75"
+            variant="light"
           />
           <StatCard
             title="Requests Received"
             value={stats?.current.requestsReceived ?? 0}
             change={stats?.changes.requestsReceived}
             icon={<HiInbox />}
-            colorScheme="success"
             loading={statsLoading}
+            className="bg-purple-100 dark:bg-purple/75"
+            variant="light"
           />
           <StatCard
             title="Approval Rate"
             value={`${stats?.current.approvalRate.toFixed(1) ?? 0}%`}
             change={stats?.changes.approvalRate}
             icon={<HiCheckCircle />}
-            colorScheme="success"
             loading={statsLoading}
           />
           <StatCard
@@ -147,7 +149,6 @@ function RouteComponent() {
             value={`${stats?.current.rejectionRate.toFixed(1) ?? 0}%`}
             change={stats?.changes.rejectionRate}
             icon={<HiXCircle />}
-            colorScheme="danger"
             loading={statsLoading}
           />
           <StatCard
@@ -155,7 +156,6 @@ function RouteComponent() {
             value={stats?.current.avgResponseTimeReceived?.formatted ?? 'N/A'}
             change={stats?.changes.avgResponseTimeReceived}
             icon={<HiClock />}
-            colorScheme="warning"
             loading={statsLoading}
             description="Your response time to requests"
           />
