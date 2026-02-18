@@ -6,10 +6,15 @@ import { useNotificationStore } from '@/store/notificationStore'
 import { Notification, toast } from '@/components/ui'
 import { useNotificationSSE } from './useNotificationSSE'
 
+type UseNotificationsProps = {
+  enableFetch?: boolean
+}
+
 /**
  * Hook to manage notifications with real-time SSE updates
  */
-export function useNotifications() {
+export function useNotifications(props?: UseNotificationsProps) {
+  const { enableFetch = true } = props || {}
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const {
@@ -39,6 +44,7 @@ export function useNotifications() {
       unreadOnly: false,
     }),
     refetchOnWindowFocus: true,
+    enabled: enableFetch,
   })
 
   // Extract notifications array from paginated response - memoized to prevent infinite loops
@@ -51,6 +57,7 @@ export function useNotifications() {
   const { data: unreadData } = useQuery({
     ...trpc.notifications.getUnreadCount.queryOptions(),
     refetchOnWindowFocus: true,
+    enabled: enableFetch,
   })
 
   // Mark as read mutation

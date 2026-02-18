@@ -48,8 +48,8 @@ export function useNotificationSSE() {
 
   // Query keys for cache invalidation
   const notificationsQueryKey = trpc.notifications.list.queryKey({
-    limit: 50,
-    offset: 0,
+    page: 1,
+    pageSize: 50,
     unreadOnly: false,
   })
   const unreadCountQueryKey = trpc.notifications.getUnreadCount.queryKey()
@@ -61,11 +61,34 @@ export function useNotificationSSE() {
     (notification: NotificationWithMetadata) => {
       console.log('[SSE] Notification created:', notification)
 
-      // Update notifications list in cache
+      // Update notifications list in cache (paginated response)
       queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
-        if (!oldData) return [notification]
-        // Add new notification at the beginning
-        return [notification, ...oldData]
+        if (!oldData) {
+          return {
+            data: [notification],
+            pagination: {
+              page: 1,
+              pageSize: 50,
+              totalItems: 1,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          }
+        }
+        // Add new notification at the beginning of data array
+        const newData = [notification, ...oldData.data]
+        return {
+          ...oldData,
+          data: newData,
+          pagination: {
+            ...oldData.pagination,
+            totalItems: oldData.pagination.totalItems + 1,
+            totalPages: Math.ceil(
+              (oldData.pagination.totalItems + 1) / oldData.pagination.pageSize,
+            ),
+          },
+        }
       })
 
       // Update unread count in cache
@@ -92,12 +115,15 @@ export function useNotificationSSE() {
     (notificationId: number) => {
       console.log('[SSE] Notification marked as read:', notificationId)
 
-      // Update notification in cache
+      // Update notification in cache (paginated response)
       queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
         if (!oldData) return oldData
-        return oldData.map((n: NotificationWithMetadata) =>
-          n.id === notificationId ? { ...n, read: true } : n,
-        )
+        return {
+          ...oldData,
+          data: oldData.data.map((n: NotificationWithMetadata) =>
+            n.id === notificationId ? { ...n, read: true } : n,
+          ),
+        }
       })
 
       // Update unread count in cache
@@ -123,20 +149,30 @@ export function useNotificationSSE() {
     (notificationId: number) => {
       console.log('[SSE] Notification deleted:', notificationId)
 
-      // Get the notification before removing it to check if it was unread
-      const currentData = queryClient.getQueryData<NotificationWithMetadata[]>(
-        notificationsQueryKey,
-      )
-      const deletedNotification = currentData?.find(
-        (n) => n.id === notificationId,
+      // Get the notification before removing it to check if it was unread (paginated response)
+      const currentData = queryClient.getQueryData<any>(notificationsQueryKey)
+      const deletedNotification = currentData?.data?.find(
+        (n: NotificationWithMetadata) => n.id === notificationId,
       )
 
-      // Remove notification from cache
+      // Remove notification from cache (paginated response)
       queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
         if (!oldData) return oldData
-        return oldData.filter(
+        const newData = oldData.data.filter(
           (n: NotificationWithMetadata) => n.id !== notificationId,
         )
+        return {
+          ...oldData,
+          data: newData,
+          pagination: {
+            ...oldData.pagination,
+            totalItems: Math.max(0, oldData.pagination.totalItems - 1),
+            totalPages: Math.ceil(
+              Math.max(0, oldData.pagination.totalItems - 1) /
+                oldData.pagination.pageSize,
+            ),
+          },
+        }
       })
 
       // Update unread count if the deleted notification was unread
@@ -163,13 +199,16 @@ export function useNotificationSSE() {
   const handleAllRead = useCallback(() => {
     console.log('[SSE] All notifications marked as read')
 
-    // Mark all notifications as read in cache
+    // Mark all notifications as read in cache (paginated response)
     queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
       if (!oldData) return oldData
-      return oldData.map((n: NotificationWithMetadata) => ({
-        ...n,
-        read: true,
-      }))
+      return {
+        ...oldData,
+        data: oldData.data.map((n: NotificationWithMetadata) => ({
+          ...n,
+          read: true,
+        })),
+      }
     })
 
     // Reset unread count
