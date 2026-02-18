@@ -54,6 +54,6 @@ src/
 - **Mutations**: Use `useMutation` for mutations [14].
 - **Forms**: Use react-hook-form for all forms, and `useForm` for form handling [15].
 - **Validation**: Always use `zod` for validation [16], especially in forms
-- **State Management**: Use `zustand` for state management [17].
+- **State Management**: Use `zustand` for UI state management, however you MUST use Tanstack Query for Server state, DO NOT ADD SERVER STATE INTO ZUSTAND UI STATE [17].
 - **Error Handling**: Use `react-error-boundary` for error handling [18].
 - **Testing**: Use `vitest` for testing [19].
