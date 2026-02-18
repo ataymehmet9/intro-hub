@@ -46,10 +46,8 @@ export function useNotificationSSE() {
   // Exponential backoff delays (in milliseconds)
   const RETRY_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000] // 1s, 2s, 4s, 8s, 16s, 30s (max)
 
-  // Query keys for cache invalidation
+  // Query keys for cache invalidation - must match the keys used in useNotifications
   const notificationsQueryKey = trpc.notifications.list.queryKey({
-    page: 1,
-    pageSize: 50,
     unreadOnly: false,
   })
   const unreadCountQueryKey = trpc.notifications.getUnreadCount.queryKey()

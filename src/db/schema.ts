@@ -134,6 +134,7 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'introduction_request',
   'introduction_approved',
   'introduction_declined',
+  'unknown',
 ])
 
 export const notifications = pgTable(

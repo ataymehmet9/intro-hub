@@ -12,6 +12,7 @@ import Button from '@/components/ui/Button'
 import isLastChild from '@/utils/isLastChild'
 import useResponsive from '@/utils/hooks/useResponsive'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useNotificationSSE } from '@/hooks/useNotificationSSE'
 import type { DropdownRef } from '@/components/ui/Dropdown'
 import NotificationToggle from './NotificationToggle'
 
@@ -30,6 +31,7 @@ const _Notification = ({ className }: { className?: string }) => {
     markAsRead,
     markAllAsRead,
   } = useNotifications()
+  useNotificationSSE()
 
   const onMarkAllAsRead = () => {
     markAllAsRead()

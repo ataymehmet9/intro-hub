@@ -3,7 +3,6 @@ import { TRPCRouterRecord, TRPCError } from '@trpc/server'
 import { eq, and, gte, lte, sql, or, desc } from 'drizzle-orm'
 import {
   dashboardQuerySchema,
-  granularityEnum,
   type Granularity,
   type ResponseTime,
   type PeriodStats,
@@ -12,7 +11,7 @@ import {
   type StatusBreakdown,
   type TopContact,
 } from '@/schemas'
-import { introductionRequests, contacts, user } from '@/db/schema'
+import { introductionRequests, contacts } from '@/db/schema'
 import { protectedProcedure } from '../init'
 
 /**
