@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
@@ -21,8 +21,8 @@ export function useNotifications() {
   } = useNotificationStore()
 
   const notificationsQueryKey = trpc.notifications.list.queryKey({
-    limit: 50,
-    offset: 0,
+    page: 1,
+    pageSize: 50,
     unreadOnly: false,
   })
 
@@ -32,14 +32,20 @@ export function useNotifications() {
   const { connectionStatus, isConnected } = useNotificationSSE()
 
   // Fetch notifications list (no polling, updated via SSE)
-  const { data: notifications, isFetching: isLoading } = useQuery({
+  const { data: notificationsResponse, isFetching: isLoading } = useQuery({
     ...trpc.notifications.list.queryOptions({
-      limit: 50,
-      offset: 0,
+      page: 1,
+      pageSize: 50,
       unreadOnly: false,
     }),
     refetchOnWindowFocus: true,
   })
+
+  // Extract notifications array from paginated response - memoized to prevent infinite loops
+  const notifications = useMemo(
+    () => notificationsResponse?.data || [],
+    [notificationsResponse?.data],
+  )
 
   // Fetch unread count (no polling, updated via SSE)
   const { data: unreadData } = useQuery({
@@ -140,7 +146,8 @@ export function useNotifications() {
   }, [isLoading, setIsLoading])
 
   return {
-    notifications: notifications || [],
+    notifications,
+    pagination: notificationsResponse?.pagination,
     unreadCount: unreadData?.count || 0,
     hasUnread: unreadData?.hasUnread || false,
     isLoading,

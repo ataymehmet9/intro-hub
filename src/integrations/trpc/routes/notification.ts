@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { TRPCRouterRecord, TRPCError } from '@trpc/server'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, count } from 'drizzle-orm'
 import {
   getNotificationsSchema,
   markAsReadSchema,
@@ -12,7 +12,7 @@ import { notificationEmitter } from '@/lib/notification-emitter'
 
 export const notificationRouter = {
   /**
-   * Get notifications for the current user
+   * Get notifications for the current user with pagination
    */
   list: protectedProcedure
     .input(getNotificationsSchema)
@@ -23,7 +23,10 @@ export const notificationRouter = {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
 
-      const { limit, offset, unreadOnly } = input
+      // Apply defaults for optional parameters
+      const page = input.page ?? 1
+      const pageSize = input.pageSize ?? 5
+      const unreadOnly = input.unreadOnly ?? false
 
       // Build query conditions
       const conditions = [eq(notifications.userId, currentUser.id)]
@@ -32,13 +35,25 @@ export const notificationRouter = {
         conditions.push(eq(notifications.read, false))
       }
 
+      // Calculate offset from page number
+      const offset = (page - 1) * pageSize
+
+      // Get total count for pagination metadata
+      const [totalCountResult] = await db
+        .select({ count: count() })
+        .from(notifications)
+        .where(and(...conditions))
+
+      const totalItems = totalCountResult?.count ?? 0
+      const totalPages = Math.ceil(totalItems / pageSize)
+
       // Fetch notifications
       const notificationList = await db
         .select()
         .from(notifications)
         .where(and(...conditions))
         .orderBy(desc(notifications.createdAt))
-        .limit(limit)
+        .limit(pageSize)
         .offset(offset)
 
       // Parse metadata for each notification
@@ -49,7 +64,18 @@ export const notificationRouter = {
           : null,
       }))
 
-      return parsedNotifications
+      // Return paginated response
+      return {
+        data: parsedNotifications,
+        pagination: {
+          page,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      }
     }),
 
   /**

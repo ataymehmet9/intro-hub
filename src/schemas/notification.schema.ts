@@ -51,15 +51,6 @@ export const markAllAsReadSchema = z.object({
 })
 
 /**
- * Get notifications query schema
- */
-export const getNotificationsSchema = z.object({
-  limit: z.number().min(1).max(100).default(50),
-  offset: z.number().min(0).default(0),
-  unreadOnly: z.boolean().default(false),
-})
-
-/**
  * Notification metadata schema for type safety
  */
 export const notificationMetadataSchema = z.object({
@@ -68,6 +59,40 @@ export const notificationMetadataSchema = z.object({
   contactName: z.string().optional(),
   contactEmail: z.string().optional(),
   requestId: z.number().optional(),
+})
+
+/**
+ * Notification with metadata parsed
+ */
+export const notificationWithMetadataSchema = notificationSchema.extend({
+  parsedMetadata: notificationMetadataSchema.optional(),
+})
+
+/**
+ * Get notifications query schema
+ */
+export const getNotificationsSchema = z
+  .object({
+    page: z.number().min(1).default(1),
+    pageSize: z.number().min(1).max(100).default(5),
+    unreadOnly: z.boolean().default(false),
+  })
+  .partial()
+  .default({ page: 1, pageSize: 5, unreadOnly: false })
+
+/**
+ * Paginated notifications response schema
+ */
+export const paginatedNotificationsSchema = z.object({
+  data: z.array(notificationWithMetadataSchema),
+  pagination: z.object({
+    page: z.number(),
+    pageSize: z.number(),
+    totalItems: z.number(),
+    totalPages: z.number(),
+    hasNextPage: z.boolean(),
+    hasPreviousPage: z.boolean(),
+  }),
 })
 
 /**
@@ -80,13 +105,6 @@ export const createNotificationInputSchema = z.object({
   message: z.string().min(1),
   relatedRequestId: z.number().optional(),
   metadata: notificationMetadataSchema.optional(),
-})
-
-/**
- * Notification with metadata parsed
- */
-export const notificationWithMetadataSchema = notificationSchema.extend({
-  parsedMetadata: notificationMetadataSchema.optional(),
 })
 
 // ============================================================================
@@ -107,3 +125,6 @@ export type NotificationWithMetadata = z.infer<
   typeof notificationWithMetadataSchema
 >
 export type NotificationType = z.infer<typeof notificationTypeEnum>
+export type PaginatedNotifications = z.infer<
+  typeof paginatedNotificationsSchema
+>
