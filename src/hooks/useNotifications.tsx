@@ -1,23 +1,16 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
-import { useNotificationStore } from '@/store/notificationStore'
 import { Notification, toast } from '@/components/ui'
 
 /**
  * Hook to manage notifications with real-time SSE updates
+ * All server state is managed by TanStack Query cache
  */
 export function useNotifications() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
-  const {
-    setNotifications,
-    setUnreadCount,
-    setIsLoading,
-    markAsRead: markAsReadInStore,
-    markAllAsRead: markAllAsReadInStore,
-  } = useNotificationStore()
 
   // Fetch notifications list (no polling, updated via SSE)
   const { data: notificationsResponse, isFetching: isLoading } = useQuery({
@@ -85,9 +78,6 @@ export function useNotifications() {
         },
       )
 
-      // Update store
-      markAsReadInStore(id)
-
       return { previousNotifications, previousUnreadCount }
     },
     onError: (error: Error, _id, context) => {
@@ -143,9 +133,6 @@ export function useNotifications() {
         count: 0,
         hasUnread: false,
       })
-
-      // Update store
-      markAllAsReadInStore()
 
       return { previousNotifications, previousUnreadCount }
     },
@@ -217,23 +204,6 @@ export function useNotifications() {
     },
   })
 
-  // Update store when data changes
-  useEffect(() => {
-    if (notifications) {
-      setNotifications(notifications)
-    }
-  }, [notifications, setNotifications])
-
-  useEffect(() => {
-    if (unreadData) {
-      setUnreadCount(unreadData.count)
-    }
-  }, [unreadData, setUnreadCount])
-
-  useEffect(() => {
-    setIsLoading(isLoading)
-  }, [isLoading, setIsLoading])
-
   return {
     notifications,
     pagination: notificationsResponse?.pagination,
@@ -252,8 +222,15 @@ export function useNotifications() {
 }
 
 /**
- * Hook to get notification store state without fetching
+ * Hook for UI-only notification state (e.g., dropdown open/closed)
+ * This is the only local state that should exist - UI state only
  */
-export function useNotificationState() {
-  return useNotificationStore()
+export function useNotificationUI() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return {
+    isOpen,
+    setIsOpen,
+    toggleOpen: () => setIsOpen((prev) => !prev),
+  }
 }
