@@ -38,23 +38,23 @@ export const notificationRouter = {
       // Calculate offset from page number
       const offset = (page - 1) * pageSize
 
-      // Get total count for pagination metadata
-      const [totalCountResult] = await db
-        .select({ count: count() })
-        .from(notifications)
-        .where(and(...conditions))
+      // Get total count and notifications concurrently
+      const [totalCountResult, notificationList] = await Promise.all([
+        db
+          .select({ count: count() })
+          .from(notifications)
+          .where(and(...conditions)),
+        db
+          .select()
+          .from(notifications)
+          .where(and(...conditions))
+          .orderBy(desc(notifications.createdAt))
+          .limit(pageSize)
+          .offset(offset),
+      ])
 
-      const totalItems = totalCountResult?.count ?? 0
+      const totalItems = totalCountResult[0]?.count ?? 0
       const totalPages = Math.ceil(totalItems / pageSize)
-
-      // Fetch notifications
-      const notificationList = await db
-        .select()
-        .from(notifications)
-        .where(and(...conditions))
-        .orderBy(desc(notifications.createdAt))
-        .limit(pageSize)
-        .offset(offset)
 
       // Parse metadata for each notification
       const parsedNotifications = notificationList.map((notification) => ({
@@ -118,33 +118,25 @@ export const notificationRouter = {
 
       const { id } = input
 
-      // Verify the notification belongs to the current user
-      const notification = await db
-        .select()
-        .from(notifications)
-        .where(eq(notifications.id, id))
-        .limit(1)
-
-      if (notification.length === 0) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Notification not found',
-        })
-      }
-
-      if (notification[0].userId !== currentUser.id) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to update this notification',
-        })
-      }
-
-      // Update the notification
+      // Update with user check in WHERE clause - no race condition
       const updated = await db
         .update(notifications)
         .set({ read: true })
-        .where(eq(notifications.id, id))
+        .where(
+          and(
+            eq(notifications.id, id),
+            eq(notifications.userId, currentUser.id),
+          ),
+        )
         .returning()
+
+      if (updated.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'Notification not found or you do not have permission to update it',
+        })
+      }
 
       // Emit SSE event for real-time update
       notificationEmitter.emit('notification:read', {
@@ -236,29 +228,24 @@ export const notificationRouter = {
 
       const { id } = input
 
-      // Verify the notification belongs to the current user
-      const notification = await db
-        .select()
-        .from(notifications)
-        .where(eq(notifications.id, id))
-        .limit(1)
+      // Delete with user check in WHERE clause - no race condition
+      const deleted = await db
+        .delete(notifications)
+        .where(
+          and(
+            eq(notifications.id, id),
+            eq(notifications.userId, currentUser.id),
+          ),
+        )
+        .returning()
 
-      if (notification.length === 0) {
+      if (deleted.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
-          message: 'Notification not found',
+          message:
+            'Notification not found or you do not have permission to delete it',
         })
       }
-
-      if (notification[0].userId !== currentUser.id) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to delete this notification',
-        })
-      }
-
-      // Delete the notification
-      await db.delete(notifications).where(eq(notifications.id, id))
 
       // Emit SSE event for real-time update
       notificationEmitter.emit('notification:deleted', {

@@ -131,29 +131,23 @@ export const contactRouter = {
 
       const { id, data } = input
 
-      // Verify the contact belongs to the user
-      const existingContact = await db
-        .select()
-        .from(contacts)
-        .where(and(eq(contacts.id, id), eq(contacts.userId, user.id)))
-        .limit(1)
-
-      if (!existingContact.length) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message:
-            'Contact not found or you do not have permission to update it',
-        })
-      }
-
+      // Update with user check in WHERE clause - no race condition
       const updatedContact = await db
         .update(contacts)
         .set({
           ...data,
           updatedAt: new Date(),
         })
-        .where(eq(contacts.id, id))
+        .where(and(eq(contacts.id, id), eq(contacts.userId, user.id)))
         .returning()
+
+      if (!updatedContact.length) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'Contact not found or you do not have permission to update it',
+        })
+      }
 
       return { success: true, data: updatedContact[0] }
     }),
@@ -168,22 +162,19 @@ export const contactRouter = {
 
       const { id } = input
 
-      // Verify the contact belongs to the user
-      const existingContact = await db
-        .select()
-        .from(contacts)
+      // Delete with user check in WHERE clause - no race condition
+      const deletedContact = await db
+        .delete(contacts)
         .where(and(eq(contacts.id, id), eq(contacts.userId, user.id)))
-        .limit(1)
+        .returning()
 
-      if (!existingContact.length) {
+      if (!deletedContact.length) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
             'Contact not found or you do not have permission to delete it',
         })
       }
-
-      await db.delete(contacts).where(eq(contacts.id, id))
 
       return { success: true, id }
     }),

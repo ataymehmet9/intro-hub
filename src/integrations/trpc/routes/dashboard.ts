@@ -89,66 +89,107 @@ async function calculatePeriodStats(
   startDate: Date,
   endDate: Date,
 ): Promise<PeriodStats> {
-  // Get total contacts count
-  const contactsResult = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(contacts)
-    .where(
-      and(
-        eq(contacts.userId, userId),
-        gte(contacts.createdAt, startDate),
-        lte(contacts.createdAt, endDate),
+  // Run all queries concurrently
+  const [
+    contactsResult,
+    requestsMadeResult,
+    requestsReceivedResult,
+    statusBreakdownResult,
+    avgResponseReceivedResult,
+    avgResponseMadeResult,
+  ] = await Promise.all([
+    // Get total contacts count
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.userId, userId),
+          gte(contacts.createdAt, startDate),
+          lte(contacts.createdAt, endDate),
+        ),
       ),
-    )
+    // Get requests made (user is requester)
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(introductionRequests)
+      .where(
+        and(
+          eq(introductionRequests.requesterId, userId),
+          eq(introductionRequests.deleted, false),
+          gte(introductionRequests.createdAt, startDate),
+          lte(introductionRequests.createdAt, endDate),
+        ),
+      ),
+    // Get requests received (user is approver)
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(introductionRequests)
+      .where(
+        and(
+          eq(introductionRequests.approverId, userId),
+          eq(introductionRequests.deleted, false),
+          gte(introductionRequests.createdAt, startDate),
+          lte(introductionRequests.createdAt, endDate),
+        ),
+      ),
+    // Get status breakdown for received requests
+    db
+      .select({
+        status: introductionRequests.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(introductionRequests)
+      .where(
+        and(
+          eq(introductionRequests.approverId, userId),
+          eq(introductionRequests.deleted, false),
+          gte(introductionRequests.createdAt, startDate),
+          lte(introductionRequests.createdAt, endDate),
+        ),
+      )
+      .groupBy(introductionRequests.status),
+    // Calculate average response time for requests received (as approver)
+    db
+      .select({
+        avgSeconds: sql<number>`AVG(EXTRACT(EPOCH FROM (${introductionRequests.updatedAt} - ${introductionRequests.createdAt})))`,
+      })
+      .from(introductionRequests)
+      .where(
+        and(
+          eq(introductionRequests.approverId, userId),
+          eq(introductionRequests.deleted, false),
+          or(
+            eq(introductionRequests.status, 'approved'),
+            eq(introductionRequests.status, 'declined'),
+          )!,
+          gte(introductionRequests.createdAt, startDate),
+          lte(introductionRequests.createdAt, endDate),
+        ),
+      ),
+    // Calculate average response time for requests made (as requester)
+    db
+      .select({
+        avgSeconds: sql<number>`AVG(EXTRACT(EPOCH FROM (${introductionRequests.updatedAt} - ${introductionRequests.createdAt})))`,
+      })
+      .from(introductionRequests)
+      .where(
+        and(
+          eq(introductionRequests.requesterId, userId),
+          eq(introductionRequests.deleted, false),
+          or(
+            eq(introductionRequests.status, 'approved'),
+            eq(introductionRequests.status, 'declined'),
+          )!,
+          gte(introductionRequests.createdAt, startDate),
+          lte(introductionRequests.createdAt, endDate),
+        ),
+      ),
+  ])
 
   const totalContacts = contactsResult[0]?.count || 0
-
-  // Get requests made (user is requester)
-  const requestsMadeResult = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(introductionRequests)
-    .where(
-      and(
-        eq(introductionRequests.requesterId, userId),
-        eq(introductionRequests.deleted, false),
-        gte(introductionRequests.createdAt, startDate),
-        lte(introductionRequests.createdAt, endDate),
-      ),
-    )
-
   const requestsMade = requestsMadeResult[0]?.count || 0
-
-  // Get requests received (user is approver)
-  const requestsReceivedResult = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(introductionRequests)
-    .where(
-      and(
-        eq(introductionRequests.approverId, userId),
-        eq(introductionRequests.deleted, false),
-        gte(introductionRequests.createdAt, startDate),
-        lte(introductionRequests.createdAt, endDate),
-      ),
-    )
-
   const requestsReceived = requestsReceivedResult[0]?.count || 0
-
-  // Get status breakdown for received requests
-  const statusBreakdownResult = await db
-    .select({
-      status: introductionRequests.status,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(introductionRequests)
-    .where(
-      and(
-        eq(introductionRequests.approverId, userId),
-        eq(introductionRequests.deleted, false),
-        gte(introductionRequests.createdAt, startDate),
-        lte(introductionRequests.createdAt, endDate),
-      ),
-    )
-    .groupBy(introductionRequests.status)
 
   let requestsApproved = 0
   let requestsDeclined = 0
@@ -166,48 +207,10 @@ async function calculatePeriodStats(
   const rejectionRate =
     requestsReceived > 0 ? (requestsDeclined / requestsReceived) * 100 : 0
 
-  // Calculate average response time for requests received (as approver)
-  const avgResponseReceivedResult = await db
-    .select({
-      avgSeconds: sql<number>`AVG(EXTRACT(EPOCH FROM (${introductionRequests.updatedAt} - ${introductionRequests.createdAt})))`,
-    })
-    .from(introductionRequests)
-    .where(
-      and(
-        eq(introductionRequests.approverId, userId),
-        eq(introductionRequests.deleted, false),
-        or(
-          eq(introductionRequests.status, 'approved'),
-          eq(introductionRequests.status, 'declined'),
-        )!,
-        gte(introductionRequests.createdAt, startDate),
-        lte(introductionRequests.createdAt, endDate),
-      ),
-    )
-
   const avgResponseTimeReceived =
     avgResponseReceivedResult[0]?.avgSeconds != null
       ? formatResponseTime(avgResponseReceivedResult[0].avgSeconds)
       : null
-
-  // Calculate average response time for requests made (as requester)
-  const avgResponseMadeResult = await db
-    .select({
-      avgSeconds: sql<number>`AVG(EXTRACT(EPOCH FROM (${introductionRequests.updatedAt} - ${introductionRequests.createdAt})))`,
-    })
-    .from(introductionRequests)
-    .where(
-      and(
-        eq(introductionRequests.requesterId, userId),
-        eq(introductionRequests.deleted, false),
-        or(
-          eq(introductionRequests.status, 'approved'),
-          eq(introductionRequests.status, 'declined'),
-        )!,
-        gte(introductionRequests.createdAt, startDate),
-        lte(introductionRequests.createdAt, endDate),
-      ),
-    )
 
   const avgResponseTimeMade =
     avgResponseMadeResult[0]?.avgSeconds != null
@@ -251,25 +254,16 @@ export const dashboardRouter = {
         })
       }
 
-      // Calculate current period stats
-      const currentStats = await calculatePeriodStats(
-        db,
-        currentUser.id,
-        startDate,
-        endDate,
-      )
-
-      // Calculate previous period stats
+      // Calculate current and previous period stats concurrently
       const { previousStart, previousEnd } = getPreviousPeriod(
         startDate,
         endDate,
       )
-      const previousStats = await calculatePeriodStats(
-        db,
-        currentUser.id,
-        previousStart,
-        previousEnd,
-      )
+
+      const [currentStats, previousStats] = await Promise.all([
+        calculatePeriodStats(db, currentUser.id, startDate, endDate),
+        calculatePeriodStats(db, currentUser.id, previousStart, previousEnd),
+      ])
 
       // Calculate percentage changes
       const changes = {
@@ -381,53 +375,55 @@ export const dashboardRouter = {
           break
       }
 
-      // Get requests made trend
-      const requestsMadeTrend = await db
-        .select({
-          date: sql<string>`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})::date`,
-          status: introductionRequests.status,
-          count: sql<number>`count(*)::int`,
-        })
-        .from(introductionRequests)
-        .where(
-          and(
-            eq(introductionRequests.requesterId, currentUser.id),
-            eq(introductionRequests.deleted, false),
-            gte(introductionRequests.createdAt, startDate),
-            lte(introductionRequests.createdAt, endDate),
+      // Get requests made and received trends concurrently
+      const [requestsMadeTrend, requestsReceivedTrend] = await Promise.all([
+        // Get requests made trend
+        db
+          .select({
+            date: sql<string>`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})::date`,
+            status: introductionRequests.status,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(introductionRequests)
+          .where(
+            and(
+              eq(introductionRequests.requesterId, currentUser.id),
+              eq(introductionRequests.deleted, false),
+              gte(introductionRequests.createdAt, startDate),
+              lte(introductionRequests.createdAt, endDate),
+            ),
+          )
+          .groupBy(
+            sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
+            introductionRequests.status,
+          )
+          .orderBy(
+            sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
           ),
-        )
-        .groupBy(
-          sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
-          introductionRequests.status,
-        )
-        .orderBy(
-          sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
-        )
-
-      // Get requests received trend
-      const requestsReceivedTrend = await db
-        .select({
-          date: sql<string>`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})::date`,
-          status: introductionRequests.status,
-          count: sql<number>`count(*)::int`,
-        })
-        .from(introductionRequests)
-        .where(
-          and(
-            eq(introductionRequests.approverId, currentUser.id),
-            eq(introductionRequests.deleted, false),
-            gte(introductionRequests.createdAt, startDate),
-            lte(introductionRequests.createdAt, endDate),
+        // Get requests received trend
+        db
+          .select({
+            date: sql<string>`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})::date`,
+            status: introductionRequests.status,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(introductionRequests)
+          .where(
+            and(
+              eq(introductionRequests.approverId, currentUser.id),
+              eq(introductionRequests.deleted, false),
+              gte(introductionRequests.createdAt, startDate),
+              lte(introductionRequests.createdAt, endDate),
+            ),
+          )
+          .groupBy(
+            sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
+            introductionRequests.status,
+          )
+          .orderBy(
+            sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
           ),
-        )
-        .groupBy(
-          sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
-          introductionRequests.status,
-        )
-        .orderBy(
-          sql`DATE_TRUNC(${dateTrunc}, ${introductionRequests.createdAt})`,
-        )
+      ])
 
       // Aggregate data by date
       const dataPointsMap = new Map<string, TrendDataPoint>()

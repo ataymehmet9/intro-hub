@@ -55,12 +55,25 @@ export const introductionRequestRouter = {
 
       const { targetContactId, message } = input
 
-      // Get the target contact to find the owner (approver)
-      const targetContact = await db
-        .select()
-        .from(contacts)
-        .where(eq(contacts.id, targetContactId))
-        .limit(1)
+      // Get target contact and check for existing request concurrently
+      const [targetContact, existingRequest] = await Promise.all([
+        db
+          .select()
+          .from(contacts)
+          .where(eq(contacts.id, targetContactId))
+          .limit(1),
+        db
+          .select()
+          .from(introductionRequests)
+          .where(
+            and(
+              eq(introductionRequests.targetContactId, targetContactId),
+              eq(introductionRequests.requesterId, currentUser.id),
+              eq(introductionRequests.status, 'pending'),
+            ),
+          )
+          .limit(1),
+      ])
 
       if (!targetContact.length) {
         throw new TRPCError({
@@ -78,19 +91,6 @@ export const introductionRequestRouter = {
           message: 'You cannot request an introduction to your own contact',
         })
       }
-
-      // Check if there's already a pending request
-      const existingRequest = await db
-        .select()
-        .from(introductionRequests)
-        .where(
-          and(
-            eq(introductionRequests.targetContactId, targetContactId),
-            eq(introductionRequests.requesterId, currentUser.id),
-            eq(introductionRequests.status, 'pending'),
-          ),
-        )
-        .limit(1)
 
       if (existingRequest.length > 0) {
         throw new TRPCError({
@@ -312,19 +312,15 @@ export const introductionRequestRouter = {
         .where(eq(introductionRequests.id, id))
         .returning()
 
-      // Get requester details for email
-      const requester = await db
-        .select()
-        .from(user)
-        .where(eq(user.id, request.requesterId))
-        .limit(1)
-
-      // Get contact details for email
-      const targetContact = await db
-        .select()
-        .from(contacts)
-        .where(eq(contacts.id, request.targetContactId))
-        .limit(1)
+      // Get requester and contact details concurrently
+      const [requester, targetContact] = await Promise.all([
+        db.select().from(user).where(eq(user.id, request.requesterId)).limit(1),
+        db
+          .select()
+          .from(contacts)
+          .where(eq(contacts.id, request.targetContactId))
+          .limit(1),
+      ])
 
       // Send email notification based on status
       // Email sending failures should not block the status update
