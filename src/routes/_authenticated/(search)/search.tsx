@@ -71,11 +71,9 @@ function SearchPage() {
         </p>
       </div>
 
-      <Card className="mb-6">
-        <div className="p-6">
-          <SearchBar />
-        </div>
-      </Card>
+      <div className="pb-6">
+        <SearchBar />
+      </div>
 
       {showResults && (
         <Card>

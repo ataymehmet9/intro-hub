@@ -1,6 +1,7 @@
-import DebounceInput from '@/components/shared/DebouceInput'
-import { TbSearch } from 'react-icons/tb'
 import { Ref } from 'react'
+import { TbSearch, TbX } from 'react-icons/tb'
+import DebounceInput from '@/components/shared/DebouceInput'
+import { Button } from '@/components/ui'
 
 type ContactListSearchProps = {
   onInputChange: (value: string) => void
@@ -11,11 +12,27 @@ type ContactListSearchProps = {
 const ContactListSearch = (props: ContactListSearchProps) => {
   const { onInputChange, defaultValue, ref } = props
 
+  const handleClear = () => {
+    onInputChange('')
+  }
+
   return (
     <DebounceInput
+      key={defaultValue || 'empty'}
       ref={ref}
       placeholder="Quick search..."
-      suffix={<TbSearch className="text-lg" />}
+      prefix={<TbSearch className="text-xl" />}
+      suffix={
+        defaultValue && (
+          <Button
+            size="xs"
+            variant="plain"
+            icon={<TbX />}
+            onClick={handleClear}
+            className="hover:bg-gray-100 dark:hover:bg-gray-700"
+          />
+        )
+      }
       defaultValue={defaultValue}
       onChange={(e: { target: { value: string } }) =>
         onInputChange(e.target.value)
