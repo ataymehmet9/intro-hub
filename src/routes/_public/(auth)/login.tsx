@@ -12,7 +12,7 @@ import SignInForm from '@/components/auth/SignInForm'
 import OauthSignIn from '@/components/auth/OauthSignin'
 import appConfig from '@/configs/app.config'
 
-export const Route = createFileRoute('/_public/login')({
+export const Route = createFileRoute('/_public/(auth)/login')({
   component: RouteComponent,
 })
 

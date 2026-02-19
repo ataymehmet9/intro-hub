@@ -6,7 +6,7 @@ import { ActionLink } from '@/components/shared'
 import appConfig from '@/configs/app.config'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
 
-export const Route = createFileRoute('/_public/forgot-password')({
+export const Route = createFileRoute('/_public/(auth)/forgot-password')({
   component: RouteComponent,
 })
 

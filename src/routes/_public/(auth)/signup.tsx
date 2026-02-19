@@ -7,7 +7,7 @@ import ActionLink from '@/components/shared/ActionLink'
 import SignUpForm from '@/components/auth/SignUpForm'
 import appConfig from '@/configs/app.config'
 
-export const Route = createFileRoute('/_public/signup')({
+export const Route = createFileRoute('/_public/(auth)/signup')({
   component: RouteComponent,
 })
 
@@ -18,7 +18,7 @@ function RouteComponent() {
   const mode = useThemeStore((state) => state.mode)
 
   const onSignupSuccess = () => {
-    navigate({ to: '/' })
+    navigate({ to: appConfig.authenticatedEntryPath })
   }
 
   return (
