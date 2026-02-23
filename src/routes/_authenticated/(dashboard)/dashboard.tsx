@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
-import Masonry from '@/components/shared/Masonry'
 import { Spinner, Notification, toast } from '@/components/ui'
 import { DashboardHeader } from './-components/DashboardHeader'
 import { StatCard } from './-components/StatCard'
@@ -107,59 +106,57 @@ function RouteComponent() {
     <Container>
       <DashboardHeader onExport={handleExportData} />
 
-      {/* Stat Cards - Responsive Masonry Layout */}
-      <div className="mb-4 sm:mb-6">
-        <Masonry columns={{ 640: 1, 768: 2, 1024: 3 }} gap={16}>
-          <StatCard
-            title="Total Contacts"
-            value={stats?.current.totalContacts ?? 0}
-            change={stats?.changes.totalContacts}
-            icon={<HiUsers />}
-            loading={statsLoading}
-            className="bg-sky-100 dark:bg-sky/75"
-            variant="light"
-          />
-          <StatCard
-            title="Requests Made"
-            value={stats?.current.requestsMade ?? 0}
-            change={stats?.changes.requestsMade}
-            icon={<HiPaperAirplane />}
-            loading={statsLoading}
-            className="bg-emerald-100 dark:bg-emerald/75"
-            variant="light"
-          />
-          <StatCard
-            title="Requests Received"
-            value={stats?.current.requestsReceived ?? 0}
-            change={stats?.changes.requestsReceived}
-            icon={<HiInbox />}
-            loading={statsLoading}
-            className="bg-purple-100 dark:bg-purple/75"
-            variant="light"
-          />
-          <StatCard
-            title="Approval Rate"
-            value={`${stats?.current.approvalRate.toFixed(1) ?? 0}%`}
-            change={stats?.changes.approvalRate}
-            icon={<HiCheckCircle />}
-            loading={statsLoading}
-          />
-          <StatCard
-            title="Rejection Rate"
-            value={`${stats?.current.rejectionRate.toFixed(1) ?? 0}%`}
-            change={stats?.changes.rejectionRate}
-            icon={<HiXCircle />}
-            loading={statsLoading}
-          />
-          <StatCard
-            title="Avg Response Time"
-            value={stats?.current.avgResponseTimeReceived?.formatted ?? 'N/A'}
-            change={stats?.changes.avgResponseTimeReceived}
-            icon={<HiClock />}
-            loading={statsLoading}
-            description="Your response time to requests"
-          />
-        </Masonry>
+      {/* Stat Cards - Responsive Grid Layout */}
+      <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+        <StatCard
+          title="Total Contacts"
+          value={stats?.current.totalContacts ?? 0}
+          change={stats?.changes.totalContacts}
+          icon={<HiUsers />}
+          loading={statsLoading}
+          className="bg-sky-100 dark:bg-sky/75"
+          variant="light"
+        />
+        <StatCard
+          title="Requests Made"
+          value={stats?.current.requestsMade ?? 0}
+          change={stats?.changes.requestsMade}
+          icon={<HiPaperAirplane />}
+          loading={statsLoading}
+          className="bg-emerald-100 dark:bg-emerald/75"
+          variant="light"
+        />
+        <StatCard
+          title="Requests Received"
+          value={stats?.current.requestsReceived ?? 0}
+          change={stats?.changes.requestsReceived}
+          icon={<HiInbox />}
+          loading={statsLoading}
+          className="bg-purple-100 dark:bg-purple/75"
+          variant="light"
+        />
+        <StatCard
+          title="Approval Rate"
+          value={`${stats?.current.approvalRate.toFixed(1) ?? 0}%`}
+          change={stats?.changes.approvalRate}
+          icon={<HiCheckCircle />}
+          loading={statsLoading}
+        />
+        <StatCard
+          title="Rejection Rate"
+          value={`${stats?.current.rejectionRate.toFixed(1) ?? 0}%`}
+          change={stats?.changes.rejectionRate}
+          icon={<HiXCircle />}
+          loading={statsLoading}
+        />
+        <StatCard
+          title="Avg Response Time"
+          value={stats?.current.avgResponseTimeReceived?.formatted ?? 'N/A'}
+          change={stats?.changes.avgResponseTimeReceived}
+          icon={<HiClock />}
+          loading={statsLoading}
+          description="Your response time to requests"
+        />
       </div>
 
       {/* Trend Chart - Full Width */}

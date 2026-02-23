@@ -31,7 +31,7 @@ export function StatCard({
 
   if (loading) {
     return (
-      <Card className="p-6">
+      <Card className="p-6 h-full">
         <div className="animate-pulse">
           <div className="mb-4 flex items-center justify-between">
             <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
@@ -46,9 +46,12 @@ export function StatCard({
 
   return (
     <Card
-      className={classNames('p-6 transition-shadow hover:shadow-lg', className)}
+      className={classNames(
+        'p-6 transition-shadow hover:shadow-lg h-full',
+        className,
+      )}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between h-full">
         <div className="flex-1">
           <p
             className={classNames(
