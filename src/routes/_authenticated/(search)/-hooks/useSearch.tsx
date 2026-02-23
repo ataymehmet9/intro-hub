@@ -5,6 +5,8 @@ import { SearchField } from '@/schemas'
 interface UseSearchOptions {
   query: string
   fields?: SearchField[]
+  page?: number
+  pageSize?: number
   enabled?: boolean
 }
 
@@ -12,12 +14,19 @@ export function useSearch(options: UseSearchOptions) {
   const {
     query,
     fields = ['name', 'company', 'position'],
+    page = 1,
+    pageSize = 25,
     enabled = true,
   } = options
 
   const trpc = useTRPC()
 
-  const queryKey = trpc.search.globalSearch.queryKey({ query, fields })
+  const queryKey = trpc.search.globalSearch.queryKey({
+    query,
+    fields,
+    page,
+    pageSize,
+  })
 
   // Only fetch if enabled and query is at least 2 characters
   const shouldFetch = enabled && query.length >= 2
@@ -27,7 +36,12 @@ export function useSearch(options: UseSearchOptions) {
     isFetching: isLoading,
     error,
   } = useQuery({
-    ...trpc.search.globalSearch.queryOptions({ query, fields }),
+    ...trpc.search.globalSearch.queryOptions({
+      query,
+      fields,
+      page,
+      pageSize,
+    }),
     enabled: shouldFetch,
   })
 

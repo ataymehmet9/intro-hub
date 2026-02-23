@@ -11,6 +11,11 @@ type SearchResultsTableProps = {
   results: SearchResult[]
   isLoading: boolean
   onRequestIntroduction: (result: SearchResult) => void
+  total: number
+  page: number
+  pageSize: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const NameColumn = ({ row }: { row: SearchResult }) => {
@@ -86,6 +91,11 @@ const SearchResultsTable = ({
   results,
   isLoading,
   onRequestIntroduction,
+  total,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
 }: SearchResultsTableProps) => {
   const columns: ColumnDef<SearchResult>[] = useMemo(
     () => [
@@ -153,10 +163,12 @@ const SearchResultsTable = ({
       skeletonAvatarProps={{ width: 40, height: 40 }}
       loading={isLoading}
       pagingData={{
-        total: results.length,
-        pageIndex: 1,
-        pageSize: results.length,
+        total,
+        pageIndex: page,
+        pageSize,
       }}
+      onPaginationChange={onPageChange}
+      onSelectChange={onPageSizeChange}
     />
   )
 }

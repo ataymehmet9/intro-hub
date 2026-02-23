@@ -13,6 +13,8 @@ import { Container } from '@/components/shared'
 
 const searchSchema = z.object({
   q: z.string().optional().catch(''),
+  page: z.number().int().min(1).optional().catch(1),
+  pageSize: z.number().int().min(1).max(100).optional().catch(25),
 })
 
 export const Route = createFileRoute('/_authenticated/(search)/search')({
@@ -21,15 +23,18 @@ export const Route = createFileRoute('/_authenticated/(search)/search')({
 })
 
 function SearchPage() {
-  const { q: searchQuery = '' } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const { q: searchQuery = '', page = 1, pageSize = 25 } = Route.useSearch()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedContact, setSelectedContact] = useState<SearchResult | null>(
     null,
   )
 
   // Use the search hook - it automatically fetches when query changes
-  const { results, isLoading } = useSearch({
+  const { results, isLoading, total } = useSearch({
     query: searchQuery,
+    page,
+    pageSize,
     enabled: searchQuery.length >= 2,
   })
 
@@ -56,6 +61,22 @@ function SearchPage() {
     await createRequest({
       targetContactId: selectedContact.id,
       message,
+    })
+  }
+
+  const handlePageChange = (newPage: number) => {
+    navigate({
+      to: '/search',
+      search: { q: searchQuery, page: newPage, pageSize },
+      replace: true,
+    })
+  }
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    navigate({
+      to: '/search',
+      search: { q: searchQuery, page: 1, pageSize: newPageSize },
+      replace: true,
     })
   }
 
@@ -89,17 +110,22 @@ function SearchPage() {
               <>
                 <div className="mb-4">
                   <h2 className="text-xl font-semibold">
-                    Search Results ({results.length})
+                    Search Results ({total})
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Found {results.length} contact
-                    {results.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                    Found {total} contact
+                    {total !== 1 ? 's' : ''} matching "{searchQuery}"
                   </p>
                 </div>
                 <SearchResultsTable
                   results={results}
                   isLoading={isLoading}
                   onRequestIntroduction={handleRequestIntroduction}
+                  total={total}
+                  page={page}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               </>
             ) : (

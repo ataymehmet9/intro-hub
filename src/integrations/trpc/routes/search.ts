@@ -14,7 +14,7 @@ export const searchRouter = {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
 
-      const { query, fields } = input
+      const { query, fields, page, pageSize } = input
 
       // Build search conditions based on selected fields
       // Use ilike for case-insensitive search
@@ -38,6 +38,27 @@ export const searchRouter = {
           total: 0,
         }
       }
+
+      // Calculate offset for pagination
+      const offset = (page - 1) * pageSize
+
+      // First, get the total count of matching records
+      const countQuery = await db
+        .select({
+          count: contacts.id,
+        })
+        .from(contacts)
+        .innerJoin(user, eq(contacts.userId, user.id))
+        .where(
+          and(
+            // Exclude current user's own contacts
+            ne(contacts.userId, currentUser.id),
+            // Apply search conditions (at least one must match)
+            searchConditions.length > 0 ? or(...searchConditions) : undefined,
+          ),
+        )
+
+      const totalCount = countQuery.length
 
       // Query contacts with owner information and pending request status
       // Exclude current user's own contacts
@@ -82,6 +103,8 @@ export const searchRouter = {
           ),
         )
         .orderBy(desc(contacts.createdAt))
+        .limit(pageSize)
+        .offset(offset)
 
       // Transform results to include hasPendingRequest boolean
       const transformedResults = results.map((result) => ({
@@ -92,7 +115,9 @@ export const searchRouter = {
       return {
         success: true,
         data: transformedResults,
-        total: transformedResults.length,
+        total: totalCount,
+        page,
+        pageSize,
       }
     }),
 } satisfies TRPCRouterRecord

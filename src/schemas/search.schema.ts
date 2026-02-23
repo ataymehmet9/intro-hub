@@ -24,6 +24,17 @@ export const globalSearchInputSchema = z.object({
     .array(searchFieldEnum)
     .min(1, { message: 'At least one search field is required' })
     .default(['name', 'company', 'position']),
+  page: z
+    .number({ message: 'Page must be a number' })
+    .int({ message: 'Page must be an integer' })
+    .min(1, { message: 'Page must be at least 1' })
+    .default(1),
+  pageSize: z
+    .number({ message: 'Page size must be a number' })
+    .int({ message: 'Page size must be an integer' })
+    .min(1, { message: 'Page size must be at least 1' })
+    .max(100, { message: 'Page size must be at most 100' })
+    .default(25),
 })
 
 /**
