@@ -8,10 +8,12 @@ const ContactListTableTools = () => {
   })
 
   const handleInputChange = (val: string) => {
-    // Update URL query params on every keystroke
+    // Update URL query params on every keystroke, maintain pageSize
     navigate({
       to: '/contacts',
-      search: val ? { q: val, page: 1 } : { page: 1 },
+      search: val
+        ? { q: val, page: 1, pageSize: searchParams.pageSize }
+        : { page: 1, pageSize: searchParams.pageSize },
       replace: true, // Use replace to avoid cluttering browser history
     })
   }

@@ -110,9 +110,9 @@ const ContactListTable = ({
     })
   }, [allContacts, searchParams.q])
 
-  // Pagination state from URL
+  // Pagination state from URL - URL is source of truth
   const pageIndex = searchParams.page || 1
-  const pageSize = 10
+  const pageSize = searchParams.pageSize || 10
 
   // Paginate filtered contacts
   const paginatedContacts = useMemo(() => {
@@ -174,6 +174,7 @@ const ContactListTable = ({
       search: {
         q: searchParams.q,
         page,
+        pageSize: searchParams.pageSize,
       },
       replace: true,
     })
@@ -182,14 +183,14 @@ const ContactListTable = ({
     }
   }
 
-  const handleSelectChange = () => {
-    // Page size change - for now we'll just reset to page 1
-    // You could add pageSize to URL params if needed
+  const handleSelectChange = (newPageSize: number) => {
+    // Page size change - reset to page 1 and update pageSize in URL
     navigate({
       to: '/contacts',
       search: {
         q: searchParams.q,
         page: 1,
+        pageSize: newPageSize,
       },
       replace: true,
     })
