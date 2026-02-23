@@ -21,7 +21,7 @@ export function useUser(options: UseUserOptions = {}) {
         </Notification>,
       )
     },
-    onSuccess: async (response) => {
+    onSuccess: async () => {
       // Refetch the session using the useSession hook's refetch method
       await session.refetch()
 
