@@ -57,3 +57,4 @@ src/
 - **State Management**: Use `zustand` for UI state management, however you MUST use Tanstack Query for Server state, DO NOT ADD SERVER STATE INTO ZUSTAND UI STATE [17].
 - **Error Handling**: Use `react-error-boundary` for error handling [18].
 - **Testing**: Use `vitest` for testing [19].
+- **File Upload**: Use `better-upload` for file uploads. The full documentation is available for you at https://better-upload.com/llms-full.txt
