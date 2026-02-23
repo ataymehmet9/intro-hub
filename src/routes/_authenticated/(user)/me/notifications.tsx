@@ -4,19 +4,29 @@ import { useNotifications } from '@/hooks/useNotifications'
 import SettingsNotificationAction from './-components/notifications/SettingsNotificationAction'
 import SettingsNotifications from './-components/notifications/SettingsNotifications'
 import { notificationSearchSchema } from '@/schemas'
+import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 
 export const Route = createFileRoute('/_authenticated/(user)/me/notifications')(
   {
     validateSearch: notificationSearchSchema,
     loader: async ({ context, location }) => {
       const search = notificationSearchSchema.parse(location.search)
-      await context.queryClient.prefetchQuery(
-        context.trpc.notifications.list.queryOptions({
-          page: search.p,
-          pageSize: search.c,
-          unreadOnly: search.unreadOnly,
-        }),
-      )
+      // Prefetch first page for infinite query
+      await context.queryClient.prefetchInfiniteQuery({
+        queryKey: [
+          'notifications',
+          'list',
+          { pageSize: search.c, unreadOnly: search.unreadOnly },
+        ],
+        queryFn: async () => {
+          return trpcClient.notifications.list.query({
+            page: 1,
+            pageSize: search.c,
+            unreadOnly: search.unreadOnly,
+          })
+        },
+        initialPageParam: 1,
+      })
     },
     component: RouteComponent,
   },
@@ -31,11 +41,11 @@ function RouteComponent() {
   const {
     notifications,
     isLoading,
-    pagination,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     markAsRead,
-    isPlaceholderData,
   } = useNotifications({
-    page: searchParams.p,
     pageSize: searchParams.c,
     unreadOnly: searchParams.unreadOnly,
   })
@@ -49,12 +59,8 @@ function RouteComponent() {
   }
 
   const handleLoadMore = () => {
-    if (pagination?.hasNextPage) {
-      navigate({
-        to: '/me/notifications',
-        search: { ...searchParams, p: pagination.page + 1 },
-        replace: true,
-      })
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
     }
   }
 
@@ -72,10 +78,10 @@ function RouteComponent() {
             onFilterChange={handleFilterChange}
           />
         </div>
-        <div style={{ opacity: isPlaceholderData ? 0.5 : 1 }}>
+        <div style={{ opacity: isFetchingNextPage ? 0.5 : 1 }}>
           <SettingsNotifications
             isLoading={isLoading}
-            loadable={pagination?.hasNextPage ?? false}
+            loadable={hasNextPage ?? false}
             notifications={notifications}
             onLoadMore={handleLoadMore}
             onMarkAsRead={handleMarkAsRead}

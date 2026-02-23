@@ -1,37 +1,73 @@
-import { useMemo, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { Notification, toast } from '@/components/ui'
+import { GetNotifications } from '@/schemas'
+
+type UseNotificationsProps = Omit<GetNotifications, 'page'> & {
+  enabled?: boolean
+}
 
 /**
  * Hook to manage notifications with real-time SSE updates
  * All server state is managed by TanStack Query cache
+ * Uses infinite query for pagination support
  */
-export function useNotifications() {
+export function useNotifications(props?: UseNotificationsProps) {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
+  const { pageSize = 5, unreadOnly = false, enabled = true } = props || {}
 
-  // Fetch notifications list (no polling, updated via SSE)
-  const { data: notificationsResponse, isFetching: isLoading } = useQuery({
-    ...trpc.notifications.list.queryOptions({
-      unreadOnly: false,
-    }),
+  // Fetch notifications list with infinite query (no polling, updated via SSE)
+  const {
+    data,
+    isFetching: isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['notifications', 'list', { pageSize, unreadOnly }],
+    queryFn: async ({ pageParam = 1 }) => {
+      return trpcClient.notifications.list.query({
+        page: pageParam,
+        pageSize,
+        unreadOnly,
+      })
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.hasNextPage
+        ? lastPage.pagination.page + 1
+        : undefined
+    },
+    initialPageParam: 1,
     refetchOnWindowFocus: true,
+    enabled,
   })
 
   // Get the actual query key being used by the query
-  const notificationsQueryKey = trpc.notifications.list.queryKey({
-    unreadOnly: false,
-  })
+  const notificationsQueryKey = [
+    'notifications',
+    'list',
+    { pageSize, unreadOnly },
+  ]
 
   const unreadCountQueryKey = trpc.notifications.getUnreadCount.queryKey()
 
-  // Extract notifications array from paginated response - memoized to prevent infinite loops
+  // Extract and flatten notifications from all pages - memoized to prevent infinite loops
   const notifications = useMemo(
-    () => notificationsResponse?.data || [],
-    [notificationsResponse?.data],
+    () => data?.pages.flatMap((page) => page.data) || [],
+    [data?.pages],
   )
+
+  // Get pagination info from the last page
+  const lastPage = data?.pages[data.pages.length - 1]
+  const pagination = lastPage?.pagination
 
   // Fetch unread count (no polling, updated via SSE)
   const { data: unreadData } = useQuery({
@@ -54,14 +90,17 @@ export function useNotifications() {
       )
       const previousUnreadCount = queryClient.getQueryData(unreadCountQueryKey)
 
-      // Optimistically update notifications list
+      // Optimistically update notifications list (infinite query structure)
       queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
-        if (!oldData) return oldData
+        if (!oldData?.pages) return oldData
         return {
           ...oldData,
-          data: oldData.data.map((n: any) =>
-            n.id === id ? { ...n, read: true } : n,
-          ),
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((n: any) =>
+              n.id === id ? { ...n, read: true } : n,
+            ),
+          })),
         }
       })
 
@@ -119,12 +158,15 @@ export function useNotifications() {
       )
       const previousUnreadCount = queryClient.getQueryData(unreadCountQueryKey)
 
-      // Optimistically update notifications list
+      // Optimistically update notifications list (infinite query structure)
       queryClient.setQueryData(notificationsQueryKey, (oldData: any) => {
-        if (!oldData) return oldData
+        if (!oldData?.pages) return oldData
         return {
           ...oldData,
-          data: oldData.data.map((n: any) => ({ ...n, read: true })),
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((n: any) => ({ ...n, read: true })),
+          })),
         }
       })
 
@@ -206,10 +248,13 @@ export function useNotifications() {
 
   return {
     notifications,
-    pagination: notificationsResponse?.pagination,
+    pagination,
     unreadCount: unreadData?.count || 0,
     hasUnread: unreadData?.hasUnread || false,
     isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     markAsRead: (id: number) => markAsReadMutation.mutate(id),
     markAllAsRead: () => markAllAsReadMutation.mutate(),
     deleteNotification: (id: number) => deleteNotificationMutation.mutate(id),
@@ -218,19 +263,5 @@ export function useNotifications() {
       queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
       queryClient.invalidateQueries({ queryKey: unreadCountQueryKey })
     },
-  }
-}
-
-/**
- * Hook for UI-only notification state (e.g., dropdown open/closed)
- * This is the only local state that should exist - UI state only
- */
-export function useNotificationUI() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return {
-    isOpen,
-    setIsOpen,
-    toggleOpen: () => setIsOpen((prev) => !prev),
   }
 }
