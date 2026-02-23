@@ -1,5 +1,5 @@
 import { PiUserDuotone } from 'react-icons/pi'
-import { TbLock, TbUserSquare } from 'react-icons/tb'
+import { TbBell, TbLock, TbUserSquare } from 'react-icons/tb'
 import type {
   UserMainSettingsNavigation,
   UserSettingsNavigation,
@@ -25,5 +25,11 @@ export const userSettingsMenu: UserMainSettingsNavigation[] = [
     value: 'security',
     path: '/me/security',
     icon: <TbLock />,
+  },
+  {
+    label: 'Notifications',
+    value: 'notifications',
+    path: '/me/notifications',
+    icon: <TbBell />,
   },
 ]

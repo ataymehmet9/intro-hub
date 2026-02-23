@@ -15,6 +15,7 @@ import { useNotifications } from '@/hooks/useNotifications'
 import { useNotificationSSE } from '@/hooks/useNotificationSSE'
 import type { DropdownRef } from '@/components/ui/Dropdown'
 import NotificationToggle from './NotificationToggle'
+import NotificationAvatar from './NotificationAvatar'
 
 const notificationHeight = 'h-[280px]'
 
@@ -46,19 +47,6 @@ const _Notification = ({ className }: { className?: string }) => {
     // navigate({ to: '/notifications' })
     if (notificationDropdownRef.current) {
       notificationDropdownRef.current.handleDropdownClose()
-    }
-  }
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'introduction_request':
-        return '🤝'
-      case 'introduction_approved':
-        return '✅'
-      case 'introduction_declined':
-        return '❌'
-      default:
-        return '📬'
     }
   }
 
@@ -133,7 +121,7 @@ const _Notification = ({ className }: { className?: string }) => {
                 onClick={() => onMarkAsRead(notification.id)}
               >
                 <div className="text-2xl mr-3">
-                  {getNotificationIcon(notification.type)}
+                  <NotificationAvatar notification={notification} />
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold heading-text mb-1">

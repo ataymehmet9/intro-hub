@@ -23,4 +23,4 @@ export type TraslationFn = (
   fallback?: string | Record<string, string | number>,
 ) => string
 
-export type View = 'me' | 'security' | 'billing'
+export type View = 'me' | 'security' | 'billing' | 'notifications'

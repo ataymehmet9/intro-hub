@@ -1,9 +1,10 @@
 import dayjs from 'dayjs'
 import parse from 'html-react-parser'
-import { Button, Card, Timeline, Tooltip } from '@/components/ui'
+import { Button, Card, Timeline } from '@/components/ui'
 import { NotificationWithMetadata } from '@/schemas'
 import { HiCheckCircle } from 'react-icons/hi'
 import classNames from '@/utils/classNames'
+import NotificationAvatar from '@/components/template/Notification/NotificationAvatar'
 
 type SettingsNotificationsProps = {
   notifications: NotificationWithMetadata[]
@@ -32,7 +33,10 @@ const SettingsNotifications = ({
             <Timeline.Item>No Notifications</Timeline.Item>
           ) : (
             notifications.map((notification, index) => (
-              <Timeline.Item key={notification.id + index}>
+              <Timeline.Item
+                key={notification.id + index}
+                media={<NotificationAvatar notification={notification} />}
+              >
                 <div className="mt-1">
                   <Card
                     className={classNames(
@@ -43,17 +47,6 @@ const SettingsNotifications = ({
                     <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0">
                       <div className="flex items-center gap-2">
                         <h4>{notification.title}</h4>
-                        {!notification.read && (
-                          <Tooltip title="Mark as read">
-                            <Button
-                              size="xs"
-                              variant="plain"
-                              icon={<HiCheckCircle />}
-                              onClick={() => onMarkAsRead(notification.id)}
-                              className="text-primary hover:text-primary-dark"
-                            />
-                          </Tooltip>
-                        )}
                       </div>
                       <span className="ml-1 rtl:mr-1 md:ml-3 md:rtl:mr-3 font-semibold">
                         <UnixDateTime
@@ -62,6 +55,19 @@ const SettingsNotifications = ({
                       </span>
                     </div>
                     <p className="py-4">{parse(notification.message)}</p>
+                    {!notification.read && (
+                      <div className="flex items-center justify-end">
+                        <Button
+                          icon={<HiCheckCircle />}
+                          size="xs"
+                          variant="default"
+                          shape="round"
+                          onClick={() => onMarkAsRead(notification.id)}
+                        >
+                          <span>Mark as read</span>
+                        </Button>
+                      </div>
+                    )}
                   </Card>
                 </div>
               </Timeline.Item>
