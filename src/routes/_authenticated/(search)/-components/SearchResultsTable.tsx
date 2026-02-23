@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { TbSend, TbClock } from 'react-icons/tb'
+import { TbSend } from 'react-icons/tb'
 import { Avatar, Tooltip, Button, Badge } from '@/components/ui'
 import { SearchResult } from '@/schemas'
 import { stringToColor } from '@/utils/colours'

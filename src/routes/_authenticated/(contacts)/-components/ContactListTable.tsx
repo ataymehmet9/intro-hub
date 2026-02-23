@@ -182,7 +182,7 @@ const ContactListTable = ({
     }
   }
 
-  const handleSelectChange = (value: number) => {
+  const handleSelectChange = () => {
     // Page size change - for now we'll just reset to page 1
     // You could add pageSize to URL params if needed
     navigate({
