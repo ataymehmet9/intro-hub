@@ -1,13 +1,16 @@
 import dayjs from 'dayjs'
 import parse from 'html-react-parser'
-import { Button, Card, Timeline } from '@/components/ui'
+import { Button, Card, Timeline, Tooltip } from '@/components/ui'
 import { NotificationWithMetadata } from '@/schemas'
+import { HiCheckCircle } from 'react-icons/hi'
+import classNames from '@/utils/classNames'
 
 type SettingsNotificationsProps = {
   notifications: NotificationWithMetadata[]
   isLoading: boolean
   loadable: boolean
   onLoadMore: () => void
+  onMarkAsRead: (id: number) => void
 }
 
 const UnixDateTime = ({ value }: { value: string }) => {
@@ -19,6 +22,7 @@ const SettingsNotifications = ({
   isLoading,
   loadable,
   onLoadMore,
+  onMarkAsRead,
 }: SettingsNotificationsProps) => {
   return (
     <>
@@ -30,9 +34,27 @@ const SettingsNotifications = ({
             notifications.map((notification, index) => (
               <Timeline.Item key={notification.id + index}>
                 <div className="mt-1">
-                  <Card>
+                  <Card
+                    className={classNames(
+                      !notification.read &&
+                        'border-primary bg-primary/5 shadow-md',
+                    )}
+                  >
                     <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0">
-                      <h4>{notification.title}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4>{notification.title}</h4>
+                        {!notification.read && (
+                          <Tooltip title="Mark as read">
+                            <Button
+                              size="xs"
+                              variant="plain"
+                              icon={<HiCheckCircle />}
+                              onClick={() => onMarkAsRead(notification.id)}
+                              className="text-primary hover:text-primary-dark"
+                            />
+                          </Tooltip>
+                        )}
+                      </div>
                       <span className="ml-1 rtl:mr-1 md:ml-3 md:rtl:mr-3 font-semibold">
                         <UnixDateTime
                           value={notification.createdAt.toUTCString()}
