@@ -12,6 +12,8 @@ interface UseRequestsOptions {
   onDeleteSuccess?: () => void
   filterType?: 'sent' | 'received' | 'all'
   currentUserId?: string
+  page?: number
+  pageSize?: number
 }
 
 export function useRequests(options: UseRequestsOptions = {}) {
@@ -22,6 +24,8 @@ export function useRequests(options: UseRequestsOptions = {}) {
     onDeleteSuccess,
     filterType = 'all',
     currentUserId,
+    page = 1,
+    pageSize = 10,
   } = options
 
   const { selectedRequests, setSelectedRequest, setSelectAllRequests } =
@@ -30,11 +34,14 @@ export function useRequests(options: UseRequestsOptions = {}) {
   const queryClient = useQueryClient()
   const trpc = useTRPC()
 
-  const queryKey = trpc.introductionRequests.listByUser.queryKey()
+  const queryKey = trpc.introductionRequests.listByUser.queryKey({
+    page,
+    pageSize,
+  })
 
-  // Fetch requests
+  // Fetch requests with pagination
   const { data, isFetching: isLoading } = useQuery({
-    ...trpc.introductionRequests.listByUser.queryOptions(),
+    ...trpc.introductionRequests.listByUser.queryOptions({ page, pageSize }),
     enabled,
   })
 
@@ -57,19 +64,13 @@ export function useRequests(options: UseRequestsOptions = {}) {
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey })
 
-      const previousRequests = queryClient.getQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey)
+      const previousRequests = queryClient.getQueryData(queryKey)
 
-      queryClient.setQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey, (old) => {
+      queryClient.setQueryData(queryKey, (old: any) => {
         if (!old || !old.data) return old
         return {
           ...old,
-          data: old.data.map((request) =>
+          data: old.data.map((request: IntroductionRequestWithDetails) =>
             request.id === id
               ? { ...request, status: 'approved' as const }
               : request,
@@ -121,19 +122,13 @@ export function useRequests(options: UseRequestsOptions = {}) {
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey })
 
-      const previousRequests = queryClient.getQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey)
+      const previousRequests = queryClient.getQueryData(queryKey)
 
-      queryClient.setQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey, (old) => {
+      queryClient.setQueryData(queryKey, (old: any) => {
         if (!old || !old.data) return old
         return {
           ...old,
-          data: old.data.map((request) =>
+          data: old.data.map((request: IntroductionRequestWithDetails) =>
             request.id === id
               ? { ...request, status: 'declined' as const }
               : request,
@@ -145,7 +140,7 @@ export function useRequests(options: UseRequestsOptions = {}) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousRequests) {
-        queryClient.setQueryData(queryKey, context.previousRequests)
+        queryClient.setQueryData(queryKey, context.previousRequests as any)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -173,19 +168,15 @@ export function useRequests(options: UseRequestsOptions = {}) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey })
 
-      const previousRequests = queryClient.getQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey)
+      const previousRequests = queryClient.getQueryData(queryKey)
 
-      queryClient.setQueryData<{
-        success: boolean
-        data: IntroductionRequestWithDetails[]
-      }>(queryKey, (old) => {
+      queryClient.setQueryData(queryKey, (old: any) => {
         if (!old || !old.data) return old
         return {
           ...old,
-          data: old.data.filter((request) => request.id !== id),
+          data: old.data.filter(
+            (request: IntroductionRequestWithDetails) => request.id !== id,
+          ),
         }
       })
 
@@ -193,7 +184,7 @@ export function useRequests(options: UseRequestsOptions = {}) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousRequests) {
-        queryClient.setQueryData(queryKey, context.previousRequests)
+        queryClient.setQueryData(queryKey, context.previousRequests as any)
       }
       toast.push(
         <Notification type="danger" title="Error">
@@ -215,8 +206,9 @@ export function useRequests(options: UseRequestsOptions = {}) {
   })
 
   const allRequests = data?.data ?? []
+  const pagination = data?.pagination
 
-  // Filter requests based on filterType
+  // Filter requests based on filterType (client-side filtering for tab switching)
   const requests = allRequests.filter((request) => {
     if (filterType === 'all') return true
     if (!currentUserId) return true
@@ -230,7 +222,8 @@ export function useRequests(options: UseRequestsOptions = {}) {
     return true
   })
 
-  const requestsTotal = requests.length
+  // Use server-provided total, or fallback to filtered count
+  const requestsTotal = pagination?.total ?? requests.length
 
   return {
     requests,

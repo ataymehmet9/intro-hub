@@ -12,21 +12,18 @@ import type { IntroductionRequestWithDetails } from './-store/requestStore'
 
 const requestsSearchSchema = z.object({
   tab: z.enum(['received', 'sent']).optional().default('received'),
+  page: z.number().optional().default(1),
+  pageSize: z.number().optional().default(10),
 })
 
 export const Route = createFileRoute('/_authenticated/(requests)/requests')({
   validateSearch: requestsSearchSchema,
-  loader: async ({ context }) => {
-    await context.queryClient.prefetchQuery(
-      context.trpc.introductionRequests.listByUser.queryOptions(),
-    )
-  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const navigate = useNavigate({ from: Route.fullPath })
-  const { tab } = Route.useSearch()
+  const { tab, page, pageSize } = Route.useSearch()
   const { data: session } = useSession()
   const currentUserId = session?.user?.id
 
@@ -35,11 +32,16 @@ function RouteComponent() {
   const [rejectingRequest, setRejectingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
 
-  // Use the custom hook for requests management (without filtering, that's done in RequestsTable)
-  const { acceptRequest, rejectRequest } = useRequests({
-    onAcceptSuccess: () => setAcceptingRequest(null),
-    onRejectSuccess: () => setRejectingRequest(null),
-  })
+  // Use the custom hook for requests management
+  const { acceptRequest, rejectRequest, requests, requestsTotal, isLoading } =
+    useRequests({
+      onAcceptSuccess: () => setAcceptingRequest(null),
+      onRejectSuccess: () => setRejectingRequest(null),
+      filterType: tab,
+      currentUserId,
+      page,
+      pageSize,
+    })
 
   const handleAcceptRequest = async (customMessage: string) => {
     if (acceptingRequest) {
@@ -61,7 +63,33 @@ function RouteComponent() {
 
   const handleTabChange = (value: string) => {
     navigate({
-      search: (prev) => ({ ...prev, tab: value as 'received' | 'sent' }),
+      search: () => ({
+        tab: value as 'received' | 'sent',
+        page: 1, // Reset to page 1 when changing tabs
+        pageSize,
+      }),
+    })
+  }
+
+  const handlePaginationChange = (newPage: number) => {
+    navigate({
+      search: (prev) => ({ ...prev, page: newPage }),
+    })
+  }
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    // Validate the page size is a valid number
+    const validPageSize = Number(newPageSize)
+    if (!validPageSize || isNaN(validPageSize) || validPageSize <= 0) {
+      return
+    }
+
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        pageSize: validPageSize,
+        page: 1, // Reset to page 1 when changing page size
+      }),
     })
   }
 
@@ -97,7 +125,15 @@ function RouteComponent() {
               onSelectRejectRequest={setRejectingRequest}
               showActions={showActions}
               filterType={tab}
-              currentUserId={currentUserId}
+              requests={requests}
+              isLoading={isLoading}
+              pagingData={{
+                total: requestsTotal,
+                pageIndex: page,
+                pageSize: pageSize,
+              }}
+              onPaginationChange={handlePaginationChange}
+              onPageSizeChange={handlePageSizeChange}
             />
           </div>
         </AdaptiveCard>

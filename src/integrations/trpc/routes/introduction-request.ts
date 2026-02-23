@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { TRPCRouterRecord, TRPCError } from '@trpc/server'
-import { eq, and, or } from 'drizzle-orm'
+import { eq, and, or, count } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 import {
   insertIntroductionRequestSchema,
@@ -193,72 +193,98 @@ export const introductionRequestRouter = {
       return { success: true, data: newRequest[0] }
     }),
 
-  listByUser: protectedProcedure.query(async ({ ctx }) => {
-    const { user: currentUser, db } = ctx
+  listByUser: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(10),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { user: currentUser, db } = ctx
+      const { page, pageSize } = input
 
-    if (!currentUser) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' })
-    }
+      if (!currentUser) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
 
-    // Create aliases for requester and approver user tables
-    const requesterUser = alias(user, 'requester_user')
-    const approverUser = alias(user, 'approver_user')
+      // Create aliases for requester and approver user tables
+      const requesterUser = alias(user, 'requester_user')
+      const approverUser = alias(user, 'approver_user')
 
-    // Get all requests where user is either requester or approver
-    const requests = await db
-      .select({
-        id: introductionRequests.id,
-        message: introductionRequests.message,
-        status: introductionRequests.status,
-        responseMessage: introductionRequests.responseMessage,
-        createdAt: introductionRequests.createdAt,
-        updatedAt: introductionRequests.updatedAt,
-
-        // Requester info
-        requesterId: introductionRequests.requesterId,
-        requesterName: requesterUser.name,
-        requesterEmail: requesterUser.email,
-        requesterCompany: requesterUser.company,
-
-        // Approver info
-        approverId: introductionRequests.approverId,
-        approverName: approverUser.name,
-        approverEmail: approverUser.email,
-        approverCompany: approverUser.company,
-
-        // Target contact info
-        targetContactId: contacts.id,
-        targetContactName: contacts.name,
-        targetContactEmail: contacts.email,
-        targetContactCompany: contacts.company,
-        targetContactPosition: contacts.position,
-      })
-      .from(introductionRequests)
-      .innerJoin(
-        requesterUser,
-        eq(introductionRequests.requesterId, requesterUser.id),
+      // Build the where clause
+      const whereClause = and(
+        or(
+          eq(introductionRequests.requesterId, currentUser.id),
+          eq(introductionRequests.approverId, currentUser.id),
+        )!,
+        eq(introductionRequests.deleted, false),
       )
-      .innerJoin(
-        approverUser,
-        eq(introductionRequests.approverId, approverUser.id),
-      )
-      .innerJoin(
-        contacts,
-        eq(introductionRequests.targetContactId, contacts.id),
-      )
-      .where(
-        and(
-          or(
-            eq(introductionRequests.requesterId, currentUser.id),
-            eq(introductionRequests.approverId, currentUser.id),
-          )!,
-          eq(introductionRequests.deleted, false),
-        ),
-      )
-      .orderBy(introductionRequests.createdAt)
 
-    return { success: true, data: requests }
-  }),
+      // Get total count
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(introductionRequests)
+        .where(whereClause)
+
+      // Get paginated requests
+      const requests = await db
+        .select({
+          id: introductionRequests.id,
+          message: introductionRequests.message,
+          status: introductionRequests.status,
+          responseMessage: introductionRequests.responseMessage,
+          createdAt: introductionRequests.createdAt,
+          updatedAt: introductionRequests.updatedAt,
+
+          // Requester info
+          requesterId: introductionRequests.requesterId,
+          requesterName: requesterUser.name,
+          requesterEmail: requesterUser.email,
+          requesterCompany: requesterUser.company,
+
+          // Approver info
+          approverId: introductionRequests.approverId,
+          approverName: approverUser.name,
+          approverEmail: approverUser.email,
+          approverCompany: approverUser.company,
+
+          // Target contact info
+          targetContactId: contacts.id,
+          targetContactName: contacts.name,
+          targetContactEmail: contacts.email,
+          targetContactCompany: contacts.company,
+          targetContactPosition: contacts.position,
+        })
+        .from(introductionRequests)
+        .innerJoin(
+          requesterUser,
+          eq(introductionRequests.requesterId, requesterUser.id),
+        )
+        .innerJoin(
+          approverUser,
+          eq(introductionRequests.approverId, approverUser.id),
+        )
+        .innerJoin(
+          contacts,
+          eq(introductionRequests.targetContactId, contacts.id),
+        )
+        .where(whereClause)
+        .orderBy(introductionRequests.createdAt)
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+
+      return {
+        success: true,
+        data: requests,
+        pagination: {
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        },
+      }
+    }),
 
   updateStatus: protectedProcedure
     .input(updateRequestStatusInputSchema)

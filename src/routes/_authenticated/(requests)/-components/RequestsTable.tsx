@@ -1,19 +1,31 @@
+import { useMemo, useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { TbCheck, TbX, TbTrash } from 'react-icons/tb'
 import { Avatar, Tooltip, Badge, Dialog, Button } from '@/components/ui'
 import { stringToColor } from '@/utils/colours'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import DataTable from '@/components/shared/DataTable'
-import { useMemo, useState } from 'react'
 import { DateFormat } from '@/components/shared/common'
-import { useRequests } from '../-hooks/useRequests'
 import type { IntroductionRequestWithDetails } from '../-store/requestStore'
+import { trpcClient } from '@/integrations/tanstack-query/root-provider'
+import { Notification, toast } from '@/components/ui'
+import { useTRPC } from '@/integrations/trpc/react'
+import { useRequestStore } from '../-store/requestStore'
 
 type RequestsTableProps = {
   onSelectAcceptRequest: (request: IntroductionRequestWithDetails) => void
   onSelectRejectRequest: (request: IntroductionRequestWithDetails) => void
   showActions?: boolean
   filterType?: 'sent' | 'received' | 'all'
-  currentUserId?: string
+  requests: IntroductionRequestWithDetails[]
+  isLoading: boolean
+  pagingData: {
+    total: number
+    pageIndex: number
+    pageSize: number
+  }
+  onPaginationChange: (page: number) => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const RequesterColumn = ({
@@ -129,20 +141,8 @@ const ActionColumn = ({
     )
   }
 
-  // For processed requests, only show delete
-  return (
-    <div className="flex items-center gap-3">
-      <Tooltip title="Delete">
-        <div
-          className="text-xl cursor-pointer select-none font-semibold text-gray-600 hover:text-gray-700"
-          role="button"
-          onClick={onDelete}
-        >
-          <TbTrash />
-        </div>
-      </Tooltip>
-    </div>
-  )
+  // For processed requests
+  return null
 }
 
 const RequestsTable = ({
@@ -150,21 +150,47 @@ const RequestsTable = ({
   onSelectRejectRequest,
   showActions = true,
   filterType = 'all',
-  currentUserId,
+  requests,
+  isLoading,
+  pagingData,
+  onPaginationChange,
+  onPageSizeChange,
 }: RequestsTableProps) => {
   const [deletingRequest, setDeletingRequest] =
     useState<IntroductionRequestWithDetails | null>(null)
 
-  const {
-    requests,
-    isLoading,
-    setSelectAllRequests,
-    setSelectedRequest,
-    selectedRequests,
-    deleteRequest,
-  } = useRequests({
-    filterType,
-    currentUserId,
+  const { setSelectAllRequests, setSelectedRequest, selectedRequests } =
+    useRequestStore()
+
+  const queryClient = useQueryClient()
+  const trpc = useTRPC()
+
+  // Delete request mutation
+  const deleteRequestMutation = useMutation({
+    mutationFn: (id: number) =>
+      trpcClient.introductionRequests.softDelete.mutate({ id }),
+    onSuccess: () => {
+      toast.push(
+        <Notification type="success" title="Request deleted">
+          Request has been successfully deleted
+        </Notification>,
+      )
+      setDeletingRequest(null)
+      // Invalidate queries to refetch
+      queryClient.invalidateQueries({
+        queryKey: trpc.introductionRequests.listByUser.queryKey({
+          page: pagingData.pageIndex,
+          pageSize: pagingData.pageSize,
+        }),
+      })
+    },
+    onError: (error: Error) => {
+      toast.push(
+        <Notification type="danger" title="Error">
+          {error.message || 'Failed to delete request'}
+        </Notification>,
+      )
+    },
   })
 
   const columns: ColumnDef<IntroductionRequestWithDetails>[] = useMemo(
@@ -260,8 +286,7 @@ const RequestsTable = ({
 
   const handleDeleteRequestConfirm = async () => {
     if (deletingRequest) {
-      await deleteRequest(deletingRequest.id)
-      setDeletingRequest(null)
+      await deleteRequestMutation.mutateAsync(deletingRequest.id)
     }
   }
 
@@ -281,6 +306,9 @@ const RequestsTable = ({
         onSort={handleSort}
         onCheckBoxChange={handleRowSelect}
         onIndeterminateCheckBoxChange={handleAllRowSelect}
+        pagingData={pagingData}
+        onPaginationChange={onPaginationChange}
+        onSelectChange={onPageSizeChange}
       />
       <Dialog
         isOpen={!!deletingRequest}
