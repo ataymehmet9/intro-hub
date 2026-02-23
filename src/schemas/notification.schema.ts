@@ -107,6 +107,12 @@ export const createNotificationInputSchema = z.object({
   metadata: notificationMetadataSchema.optional(),
 })
 
+export const notificationSearchSchema = z.object({
+  p: z.number().optional().catch(1),
+  c: z.number().optional().catch(10),
+  unreadOnly: z.boolean().optional().catch(false),
+})
+
 // ============================================================================
 // TypeScript Types
 // ============================================================================
@@ -128,3 +134,4 @@ export type NotificationType = z.infer<typeof notificationTypeEnum>
 export type PaginatedNotifications = z.infer<
   typeof paginatedNotificationsSchema
 >
+export type NotificationSearchParams = z.infer<typeof notificationSearchSchema>

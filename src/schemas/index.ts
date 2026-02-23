@@ -116,6 +116,7 @@ export {
   createNotificationInputSchema,
   notificationWithMetadataSchema,
   notificationTypeEnum,
+  notificationSearchSchema,
   type Notification,
   type InsertNotification,
   type UpdateNotification,
@@ -126,6 +127,8 @@ export {
   type CreateNotificationInput,
   type NotificationWithMetadata,
   type NotificationType,
+  type PaginatedNotifications,
+  type NotificationSearchParams,
 } from './notification.schema'
 
 // Dashboard schemas
