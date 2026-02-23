@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import { UpdateUser } from '@/schemas'
 import { Notification, toast } from '@/components/ui'
-import { authClient } from '@/lib/auth-client'
+import { useSession } from '@/lib/auth-client'
 
 type UseUserOptions = {
   onUpdateSuccess?: () => void
@@ -10,8 +10,7 @@ type UseUserOptions = {
 
 export function useUser(options: UseUserOptions = {}) {
   const { onUpdateSuccess } = options
-
-  const queryClient = useQueryClient()
+  const session = useSession()
 
   const updateUserMutation = useMutation({
     mutationFn: (data: UpdateUser) => trpcClient.users.update.mutate(data),
@@ -23,23 +22,8 @@ export function useUser(options: UseUserOptions = {}) {
       )
     },
     onSuccess: async (response) => {
-      // Update the better-auth session cache with the new user data
-      // This ensures the UserProfileDropdown and other components using useSession get the updated data
-      queryClient.setQueryData(['better-auth.session'], (oldData: any) => {
-        if (oldData?.data?.user) {
-          return {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              user: {
-                ...oldData.data.user,
-                ...response.data,
-              },
-            },
-          }
-        }
-        return oldData
-      })
+      // Refetch the session using the useSession hook's refetch method
+      await session.refetch()
 
       toast.push(
         <Notification type="success" title="Profile updated">
