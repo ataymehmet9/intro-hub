@@ -1,1 +1,0 @@
-ALTER TABLE "introduction_requests" ADD COLUMN "deleted" boolean DEFAULT false NOT NULL;
