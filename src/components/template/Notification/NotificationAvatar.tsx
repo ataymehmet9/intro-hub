@@ -1,11 +1,9 @@
 import Avatar from '@/components/ui/Avatar'
 import type { Notification } from '@/schemas'
-
-const GeneratedAvatar = ({ target }: { target: string }) => {
-  return <Avatar shape="circle">{target}</Avatar>
-}
+import useDarkMode from '@/utils/hooks/useDarkMode'
 
 const NotificationAvatar = (props: { notification: Notification }) => {
+  const [isDark] = useDarkMode()
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'introduction_request':
@@ -20,7 +18,9 @@ const NotificationAvatar = (props: { notification: Notification }) => {
   }
 
   return (
-    <GeneratedAvatar target={getNotificationIcon(props.notification.type)} />
+    <Avatar shape="circle" className={!isDark ? 'bg-gray-100' : ''}>
+      {getNotificationIcon(props.notification.type)}
+    </Avatar>
   )
 }
 

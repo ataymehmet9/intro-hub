@@ -25,17 +25,19 @@ const TextGenerateEffect = ({
       transition={{ duration: 0.5 }}
       className={wordClassName}
     >
-      {wordsArray.map((word, idx) => (
-        <motion.span
-          key={word + idx}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: idx * 0.075 }}
-          className={wordsCallbackClass?.({ word }) || ''}
-        >
-          {word}{' '}
-        </motion.span>
-      ))}
+      <h1>
+        {wordsArray.map((word, idx) => (
+          <motion.span
+            key={word + idx}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: idx * 0.075 }}
+            className={wordsCallbackClass?.({ word }) || ''}
+          >
+            {word}{' '}
+          </motion.span>
+        ))}
+      </h1>
     </motion.div>
   )
 }
@@ -60,9 +62,11 @@ function RouteComponent() {
           <div>
             <TextGenerateEffect
               wordClassName="text-2xl md:text-4xl lg:text-8xl font-bold max-w-7xl mx-auto text-center mt-6 relative z-10"
-              words="Connect Professionally with the Perfect Network"
+              words="Stop guessing who can help. Start winning with warm intros."
               wordsCallbackClass={({ word }) => {
-                if (word === 'Perfect') {
+                if (
+                  ['Start', 'winning', 'with', 'warm', 'intros.'].includes(word)
+                ) {
                   return 'bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] bg-clip-text text-transparent'
                 }
 
@@ -79,10 +83,9 @@ function RouteComponent() {
               transition={{ duration: 0.3, delay: 0.5 }}
               className="text-center mt-6 text-base md:text-xl text-gray-600 dark:text-gray-400 max-w-5xl mx-auto relative z-10 font-normal"
             >
-              IntroHub is your professional networking platform that streamlines
-              connections and introductions. Manage your contacts, send
-              introduction requests, and build meaningful relationships with
-              ease. Designed for professionals who value authentic networking.
+              IntroHub shows you who can open doors into your target accounts,
+              lets your team send intro requests in one click, and tracks every
+              intro all the way to closed-won revenue.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, translateY: 40 }}

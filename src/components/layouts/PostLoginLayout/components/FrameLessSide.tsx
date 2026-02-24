@@ -12,6 +12,7 @@ import { LAYOUT_FRAMELESS_SIDE } from '@/constants/theme.constant'
 import type { CommonProps } from '@/@types/common'
 import type { FooterPageContainerType } from '@/components/template/Footer'
 import Notification from '@/components/template/Notification'
+import ModeSwitcher from '@/components/template/ThemeConfigurator/ModeSwitcher'
 
 const FrameLessSide = ({ children }: CommonProps) => {
   const { isSticky } = useScrollTop()
@@ -92,6 +93,7 @@ const FrameLessSide = ({ children }: CommonProps) => {
               }
               headerEnd={
                 <>
+                  <ModeSwitcher />
                   <Notification />
                   <UserProfileDropdown hoverable={false} />
                 </>
